@@ -232,7 +232,8 @@ Swagger 화면에서 `POST /dev/login` 을 실행하면 브라우저에 인증 �
 ## 7. 배포 · 브랜치 규칙
 
 ```text
-develop 에서 개발 → push → CI 자동 검사 → PR → main 머지 → 자동 배포 🚀
+develop 에서 개발 → push → CI 자동 검사 → PR 머지(develop)
+        → Sync main (자동) → main → Cloud Build 자동 배포 🚀
 ```
 
 | 항목         | 값                                                                      |
@@ -240,6 +241,7 @@ develop 에서 개발 → push → CI 자동 검사 → PR → main 머지 → �
 | 배포 주소    | `https://docthru-be-xwfe2o3yfa-du.a.run.app`                            |
 | 헬스 체크    | `/api/v1/ping` → `{"message":"pong"}`                                   |
 | 자동 배포    | Cloud Build + [`cloudbuild.yaml`](./cloudbuild.yaml) (`main` push 감시) |
+| 자동 동기화  | GitHub Actions `sync-main.yml` — **develop 머지 시 main 자동 반영**     |
 | CI           | GitHub Actions `ci.yml` (PR·push) — postgres 자동 준비, 비밀값 0개      |
 | 환경변수 8종 | Cloud Run **서비스에 등록** (이미지 교체가 아니라 서비스에 머무름)      |
 
