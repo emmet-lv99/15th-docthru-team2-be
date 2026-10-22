@@ -1,0 +1,67 @@
+# cloudbuild.yaml — 백엔드 배포 파이프라인 (Cloud Build)
+#
+# 왜 이 파일이 있나요?
+#   ─────────────────────────────────────────────────────────────
+#   Cloud Build 트리거를 콘솔에서 만들면 "배포 명령"이 트리거 안에
+#   박혀 있어서, 서비스 이름이나 리전 같은 값을 바꿀 때마다 콘솔을 열어야 했어요.
+#   이 파일을 repo 에 두면 **배포 설정이 코드처럼 보이기** 하고, 변경 이력도 git 에 남습니다.
+#   트리거는 이 파일을 가리키도록(`--build-config=cloudbuild.yaml`) 설정해 뒀어요.
+#   ─────────────────────────────────────────────────────────────
+#
+# ⚠️ 환경변수는 여기서 주지 않습니다.
+#   데이터베이스 주소·JWT 비밀키 등은 **Cloud Run 서비스에 등록**되어 있어요.
+#   (gcloud run services update --set-env-vars=… 로 넣으면 이미지 교체 때도 유지됩니다)
+#   비밀값을 빌드 로그나 yaml 에 남기지 않기 위한 선택이에요.
+#
+# ⚠️ 스키마(contract)가 바뀌면?
+#   데이터베이스 테이블은 이미지가 아니라 **DB 쪽**에 있습니다.
+#   contract 를 수정했다면 main 머지 후 로컬에서 1회 실행해 주세요.
+#     pnpm exec prisma db init      # (DATABASE_URL 을 주입한 상태에서)
+#   자동화하려면 Secret Manager + 아래 스텝이 필요해요. (지금은 수동이 더 단순합니다)
+steps:
+  - id: Build
+    name: gcr.io/cloud-builders/docker
+    args:
+      - build
+      - --no-cache
+      - -t
+      - ${_AR_HOSTNAME}/${_AR_PROJECT_ID}/${_AR_REPOSITORY}/${_REPO_NAME}/${_SERVICE_NAME}:$COMMIT_SHA
+      - -f
+      - Dockerfile
+      - .
+
+  - id: Push
+    name: gcr.io/cloud-builders/docker
+    args:
+      - push
+      - ${_AR_HOSTNAME}/${_AR_PROJECT_ID}/${_AR_REPOSITORY}/${_REPO_NAME}/${_SERVICE_NAME}:$COMMIT_SHA
+
+  - id: Deploy
+    name: gcr.io/google.com/cloudsdktool/cloud-sdk:slim
+    entrypoint: gcloud
+    args:
+      - run
+      - services
+      - update
+      - ${_SERVICE_NAME}
+      - --platform=managed
+      - --image=${_AR_HOSTNAME}/${_AR_PROJECT_ID}/${_AR_REPOSITORY}/${_REPO_NAME}/${_SERVICE_NAME}:$COMMIT_SHA
+      # ⚠️ --set-env-vars 를 주지 않습니다. 서비스에 이미 등록된 env 를 그대로 유지해요.
+      #    (주면 목록 전체가 교체돼서 다른 변수가 사라집니다)
+      - --region=${_DEPLOY_REGION}
+      - --quiet
+
+substitutions:
+  # Artifact Registry 좌표
+  _AR_HOSTNAME: asia-northeast3-docker.pkg.dev
+  _AR_PROJECT_ID: th-docthru-team2-be
+  _AR_REPOSITORY: cloud-run-source-deploy
+  _REPO_NAME: 15th-docthru-team2-be
+  _SERVICE_NAME: docthru-be
+  _DEPLOY_REGION: asia-northeast3
+
+options:
+  # 빌드 로그를 Cloud Logging 에만 남깁니다.
+  # (트리거에 서비스 계정이 지정되어 있으면 로그 버킷을 따로 정해야 해서
+  #  이 옵션을 안 주면 트리거가 "invalid argument" 로 막힙니다)
+  logging: CLOUD_LOGGING_ONLY

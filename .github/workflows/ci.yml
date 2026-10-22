@@ -1,6 +1,6 @@
 # .github/workflows/ci.yml — 검증 (비밀값 필요 없음)
 #
-# 동작 시점: pull_request · docthru 브랜치 push · Deploy 워크플로의 호출(workflow_call)
+# 동작 시점: pull_request · main·develop push · Deploy 워크플로의 호출(workflow_call)
 # 공개/비공개와 무관하게 PR 에 붙여두면 병합 전에 잡힌다.
 #
 # ⚠️ 이 워크플로는 Secret 이 하나도 필요 없다. 그대로 켜서 쓸 수 있다.
@@ -13,7 +13,7 @@ name: CI
 on:
   pull_request:
   push:
-    branches: [docthru]
+    branches: [main, develop]
   workflow_call:
 
 # 같은 브랜치에 push 가 몰리면 이전 실행을 취소한다
@@ -88,7 +88,7 @@ jobs:
         run: pnpm test
 
       # 이미지 자체가 올라가는지 확인한다 (배포 실패를 미리 잡는 용도)
-      #   Dockerfile 이 BuildKit 문법(`RUN --mount=type=cache`)을 쓰므로 명시해 둔다.
+      #   Dockerfile 은 레거시 빌더에서도 돌아가도록 작성했지만, BuildKit 을 명시해 두면 더 안전해요.
       - name: Build image
         env:
           DOCKER_BUILDKIT: '1'
