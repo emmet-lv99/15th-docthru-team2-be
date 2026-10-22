@@ -1,0 +1,56 @@
+# .github/workflows/sync-main.yml — develop → main 자동 동기화
+#
+# 왜 필요한가요?
+#   팀은 `develop` 에서 PR + CI 로 검증하고 머지합니다.
+#   그런데 배포는 `main` 을 감시하는 Cloud Build 가 담당해요.
+#   그래서 "develop 에 머지되면 자동으로 main 에도 반영" 되어야
+#   **main 이 항상 '지금 배포된 상태'와 같아집니다.**
+#
+# 동작
+#   develop 에 push(=PR 머지) → 이 워크플로가 main 으로 merge 후 push
+#     → Cloud Build(main 감시) 가 자동으로 빌드·배포
+#
+# ⚠️ 1회 설정 (repo 소유자만)
+#   Settings → Actions → General → Workflow permissions
+#     ◉ Read and write permissions
+#   이걸 켜지 않으면 아래 push 단계가 403 으로 실패합니다.
+#
+# ⚠️ 충돌이 나면?
+#   이 워크플로가 **빨간불로 멈춥니다** (조용히 넘어가지 않아요).
+#   머지 담당자가 로컬에서 `git pull origin main` 으로 정리한 뒤 develop 에 다시 push 하면 됩니다.
+name: Sync main
+
+on:
+  push:
+    branches: [develop]
+
+# 같은 시점에 두 번 돌지 않게 한다 (머지가 연달아 들어와도 순서대로 처리)
+concurrency:
+  group: sync-main
+  cancel-in-progress: true
+
+permissions:
+  contents: write # main 에 push 하려면 필요
+
+jobs:
+  sync:
+    name: develop → main
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # main·develop 양쪽 이력이 필요하다
+
+      - name: main 으로 merge 후 push
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          git checkout main
+          git merge --no-ff origin/develop -m "chore: develop → main 자동 동기화"
+          git push origin main
+
+      - name: 결과 요약
+        run: |
+          echo "main 이 develop 과 동기화되었습니다."
+          echo "이 push 를 감지한 Cloud Build 가 자동으로 배포합니다 (3~6분)."
