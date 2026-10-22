@@ -24,7 +24,18 @@
 FROM node:24-slim AS deps
 WORKDIR /app
 
-RUN corepack enable && corepack prepare pnpm@12.5.1 --activate
+# ⚠️ pnpm 설치 — corepack 대신 tarball 로 직접 설치해요.
+#    corepack 은 pnpm 을 받을 때 registry 의 "패키지 메타데이터" 주소를 거치는데,
+#    Cloud Build 출구 경로에서 그 주소가 503 이나 30초 타임아웃을 자주 흘려요.
+#    tarball 주소(/-/ 경로)는 0.3초대로응이라서 그쪽으로 직접 내려받아요.
+#    node:24-slim 에 curl 이 없어서 node 의 fetch 를 씁니다.
+ARG PNPM_VERSION=12.5.1
+RUN set -eux; \
+    node -e "const fs=require('node:fs');const u='https://registry.npmjs.org/@pnpm/exe.linux-x64/-/exe.linux-x64-'+process.env.PNPM_VERSION+'.tgz';const sleep=ms=>new Promise(r=>setTimeout(r,ms));(async()=>{for(let i=1;i<=3;i++){try{const r=await fetch(u);if(!r.ok)throw new Error('HTTP '+r.status);const b=Buffer.from(await r.arrayBuffer());fs.writeFileSync('/tmp/pnpm.tgz',b);console.log('pnpm '+b.byteLength+' bytes downloaded');return;}catch(e){console.error('download failed ('+i+'/3):',e.message);if(i===3)process.exit(1);await sleep(5000);}}})()"; \
+    tar -xzf /tmp/pnpm.tgz -C /tmp; \
+    install -m 0755 /tmp/package/pnpm /usr/local/bin/pnpm; \
+    rm -rf /tmp/pnpm.tgz /tmp/package; \
+    pnpm --version
 
 # ⚠️ pnpm-workspace.yaml 도 함께 복사해요 — 그 안의 allowBuilds 가 없으면
 #    pnpm 12 가 설치 스크립트를 건너뛰어 ERR_PNPM_IGNORED_BUILDS 로 실패합니다.
@@ -37,7 +48,18 @@ RUN pnpm install --frozen-lockfile --ignore-scripts=false
 FROM node:24-slim AS build
 WORKDIR /app
 
-RUN corepack enable && corepack prepare pnpm@12.5.1 --activate \
+# ⚠️ pnpm 설치 — corepack 대신 tarball 로 직접 설치해요.
+#    corepack 은 pnpm 을 받을 때 registry 의 "패키지 메타데이터" 주소를 거치는데,
+#    Cloud Build 출구 경로에서 그 주소가 503 이나 30초 타임아웃을 자주 흘려요.
+#    tarball 주소(/-/ 경로)는 0.3초대로응이라서 그쪽으로 직접 내려받아요.
+#    node:24-slim 에 curl 이 없어서 node 의 fetch 를 씁니다.
+ARG PNPM_VERSION=12.5.1
+RUN set -eux; \
+    node -e "const fs=require('node:fs');const u='https://registry.npmjs.org/@pnpm/exe.linux-x64/-/exe.linux-x64-'+process.env.PNPM_VERSION+'.tgz';const sleep=ms=>new Promise(r=>setTimeout(r,ms));(async()=>{for(let i=1;i<=3;i++){try{const r=await fetch(u);if(!r.ok)throw new Error('HTTP '+r.status);const b=Buffer.from(await r.arrayBuffer());fs.writeFileSync('/tmp/pnpm.tgz',b);console.log('pnpm '+b.byteLength+' bytes downloaded');return;}catch(e){console.error('download failed ('+i+'/3):',e.message);if(i===3)process.exit(1);await sleep(5000);}}})()"; \
+    tar -xzf /tmp/pnpm.tgz -C /tmp; \
+    install -m 0755 /tmp/package/pnpm /usr/local/bin/pnpm; \
+    rm -rf /tmp/pnpm.tgz /tmp/package; \
+    pnpm --version \
     && apt-get update \
     && apt-get install -y --no-install-recommends python3 make g++ ca-certificates \
     && rm -rf /var/lib/apt/lists/*
@@ -51,7 +73,18 @@ RUN pnpm install --frozen-lockfile
 FROM node:24-slim AS runtime
 WORKDIR /app
 
-RUN corepack enable && corepack prepare pnpm@12.5.1 --activate
+# ⚠️ pnpm 설치 — corepack 대신 tarball 로 직접 설치해요.
+#    corepack 은 pnpm 을 받을 때 registry 의 "패키지 메타데이터" 주소를 거치는데,
+#    Cloud Build 출구 경로에서 그 주소가 503 이나 30초 타임아웃을 자주 흘려요.
+#    tarball 주소(/-/ 경로)는 0.3초대로응이라서 그쪽으로 직접 내려받아요.
+#    node:24-slim 에 curl 이 없어서 node 의 fetch 를 씁니다.
+ARG PNPM_VERSION=12.5.1
+RUN set -eux; \
+    node -e "const fs=require('node:fs');const u='https://registry.npmjs.org/@pnpm/exe.linux-x64/-/exe.linux-x64-'+process.env.PNPM_VERSION+'.tgz';const sleep=ms=>new Promise(r=>setTimeout(r,ms));(async()=>{for(let i=1;i<=3;i++){try{const r=await fetch(u);if(!r.ok)throw new Error('HTTP '+r.status);const b=Buffer.from(await r.arrayBuffer());fs.writeFileSync('/tmp/pnpm.tgz',b);console.log('pnpm '+b.byteLength+' bytes downloaded');return;}catch(e){console.error('download failed ('+i+'/3):',e.message);if(i===3)process.exit(1);await sleep(5000);}}})()"; \
+    tar -xzf /tmp/pnpm.tgz -C /tmp; \
+    install -m 0755 /tmp/package/pnpm /usr/local/bin/pnpm; \
+    rm -rf /tmp/pnpm.tgz /tmp/package; \
+    pnpm --version
 
 ENV NODE_ENV=production \
     PORT=8080
