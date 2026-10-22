@@ -31,8 +31,7 @@ RUN corepack enable && corepack prepare pnpm@12.5.1 --activate
 #    (bcrypt 처럼 네이티브 빌드가 필요한 패키지가 있어 꼭 필요해요)
 COPY package.json pnpm-lock.yaml* pnpm-workspace.yaml ./
 
-RUN --mount=type=cache,id=pnpm,target=/pnpm/store \
-    pnpm install --frozen-lockfile --ignore-scripts=false
+RUN pnpm install --frozen-lockfile --ignore-scripts=false
 
 # ══ 2. 빌드 (devDependency 필요) ══════════════════════════════
 FROM node:24-slim AS build
@@ -46,8 +45,7 @@ RUN corepack enable && corepack prepare pnpm@12.5.1 --activate \
 COPY package.json pnpm-lock.yaml* pnpm-workspace.yaml ./
 COPY src ./src
 
-RUN --mount=type=cache,id=pnpm,target=/pnpm/store \
-    pnpm install --frozen-lockfile
+RUN pnpm install --frozen-lockfile
 
 # ══ 3. 런타임 ════════════════════════════════════════════════
 FROM node:24-slim AS runtime
@@ -61,8 +59,7 @@ ENV NODE_ENV=production \
 # 프로덕션 의존성만 다시 설치 (devDependency 제거)
 COPY package.json pnpm-lock.yaml* pnpm-workspace.yaml ./
 
-RUN --mount=type=cache,id=pnpm,target=/pnpm/store \
-    pnpm install --prod --frozen-lockfile
+RUN pnpm install --prod --frozen-lockfile
 
 COPY src ./src
 COPY scripts ./scripts
