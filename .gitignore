@@ -1,0 +1,46 @@
+# ══════════════════════════════════════════════════════════════
+#  backend repo — Git 제외 규칙
+#
+#  ⚠️ 가장 많이 발생하는 사고: env/.env.development 가 커밋되어
+#     DB 비밀번호·JWT 시크릿이 공개되는 것. 커밋 전에 확인하세요:
+#       git check-ignore -v env/.env.development .env.example
+#     "env/.env.development → 무시됨" 이 나오면 안전합니다.
+# ══════════════════════════════════════════════════════════════
+
+# ── 의존성 ──
+node_modules/
+.pnpm-store/
+
+# ── 환경 변수 (예시만 공유) ──
+.env
+.env.*
+!.env.example
+env/
+
+# ── Prisma 생성물 ──
+generated/
+src/prisma/generated/
+
+# ── 테스트 산출물 ──
+coverage/
+*.lcov
+.eslintcache
+
+# ── 로그 ──
+*.log
+npm-debug.log*
+pnpm-debug.log*
+yarn-error.log*
+
+# ── OS · 에디터 ──
+.DS_Store
+Thumbs.db
+.vscode/*
+!.vscode/settings.json
+.idea/
+*.swp
+
+# ── 잠금파일 규칙 ──
+# pnpm-lock.yaml 은 **커밋합니다** (재현 가능한 설치의 핵심).
+package-lock.json
+yarn.lock

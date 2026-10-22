@@ -1,0 +1,2845 @@
+[
+  {
+    "id": "dropIndex.challenge_participants.challenge_participants_challengeId_userId_key",
+    "label": "Drop index \"challenge_participants_challengeId_userId_key\"",
+    "operationClass": "widening",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "challenge_participants_challengeId_userId_key",
+        "table": "challenge_participants"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"challenge_participants_challengeId_userId_key\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"challenge_participants_challengeId_userId_key\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "drop index \"challenge_participants_challengeId_userId_key\"",
+        "sql": "DROP INDEX \"public\".\"challenge_participants_challengeId_userId_key\"",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"challenge_participants_challengeId_userId_key\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"challenge_participants_challengeId_userId_key\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "dropIndex.drafts.drafts_participantId_key",
+    "label": "Drop index \"drafts_participantId_key\"",
+    "operationClass": "widening",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "drafts_participantId_key",
+        "table": "drafts"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"drafts_participantId_key\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"drafts_participantId_key\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "drop index \"drafts_participantId_key\"",
+        "sql": "DROP INDEX \"public\".\"drafts_participantId_key\"",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"drafts_participantId_key\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"drafts_participantId_key\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "dropIndex.notifications.notifications_dedupeKey_key",
+    "label": "Drop index \"notifications_dedupeKey_key\"",
+    "operationClass": "widening",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "notifications_dedupeKey_key",
+        "table": "notifications"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"notifications_dedupeKey_key\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"notifications_dedupeKey_key\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "drop index \"notifications_dedupeKey_key\"",
+        "sql": "DROP INDEX \"public\".\"notifications_dedupeKey_key\"",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"notifications_dedupeKey_key\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"notifications_dedupeKey_key\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "dropIndex.oauth_accounts.oauth_accounts_provider_providerAccountId_key",
+    "label": "Drop index \"oauth_accounts_provider_providerAccountId_key\"",
+    "operationClass": "widening",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "oauth_accounts_provider_providerAccountId_key",
+        "table": "oauth_accounts"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"oauth_accounts_provider_providerAccountId_key\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"oauth_accounts_provider_providerAccountId_key\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "drop index \"oauth_accounts_provider_providerAccountId_key\"",
+        "sql": "DROP INDEX \"public\".\"oauth_accounts_provider_providerAccountId_key\"",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"oauth_accounts_provider_providerAccountId_key\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"oauth_accounts_provider_providerAccountId_key\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "dropIndex.users.users_email_key",
+    "label": "Drop index \"users_email_key\"",
+    "operationClass": "widening",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "users_email_key",
+        "table": "users"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"users_email_key\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"users_email_key\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "drop index \"users_email_key\"",
+        "sql": "DROP INDEX \"public\".\"users_email_key\"",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"users_email_key\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"users_email_key\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "dropIndex.users.users_nickname_key",
+    "label": "Drop index \"users_nickname_key\"",
+    "operationClass": "widening",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "users_nickname_key",
+        "table": "users"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"users_nickname_key\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"users_nickname_key\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "drop index \"users_nickname_key\"",
+        "sql": "DROP INDEX \"public\".\"users_nickname_key\"",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"users_nickname_key\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"users_nickname_key\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "dropIndex.work_likes.work_likes_workId_userId_key",
+    "label": "Drop index \"work_likes_workId_userId_key\"",
+    "operationClass": "widening",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "work_likes_workId_userId_key",
+        "table": "work_likes"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"work_likes_workId_userId_key\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"work_likes_workId_userId_key\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "drop index \"work_likes_workId_userId_key\"",
+        "sql": "DROP INDEX \"public\".\"work_likes_workId_userId_key\"",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"work_likes_workId_userId_key\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"work_likes_workId_userId_key\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "alterType.challenge_applications.cancelledAt",
+    "label": "Alter type of \"challenge_applications\".\"cancelledAt\" to timestamptz",
+    "operationClass": "destructive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "column",
+        "name": "cancelledAt",
+        "table": "challenge_applications"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure column \"cancelledAt\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "challenge_applications",
+          "cancelledAt"
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "alter type of \"cancelledAt\"",
+        "sql": "ALTER TABLE \"public\".\"challenge_applications\" ALTER COLUMN \"cancelledAt\" TYPE timestamptz USING \"cancelledAt\" AT TIME ZONE 'UTC'"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"cancelledAt\" has type \"timestamp with time zone\"",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_attribute\" AS \"a\" INNER JOIN \"pg_class\" AS \"c\" ON \"c\".\"oid\" = \"a\".\"attrelid\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"relnamespace\" WHERE (\"n\".\"nspname\" = $1 AND \"c\".\"relname\" = $2 AND \"a\".\"attname\" = $3 AND (format_type(\"a\".\"atttypid\", \"a\".\"atttypmod\")) = $4 AND NOT (\"a\".\"attisdropped\"))) AS \"result\"",
+        "params": [
+          "public",
+          "challenge_applications",
+          "cancelledAt",
+          "timestamp with time zone"
+        ]
+      }
+    ],
+    "meta": {
+      "warning": "TABLE_REWRITE"
+    }
+  },
+  {
+    "id": "alterType.challenge_applications.createdAt",
+    "label": "Alter type of \"challenge_applications\".\"createdAt\" to timestamptz",
+    "operationClass": "destructive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "column",
+        "name": "createdAt",
+        "table": "challenge_applications"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure column \"createdAt\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "challenge_applications",
+          "createdAt"
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "alter type of \"createdAt\"",
+        "sql": "ALTER TABLE \"public\".\"challenge_applications\" ALTER COLUMN \"createdAt\" TYPE timestamptz USING \"createdAt\" AT TIME ZONE 'UTC'"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"createdAt\" has type \"timestamp with time zone\"",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_attribute\" AS \"a\" INNER JOIN \"pg_class\" AS \"c\" ON \"c\".\"oid\" = \"a\".\"attrelid\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"relnamespace\" WHERE (\"n\".\"nspname\" = $1 AND \"c\".\"relname\" = $2 AND \"a\".\"attname\" = $3 AND (format_type(\"a\".\"atttypid\", \"a\".\"atttypmod\")) = $4 AND NOT (\"a\".\"attisdropped\"))) AS \"result\"",
+        "params": [
+          "public",
+          "challenge_applications",
+          "createdAt",
+          "timestamp with time zone"
+        ]
+      }
+    ],
+    "meta": {
+      "warning": "TABLE_REWRITE"
+    }
+  },
+  {
+    "id": "alterType.challenge_applications.decidedAt",
+    "label": "Alter type of \"challenge_applications\".\"decidedAt\" to timestamptz",
+    "operationClass": "destructive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "column",
+        "name": "decidedAt",
+        "table": "challenge_applications"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure column \"decidedAt\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "challenge_applications",
+          "decidedAt"
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "alter type of \"decidedAt\"",
+        "sql": "ALTER TABLE \"public\".\"challenge_applications\" ALTER COLUMN \"decidedAt\" TYPE timestamptz USING \"decidedAt\" AT TIME ZONE 'UTC'"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"decidedAt\" has type \"timestamp with time zone\"",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_attribute\" AS \"a\" INNER JOIN \"pg_class\" AS \"c\" ON \"c\".\"oid\" = \"a\".\"attrelid\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"relnamespace\" WHERE (\"n\".\"nspname\" = $1 AND \"c\".\"relname\" = $2 AND \"a\".\"attname\" = $3 AND (format_type(\"a\".\"atttypid\", \"a\".\"atttypmod\")) = $4 AND NOT (\"a\".\"attisdropped\"))) AS \"result\"",
+        "params": [
+          "public",
+          "challenge_applications",
+          "decidedAt",
+          "timestamp with time zone"
+        ]
+      }
+    ],
+    "meta": {
+      "warning": "TABLE_REWRITE"
+    }
+  },
+  {
+    "id": "alterType.challenge_applications.desiredDeadline",
+    "label": "Alter type of \"challenge_applications\".\"desiredDeadline\" to timestamptz",
+    "operationClass": "destructive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "column",
+        "name": "desiredDeadline",
+        "table": "challenge_applications"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure column \"desiredDeadline\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "challenge_applications",
+          "desiredDeadline"
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "alter type of \"desiredDeadline\"",
+        "sql": "ALTER TABLE \"public\".\"challenge_applications\" ALTER COLUMN \"desiredDeadline\" TYPE timestamptz USING \"desiredDeadline\" AT TIME ZONE 'UTC'"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"desiredDeadline\" has type \"timestamp with time zone\"",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_attribute\" AS \"a\" INNER JOIN \"pg_class\" AS \"c\" ON \"c\".\"oid\" = \"a\".\"attrelid\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"relnamespace\" WHERE (\"n\".\"nspname\" = $1 AND \"c\".\"relname\" = $2 AND \"a\".\"attname\" = $3 AND (format_type(\"a\".\"atttypid\", \"a\".\"atttypmod\")) = $4 AND NOT (\"a\".\"attisdropped\"))) AS \"result\"",
+        "params": [
+          "public",
+          "challenge_applications",
+          "desiredDeadline",
+          "timestamp with time zone"
+        ]
+      }
+    ],
+    "meta": {
+      "warning": "TABLE_REWRITE"
+    }
+  },
+  {
+    "id": "alterType.challenge_applications.updatedAt",
+    "label": "Alter type of \"challenge_applications\".\"updatedAt\" to timestamptz",
+    "operationClass": "destructive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "column",
+        "name": "updatedAt",
+        "table": "challenge_applications"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure column \"updatedAt\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "challenge_applications",
+          "updatedAt"
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "alter type of \"updatedAt\"",
+        "sql": "ALTER TABLE \"public\".\"challenge_applications\" ALTER COLUMN \"updatedAt\" TYPE timestamptz USING \"updatedAt\" AT TIME ZONE 'UTC'"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"updatedAt\" has type \"timestamp with time zone\"",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_attribute\" AS \"a\" INNER JOIN \"pg_class\" AS \"c\" ON \"c\".\"oid\" = \"a\".\"attrelid\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"relnamespace\" WHERE (\"n\".\"nspname\" = $1 AND \"c\".\"relname\" = $2 AND \"a\".\"attname\" = $3 AND (format_type(\"a\".\"atttypid\", \"a\".\"atttypmod\")) = $4 AND NOT (\"a\".\"attisdropped\"))) AS \"result\"",
+        "params": [
+          "public",
+          "challenge_applications",
+          "updatedAt",
+          "timestamp with time zone"
+        ]
+      }
+    ],
+    "meta": {
+      "warning": "TABLE_REWRITE"
+    }
+  },
+  {
+    "id": "alterType.challenge_participants.abandonedAt",
+    "label": "Alter type of \"challenge_participants\".\"abandonedAt\" to timestamptz",
+    "operationClass": "destructive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "column",
+        "name": "abandonedAt",
+        "table": "challenge_participants"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure column \"abandonedAt\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "challenge_participants",
+          "abandonedAt"
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "alter type of \"abandonedAt\"",
+        "sql": "ALTER TABLE \"public\".\"challenge_participants\" ALTER COLUMN \"abandonedAt\" TYPE timestamptz USING \"abandonedAt\" AT TIME ZONE 'UTC'"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"abandonedAt\" has type \"timestamp with time zone\"",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_attribute\" AS \"a\" INNER JOIN \"pg_class\" AS \"c\" ON \"c\".\"oid\" = \"a\".\"attrelid\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"relnamespace\" WHERE (\"n\".\"nspname\" = $1 AND \"c\".\"relname\" = $2 AND \"a\".\"attname\" = $3 AND (format_type(\"a\".\"atttypid\", \"a\".\"atttypmod\")) = $4 AND NOT (\"a\".\"attisdropped\"))) AS \"result\"",
+        "params": [
+          "public",
+          "challenge_participants",
+          "abandonedAt",
+          "timestamp with time zone"
+        ]
+      }
+    ],
+    "meta": {
+      "warning": "TABLE_REWRITE"
+    }
+  },
+  {
+    "id": "alterType.challenge_participants.createdAt",
+    "label": "Alter type of \"challenge_participants\".\"createdAt\" to timestamptz",
+    "operationClass": "destructive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "column",
+        "name": "createdAt",
+        "table": "challenge_participants"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure column \"createdAt\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "challenge_participants",
+          "createdAt"
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "alter type of \"createdAt\"",
+        "sql": "ALTER TABLE \"public\".\"challenge_participants\" ALTER COLUMN \"createdAt\" TYPE timestamptz USING \"createdAt\" AT TIME ZONE 'UTC'"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"createdAt\" has type \"timestamp with time zone\"",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_attribute\" AS \"a\" INNER JOIN \"pg_class\" AS \"c\" ON \"c\".\"oid\" = \"a\".\"attrelid\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"relnamespace\" WHERE (\"n\".\"nspname\" = $1 AND \"c\".\"relname\" = $2 AND \"a\".\"attname\" = $3 AND (format_type(\"a\".\"atttypid\", \"a\".\"atttypmod\")) = $4 AND NOT (\"a\".\"attisdropped\"))) AS \"result\"",
+        "params": [
+          "public",
+          "challenge_participants",
+          "createdAt",
+          "timestamp with time zone"
+        ]
+      }
+    ],
+    "meta": {
+      "warning": "TABLE_REWRITE"
+    }
+  },
+  {
+    "id": "alterType.challenge_participants.joinedAt",
+    "label": "Alter type of \"challenge_participants\".\"joinedAt\" to timestamptz",
+    "operationClass": "destructive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "column",
+        "name": "joinedAt",
+        "table": "challenge_participants"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure column \"joinedAt\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "challenge_participants",
+          "joinedAt"
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "alter type of \"joinedAt\"",
+        "sql": "ALTER TABLE \"public\".\"challenge_participants\" ALTER COLUMN \"joinedAt\" TYPE timestamptz USING \"joinedAt\" AT TIME ZONE 'UTC'"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"joinedAt\" has type \"timestamp with time zone\"",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_attribute\" AS \"a\" INNER JOIN \"pg_class\" AS \"c\" ON \"c\".\"oid\" = \"a\".\"attrelid\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"relnamespace\" WHERE (\"n\".\"nspname\" = $1 AND \"c\".\"relname\" = $2 AND \"a\".\"attname\" = $3 AND (format_type(\"a\".\"atttypid\", \"a\".\"atttypmod\")) = $4 AND NOT (\"a\".\"attisdropped\"))) AS \"result\"",
+        "params": [
+          "public",
+          "challenge_participants",
+          "joinedAt",
+          "timestamp with time zone"
+        ]
+      }
+    ],
+    "meta": {
+      "warning": "TABLE_REWRITE"
+    }
+  },
+  {
+    "id": "alterType.challenge_participants.updatedAt",
+    "label": "Alter type of \"challenge_participants\".\"updatedAt\" to timestamptz",
+    "operationClass": "destructive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "column",
+        "name": "updatedAt",
+        "table": "challenge_participants"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure column \"updatedAt\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "challenge_participants",
+          "updatedAt"
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "alter type of \"updatedAt\"",
+        "sql": "ALTER TABLE \"public\".\"challenge_participants\" ALTER COLUMN \"updatedAt\" TYPE timestamptz USING \"updatedAt\" AT TIME ZONE 'UTC'"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"updatedAt\" has type \"timestamp with time zone\"",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_attribute\" AS \"a\" INNER JOIN \"pg_class\" AS \"c\" ON \"c\".\"oid\" = \"a\".\"attrelid\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"relnamespace\" WHERE (\"n\".\"nspname\" = $1 AND \"c\".\"relname\" = $2 AND \"a\".\"attname\" = $3 AND (format_type(\"a\".\"atttypid\", \"a\".\"atttypmod\")) = $4 AND NOT (\"a\".\"attisdropped\"))) AS \"result\"",
+        "params": [
+          "public",
+          "challenge_participants",
+          "updatedAt",
+          "timestamp with time zone"
+        ]
+      }
+    ],
+    "meta": {
+      "warning": "TABLE_REWRITE"
+    }
+  },
+  {
+    "id": "alterType.challenges.createdAt",
+    "label": "Alter type of \"challenges\".\"createdAt\" to timestamptz",
+    "operationClass": "destructive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "column",
+        "name": "createdAt",
+        "table": "challenges"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure column \"createdAt\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "challenges",
+          "createdAt"
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "alter type of \"createdAt\"",
+        "sql": "ALTER TABLE \"public\".\"challenges\" ALTER COLUMN \"createdAt\" TYPE timestamptz USING \"createdAt\" AT TIME ZONE 'UTC'"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"createdAt\" has type \"timestamp with time zone\"",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_attribute\" AS \"a\" INNER JOIN \"pg_class\" AS \"c\" ON \"c\".\"oid\" = \"a\".\"attrelid\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"relnamespace\" WHERE (\"n\".\"nspname\" = $1 AND \"c\".\"relname\" = $2 AND \"a\".\"attname\" = $3 AND (format_type(\"a\".\"atttypid\", \"a\".\"atttypmod\")) = $4 AND NOT (\"a\".\"attisdropped\"))) AS \"result\"",
+        "params": [
+          "public",
+          "challenges",
+          "createdAt",
+          "timestamp with time zone"
+        ]
+      }
+    ],
+    "meta": {
+      "warning": "TABLE_REWRITE"
+    }
+  },
+  {
+    "id": "alterType.challenges.deadline",
+    "label": "Alter type of \"challenges\".\"deadline\" to timestamptz",
+    "operationClass": "destructive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "column",
+        "name": "deadline",
+        "table": "challenges"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure column \"deadline\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "challenges",
+          "deadline"
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "alter type of \"deadline\"",
+        "sql": "ALTER TABLE \"public\".\"challenges\" ALTER COLUMN \"deadline\" TYPE timestamptz USING \"deadline\" AT TIME ZONE 'UTC'"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"deadline\" has type \"timestamp with time zone\"",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_attribute\" AS \"a\" INNER JOIN \"pg_class\" AS \"c\" ON \"c\".\"oid\" = \"a\".\"attrelid\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"relnamespace\" WHERE (\"n\".\"nspname\" = $1 AND \"c\".\"relname\" = $2 AND \"a\".\"attname\" = $3 AND (format_type(\"a\".\"atttypid\", \"a\".\"atttypmod\")) = $4 AND NOT (\"a\".\"attisdropped\"))) AS \"result\"",
+        "params": [
+          "public",
+          "challenges",
+          "deadline",
+          "timestamp with time zone"
+        ]
+      }
+    ],
+    "meta": {
+      "warning": "TABLE_REWRITE"
+    }
+  },
+  {
+    "id": "alterType.challenges.deletedAt",
+    "label": "Alter type of \"challenges\".\"deletedAt\" to timestamptz",
+    "operationClass": "destructive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "column",
+        "name": "deletedAt",
+        "table": "challenges"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure column \"deletedAt\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "challenges",
+          "deletedAt"
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "alter type of \"deletedAt\"",
+        "sql": "ALTER TABLE \"public\".\"challenges\" ALTER COLUMN \"deletedAt\" TYPE timestamptz USING \"deletedAt\" AT TIME ZONE 'UTC'"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"deletedAt\" has type \"timestamp with time zone\"",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_attribute\" AS \"a\" INNER JOIN \"pg_class\" AS \"c\" ON \"c\".\"oid\" = \"a\".\"attrelid\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"relnamespace\" WHERE (\"n\".\"nspname\" = $1 AND \"c\".\"relname\" = $2 AND \"a\".\"attname\" = $3 AND (format_type(\"a\".\"atttypid\", \"a\".\"atttypmod\")) = $4 AND NOT (\"a\".\"attisdropped\"))) AS \"result\"",
+        "params": [
+          "public",
+          "challenges",
+          "deletedAt",
+          "timestamp with time zone"
+        ]
+      }
+    ],
+    "meta": {
+      "warning": "TABLE_REWRITE"
+    }
+  },
+  {
+    "id": "alterType.challenges.updatedAt",
+    "label": "Alter type of \"challenges\".\"updatedAt\" to timestamptz",
+    "operationClass": "destructive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "column",
+        "name": "updatedAt",
+        "table": "challenges"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure column \"updatedAt\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "challenges",
+          "updatedAt"
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "alter type of \"updatedAt\"",
+        "sql": "ALTER TABLE \"public\".\"challenges\" ALTER COLUMN \"updatedAt\" TYPE timestamptz USING \"updatedAt\" AT TIME ZONE 'UTC'"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"updatedAt\" has type \"timestamp with time zone\"",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_attribute\" AS \"a\" INNER JOIN \"pg_class\" AS \"c\" ON \"c\".\"oid\" = \"a\".\"attrelid\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"relnamespace\" WHERE (\"n\".\"nspname\" = $1 AND \"c\".\"relname\" = $2 AND \"a\".\"attname\" = $3 AND (format_type(\"a\".\"atttypid\", \"a\".\"atttypmod\")) = $4 AND NOT (\"a\".\"attisdropped\"))) AS \"result\"",
+        "params": [
+          "public",
+          "challenges",
+          "updatedAt",
+          "timestamp with time zone"
+        ]
+      }
+    ],
+    "meta": {
+      "warning": "TABLE_REWRITE"
+    }
+  },
+  {
+    "id": "alterType.drafts.createdAt",
+    "label": "Alter type of \"drafts\".\"createdAt\" to timestamptz",
+    "operationClass": "destructive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "column",
+        "name": "createdAt",
+        "table": "drafts"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure column \"createdAt\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "drafts",
+          "createdAt"
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "alter type of \"createdAt\"",
+        "sql": "ALTER TABLE \"public\".\"drafts\" ALTER COLUMN \"createdAt\" TYPE timestamptz USING \"createdAt\" AT TIME ZONE 'UTC'"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"createdAt\" has type \"timestamp with time zone\"",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_attribute\" AS \"a\" INNER JOIN \"pg_class\" AS \"c\" ON \"c\".\"oid\" = \"a\".\"attrelid\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"relnamespace\" WHERE (\"n\".\"nspname\" = $1 AND \"c\".\"relname\" = $2 AND \"a\".\"attname\" = $3 AND (format_type(\"a\".\"atttypid\", \"a\".\"atttypmod\")) = $4 AND NOT (\"a\".\"attisdropped\"))) AS \"result\"",
+        "params": [
+          "public",
+          "drafts",
+          "createdAt",
+          "timestamp with time zone"
+        ]
+      }
+    ],
+    "meta": {
+      "warning": "TABLE_REWRITE"
+    }
+  },
+  {
+    "id": "alterType.drafts.updatedAt",
+    "label": "Alter type of \"drafts\".\"updatedAt\" to timestamptz",
+    "operationClass": "destructive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "column",
+        "name": "updatedAt",
+        "table": "drafts"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure column \"updatedAt\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "drafts",
+          "updatedAt"
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "alter type of \"updatedAt\"",
+        "sql": "ALTER TABLE \"public\".\"drafts\" ALTER COLUMN \"updatedAt\" TYPE timestamptz USING \"updatedAt\" AT TIME ZONE 'UTC'"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"updatedAt\" has type \"timestamp with time zone\"",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_attribute\" AS \"a\" INNER JOIN \"pg_class\" AS \"c\" ON \"c\".\"oid\" = \"a\".\"attrelid\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"relnamespace\" WHERE (\"n\".\"nspname\" = $1 AND \"c\".\"relname\" = $2 AND \"a\".\"attname\" = $3 AND (format_type(\"a\".\"atttypid\", \"a\".\"atttypmod\")) = $4 AND NOT (\"a\".\"attisdropped\"))) AS \"result\"",
+        "params": [
+          "public",
+          "drafts",
+          "updatedAt",
+          "timestamp with time zone"
+        ]
+      }
+    ],
+    "meta": {
+      "warning": "TABLE_REWRITE"
+    }
+  },
+  {
+    "id": "alterType.feedbacks.createdAt",
+    "label": "Alter type of \"feedbacks\".\"createdAt\" to timestamptz",
+    "operationClass": "destructive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "column",
+        "name": "createdAt",
+        "table": "feedbacks"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure column \"createdAt\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "feedbacks",
+          "createdAt"
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "alter type of \"createdAt\"",
+        "sql": "ALTER TABLE \"public\".\"feedbacks\" ALTER COLUMN \"createdAt\" TYPE timestamptz USING \"createdAt\" AT TIME ZONE 'UTC'"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"createdAt\" has type \"timestamp with time zone\"",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_attribute\" AS \"a\" INNER JOIN \"pg_class\" AS \"c\" ON \"c\".\"oid\" = \"a\".\"attrelid\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"relnamespace\" WHERE (\"n\".\"nspname\" = $1 AND \"c\".\"relname\" = $2 AND \"a\".\"attname\" = $3 AND (format_type(\"a\".\"atttypid\", \"a\".\"atttypmod\")) = $4 AND NOT (\"a\".\"attisdropped\"))) AS \"result\"",
+        "params": [
+          "public",
+          "feedbacks",
+          "createdAt",
+          "timestamp with time zone"
+        ]
+      }
+    ],
+    "meta": {
+      "warning": "TABLE_REWRITE"
+    }
+  },
+  {
+    "id": "alterType.feedbacks.updatedAt",
+    "label": "Alter type of \"feedbacks\".\"updatedAt\" to timestamptz",
+    "operationClass": "destructive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "column",
+        "name": "updatedAt",
+        "table": "feedbacks"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure column \"updatedAt\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "feedbacks",
+          "updatedAt"
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "alter type of \"updatedAt\"",
+        "sql": "ALTER TABLE \"public\".\"feedbacks\" ALTER COLUMN \"updatedAt\" TYPE timestamptz USING \"updatedAt\" AT TIME ZONE 'UTC'"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"updatedAt\" has type \"timestamp with time zone\"",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_attribute\" AS \"a\" INNER JOIN \"pg_class\" AS \"c\" ON \"c\".\"oid\" = \"a\".\"attrelid\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"relnamespace\" WHERE (\"n\".\"nspname\" = $1 AND \"c\".\"relname\" = $2 AND \"a\".\"attname\" = $3 AND (format_type(\"a\".\"atttypid\", \"a\".\"atttypmod\")) = $4 AND NOT (\"a\".\"attisdropped\"))) AS \"result\"",
+        "params": [
+          "public",
+          "feedbacks",
+          "updatedAt",
+          "timestamp with time zone"
+        ]
+      }
+    ],
+    "meta": {
+      "warning": "TABLE_REWRITE"
+    }
+  },
+  {
+    "id": "alterType.notifications.createdAt",
+    "label": "Alter type of \"notifications\".\"createdAt\" to timestamptz",
+    "operationClass": "destructive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "column",
+        "name": "createdAt",
+        "table": "notifications"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure column \"createdAt\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "notifications",
+          "createdAt"
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "alter type of \"createdAt\"",
+        "sql": "ALTER TABLE \"public\".\"notifications\" ALTER COLUMN \"createdAt\" TYPE timestamptz USING \"createdAt\" AT TIME ZONE 'UTC'"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"createdAt\" has type \"timestamp with time zone\"",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_attribute\" AS \"a\" INNER JOIN \"pg_class\" AS \"c\" ON \"c\".\"oid\" = \"a\".\"attrelid\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"relnamespace\" WHERE (\"n\".\"nspname\" = $1 AND \"c\".\"relname\" = $2 AND \"a\".\"attname\" = $3 AND (format_type(\"a\".\"atttypid\", \"a\".\"atttypmod\")) = $4 AND NOT (\"a\".\"attisdropped\"))) AS \"result\"",
+        "params": [
+          "public",
+          "notifications",
+          "createdAt",
+          "timestamp with time zone"
+        ]
+      }
+    ],
+    "meta": {
+      "warning": "TABLE_REWRITE"
+    }
+  },
+  {
+    "id": "alterType.notifications.readAt",
+    "label": "Alter type of \"notifications\".\"readAt\" to timestamptz",
+    "operationClass": "destructive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "column",
+        "name": "readAt",
+        "table": "notifications"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure column \"readAt\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "notifications",
+          "readAt"
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "alter type of \"readAt\"",
+        "sql": "ALTER TABLE \"public\".\"notifications\" ALTER COLUMN \"readAt\" TYPE timestamptz USING \"readAt\" AT TIME ZONE 'UTC'"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"readAt\" has type \"timestamp with time zone\"",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_attribute\" AS \"a\" INNER JOIN \"pg_class\" AS \"c\" ON \"c\".\"oid\" = \"a\".\"attrelid\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"relnamespace\" WHERE (\"n\".\"nspname\" = $1 AND \"c\".\"relname\" = $2 AND \"a\".\"attname\" = $3 AND (format_type(\"a\".\"atttypid\", \"a\".\"atttypmod\")) = $4 AND NOT (\"a\".\"attisdropped\"))) AS \"result\"",
+        "params": [
+          "public",
+          "notifications",
+          "readAt",
+          "timestamp with time zone"
+        ]
+      }
+    ],
+    "meta": {
+      "warning": "TABLE_REWRITE"
+    }
+  },
+  {
+    "id": "alterType.oauth_accounts.createdAt",
+    "label": "Alter type of \"oauth_accounts\".\"createdAt\" to timestamptz",
+    "operationClass": "destructive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "column",
+        "name": "createdAt",
+        "table": "oauth_accounts"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure column \"createdAt\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "oauth_accounts",
+          "createdAt"
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "alter type of \"createdAt\"",
+        "sql": "ALTER TABLE \"public\".\"oauth_accounts\" ALTER COLUMN \"createdAt\" TYPE timestamptz USING \"createdAt\" AT TIME ZONE 'UTC'"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"createdAt\" has type \"timestamp with time zone\"",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_attribute\" AS \"a\" INNER JOIN \"pg_class\" AS \"c\" ON \"c\".\"oid\" = \"a\".\"attrelid\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"relnamespace\" WHERE (\"n\".\"nspname\" = $1 AND \"c\".\"relname\" = $2 AND \"a\".\"attname\" = $3 AND (format_type(\"a\".\"atttypid\", \"a\".\"atttypmod\")) = $4 AND NOT (\"a\".\"attisdropped\"))) AS \"result\"",
+        "params": [
+          "public",
+          "oauth_accounts",
+          "createdAt",
+          "timestamp with time zone"
+        ]
+      }
+    ],
+    "meta": {
+      "warning": "TABLE_REWRITE"
+    }
+  },
+  {
+    "id": "alterType.users.createdAt",
+    "label": "Alter type of \"users\".\"createdAt\" to timestamptz",
+    "operationClass": "destructive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "column",
+        "name": "createdAt",
+        "table": "users"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure column \"createdAt\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "users",
+          "createdAt"
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "alter type of \"createdAt\"",
+        "sql": "ALTER TABLE \"public\".\"users\" ALTER COLUMN \"createdAt\" TYPE timestamptz USING \"createdAt\" AT TIME ZONE 'UTC'"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"createdAt\" has type \"timestamp with time zone\"",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_attribute\" AS \"a\" INNER JOIN \"pg_class\" AS \"c\" ON \"c\".\"oid\" = \"a\".\"attrelid\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"relnamespace\" WHERE (\"n\".\"nspname\" = $1 AND \"c\".\"relname\" = $2 AND \"a\".\"attname\" = $3 AND (format_type(\"a\".\"atttypid\", \"a\".\"atttypmod\")) = $4 AND NOT (\"a\".\"attisdropped\"))) AS \"result\"",
+        "params": [
+          "public",
+          "users",
+          "createdAt",
+          "timestamp with time zone"
+        ]
+      }
+    ],
+    "meta": {
+      "warning": "TABLE_REWRITE"
+    }
+  },
+  {
+    "id": "alterType.users.updatedAt",
+    "label": "Alter type of \"users\".\"updatedAt\" to timestamptz",
+    "operationClass": "destructive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "column",
+        "name": "updatedAt",
+        "table": "users"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure column \"updatedAt\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "users",
+          "updatedAt"
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "alter type of \"updatedAt\"",
+        "sql": "ALTER TABLE \"public\".\"users\" ALTER COLUMN \"updatedAt\" TYPE timestamptz USING \"updatedAt\" AT TIME ZONE 'UTC'"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"updatedAt\" has type \"timestamp with time zone\"",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_attribute\" AS \"a\" INNER JOIN \"pg_class\" AS \"c\" ON \"c\".\"oid\" = \"a\".\"attrelid\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"relnamespace\" WHERE (\"n\".\"nspname\" = $1 AND \"c\".\"relname\" = $2 AND \"a\".\"attname\" = $3 AND (format_type(\"a\".\"atttypid\", \"a\".\"atttypmod\")) = $4 AND NOT (\"a\".\"attisdropped\"))) AS \"result\"",
+        "params": [
+          "public",
+          "users",
+          "updatedAt",
+          "timestamp with time zone"
+        ]
+      }
+    ],
+    "meta": {
+      "warning": "TABLE_REWRITE"
+    }
+  },
+  {
+    "id": "alterType.work_likes.createdAt",
+    "label": "Alter type of \"work_likes\".\"createdAt\" to timestamptz",
+    "operationClass": "destructive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "column",
+        "name": "createdAt",
+        "table": "work_likes"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure column \"createdAt\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "work_likes",
+          "createdAt"
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "alter type of \"createdAt\"",
+        "sql": "ALTER TABLE \"public\".\"work_likes\" ALTER COLUMN \"createdAt\" TYPE timestamptz USING \"createdAt\" AT TIME ZONE 'UTC'"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"createdAt\" has type \"timestamp with time zone\"",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_attribute\" AS \"a\" INNER JOIN \"pg_class\" AS \"c\" ON \"c\".\"oid\" = \"a\".\"attrelid\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"relnamespace\" WHERE (\"n\".\"nspname\" = $1 AND \"c\".\"relname\" = $2 AND \"a\".\"attname\" = $3 AND (format_type(\"a\".\"atttypid\", \"a\".\"atttypmod\")) = $4 AND NOT (\"a\".\"attisdropped\"))) AS \"result\"",
+        "params": [
+          "public",
+          "work_likes",
+          "createdAt",
+          "timestamp with time zone"
+        ]
+      }
+    ],
+    "meta": {
+      "warning": "TABLE_REWRITE"
+    }
+  },
+  {
+    "id": "alterType.works.createdAt",
+    "label": "Alter type of \"works\".\"createdAt\" to timestamptz",
+    "operationClass": "destructive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "column",
+        "name": "createdAt",
+        "table": "works"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure column \"createdAt\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "works",
+          "createdAt"
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "alter type of \"createdAt\"",
+        "sql": "ALTER TABLE \"public\".\"works\" ALTER COLUMN \"createdAt\" TYPE timestamptz USING \"createdAt\" AT TIME ZONE 'UTC'"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"createdAt\" has type \"timestamp with time zone\"",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_attribute\" AS \"a\" INNER JOIN \"pg_class\" AS \"c\" ON \"c\".\"oid\" = \"a\".\"attrelid\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"relnamespace\" WHERE (\"n\".\"nspname\" = $1 AND \"c\".\"relname\" = $2 AND \"a\".\"attname\" = $3 AND (format_type(\"a\".\"atttypid\", \"a\".\"atttypmod\")) = $4 AND NOT (\"a\".\"attisdropped\"))) AS \"result\"",
+        "params": [
+          "public",
+          "works",
+          "createdAt",
+          "timestamp with time zone"
+        ]
+      }
+    ],
+    "meta": {
+      "warning": "TABLE_REWRITE"
+    }
+  },
+  {
+    "id": "alterType.works.submittedAt",
+    "label": "Alter type of \"works\".\"submittedAt\" to timestamptz",
+    "operationClass": "destructive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "column",
+        "name": "submittedAt",
+        "table": "works"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure column \"submittedAt\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "works",
+          "submittedAt"
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "alter type of \"submittedAt\"",
+        "sql": "ALTER TABLE \"public\".\"works\" ALTER COLUMN \"submittedAt\" TYPE timestamptz USING \"submittedAt\" AT TIME ZONE 'UTC'"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"submittedAt\" has type \"timestamp with time zone\"",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_attribute\" AS \"a\" INNER JOIN \"pg_class\" AS \"c\" ON \"c\".\"oid\" = \"a\".\"attrelid\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"relnamespace\" WHERE (\"n\".\"nspname\" = $1 AND \"c\".\"relname\" = $2 AND \"a\".\"attname\" = $3 AND (format_type(\"a\".\"atttypid\", \"a\".\"atttypmod\")) = $4 AND NOT (\"a\".\"attisdropped\"))) AS \"result\"",
+        "params": [
+          "public",
+          "works",
+          "submittedAt",
+          "timestamp with time zone"
+        ]
+      }
+    ],
+    "meta": {
+      "warning": "TABLE_REWRITE"
+    }
+  },
+  {
+    "id": "alterType.works.updatedAt",
+    "label": "Alter type of \"works\".\"updatedAt\" to timestamptz",
+    "operationClass": "destructive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "column",
+        "name": "updatedAt",
+        "table": "works"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure column \"updatedAt\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "works",
+          "updatedAt"
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "alter type of \"updatedAt\"",
+        "sql": "ALTER TABLE \"public\".\"works\" ALTER COLUMN \"updatedAt\" TYPE timestamptz USING \"updatedAt\" AT TIME ZONE 'UTC'"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"updatedAt\" has type \"timestamp with time zone\"",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_attribute\" AS \"a\" INNER JOIN \"pg_class\" AS \"c\" ON \"c\".\"oid\" = \"a\".\"attrelid\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"relnamespace\" WHERE (\"n\".\"nspname\" = $1 AND \"c\".\"relname\" = $2 AND \"a\".\"attname\" = $3 AND (format_type(\"a\".\"atttypid\", \"a\".\"atttypmod\")) = $4 AND NOT (\"a\".\"attisdropped\"))) AS \"result\"",
+        "params": [
+          "public",
+          "works",
+          "updatedAt",
+          "timestamp with time zone"
+        ]
+      }
+    ],
+    "meta": {
+      "warning": "TABLE_REWRITE"
+    }
+  },
+  {
+    "id": "unique.challenge_participants.challenge_participants_challengeId_userId_key",
+    "label": "Add unique constraint on \"challenge_participants\" (challengeId, userId)",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "unique",
+        "name": "challenge_participants_challengeId_userId_key",
+        "table": "challenge_participants"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"challenge_participants_challengeId_userId_key\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "challenge_participants_challengeId_userId_key",
+          "public",
+          "\"public\".\"challenge_participants\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add unique constraint \"challenge_participants_challengeId_userId_key\"",
+        "sql": "ALTER TABLE \"public\".\"challenge_participants\" ADD CONSTRAINT \"challenge_participants_challengeId_userId_key\" UNIQUE (\"challengeId\", \"userId\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify constraint \"challenge_participants_challengeId_userId_key\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "challenge_participants_challengeId_userId_key",
+          "public",
+          "\"public\".\"challenge_participants\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "unique.drafts.drafts_participantId_key",
+    "label": "Add unique constraint on \"drafts\" (participantId)",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "unique",
+        "name": "drafts_participantId_key",
+        "table": "drafts"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"drafts_participantId_key\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "drafts_participantId_key",
+          "public",
+          "\"public\".\"drafts\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add unique constraint \"drafts_participantId_key\"",
+        "sql": "ALTER TABLE \"public\".\"drafts\" ADD CONSTRAINT \"drafts_participantId_key\" UNIQUE (\"participantId\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify constraint \"drafts_participantId_key\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "drafts_participantId_key",
+          "public",
+          "\"public\".\"drafts\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "unique.notifications.notifications_dedupeKey_key",
+    "label": "Add unique constraint on \"notifications\" (dedupeKey)",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "unique",
+        "name": "notifications_dedupeKey_key",
+        "table": "notifications"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"notifications_dedupeKey_key\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "notifications_dedupeKey_key",
+          "public",
+          "\"public\".\"notifications\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add unique constraint \"notifications_dedupeKey_key\"",
+        "sql": "ALTER TABLE \"public\".\"notifications\" ADD CONSTRAINT \"notifications_dedupeKey_key\" UNIQUE (\"dedupeKey\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify constraint \"notifications_dedupeKey_key\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "notifications_dedupeKey_key",
+          "public",
+          "\"public\".\"notifications\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "unique.oauth_accounts.oauth_accounts_provider_providerAccountId_key",
+    "label": "Add unique constraint on \"oauth_accounts\" (provider, providerAccountId)",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "unique",
+        "name": "oauth_accounts_provider_providerAccountId_key",
+        "table": "oauth_accounts"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"oauth_accounts_provider_providerAccountId_key\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "oauth_accounts_provider_providerAccountId_key",
+          "public",
+          "\"public\".\"oauth_accounts\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add unique constraint \"oauth_accounts_provider_providerAccountId_key\"",
+        "sql": "ALTER TABLE \"public\".\"oauth_accounts\" ADD CONSTRAINT \"oauth_accounts_provider_providerAccountId_key\" UNIQUE (\"provider\", \"providerAccountId\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify constraint \"oauth_accounts_provider_providerAccountId_key\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "oauth_accounts_provider_providerAccountId_key",
+          "public",
+          "\"public\".\"oauth_accounts\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "unique.users.users_email_key",
+    "label": "Add unique constraint on \"users\" (email)",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "unique",
+        "name": "users_email_key",
+        "table": "users"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"users_email_key\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "users_email_key",
+          "public",
+          "\"public\".\"users\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add unique constraint \"users_email_key\"",
+        "sql": "ALTER TABLE \"public\".\"users\" ADD CONSTRAINT \"users_email_key\" UNIQUE (\"email\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify constraint \"users_email_key\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "users_email_key",
+          "public",
+          "\"public\".\"users\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "unique.users.users_nickname_key",
+    "label": "Add unique constraint on \"users\" (nickname)",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "unique",
+        "name": "users_nickname_key",
+        "table": "users"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"users_nickname_key\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "users_nickname_key",
+          "public",
+          "\"public\".\"users\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add unique constraint \"users_nickname_key\"",
+        "sql": "ALTER TABLE \"public\".\"users\" ADD CONSTRAINT \"users_nickname_key\" UNIQUE (\"nickname\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify constraint \"users_nickname_key\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "users_nickname_key",
+          "public",
+          "\"public\".\"users\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "unique.work_likes.work_likes_workId_userId_key",
+    "label": "Add unique constraint on \"work_likes\" (workId, userId)",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "unique",
+        "name": "work_likes_workId_userId_key",
+        "table": "work_likes"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"work_likes_workId_userId_key\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "work_likes_workId_userId_key",
+          "public",
+          "\"public\".\"work_likes\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add unique constraint \"work_likes_workId_userId_key\"",
+        "sql": "ALTER TABLE \"public\".\"work_likes\" ADD CONSTRAINT \"work_likes_workId_userId_key\" UNIQUE (\"workId\", \"userId\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify constraint \"work_likes_workId_userId_key\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "work_likes_workId_userId_key",
+          "public",
+          "\"public\".\"work_likes\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.challenge_applications.challenge_applications_decidedById_idx_8194d55f",
+    "label": "Create index \"challenge_applications_decidedById_idx_8194d55f\" on \"challenge_applications\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "challenge_applications_decidedById_idx_8194d55f",
+        "table": "challenge_applications"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"challenge_applications_decidedById_idx_8194d55f\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"challenge_applications_decidedById_idx_8194d55f\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"challenge_applications_decidedById_idx_8194d55f\"",
+        "sql": "CREATE INDEX \"challenge_applications_decidedById_idx_8194d55f\" ON \"public\".\"challenge_applications\" (\"decidedById\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"challenge_applications_decidedById_idx_8194d55f\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"challenge_applications_decidedById_idx_8194d55f\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.challenge_participants.challenge_participants_challengeId_idx_73b8115d",
+    "label": "Create index \"challenge_participants_challengeId_idx_73b8115d\" on \"challenge_participants\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "challenge_participants_challengeId_idx_73b8115d",
+        "table": "challenge_participants"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"challenge_participants_challengeId_idx_73b8115d\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"challenge_participants_challengeId_idx_73b8115d\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"challenge_participants_challengeId_idx_73b8115d\"",
+        "sql": "CREATE INDEX \"challenge_participants_challengeId_idx_73b8115d\" ON \"public\".\"challenge_participants\" (\"challengeId\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"challenge_participants_challengeId_idx_73b8115d\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"challenge_participants_challengeId_idx_73b8115d\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.challenge_participants.challenge_participants_userId_idx_a489d58a",
+    "label": "Create index \"challenge_participants_userId_idx_a489d58a\" on \"challenge_participants\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "challenge_participants_userId_idx_a489d58a",
+        "table": "challenge_participants"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"challenge_participants_userId_idx_a489d58a\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"challenge_participants_userId_idx_a489d58a\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"challenge_participants_userId_idx_a489d58a\"",
+        "sql": "CREATE INDEX \"challenge_participants_userId_idx_a489d58a\" ON \"public\".\"challenge_participants\" (\"userId\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"challenge_participants_userId_idx_a489d58a\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"challenge_participants_userId_idx_a489d58a\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.challenges.challenges_deletedById_idx_6409fd1e",
+    "label": "Create index \"challenges_deletedById_idx_6409fd1e\" on \"challenges\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "challenges_deletedById_idx_6409fd1e",
+        "table": "challenges"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"challenges_deletedById_idx_6409fd1e\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"challenges_deletedById_idx_6409fd1e\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"challenges_deletedById_idx_6409fd1e\"",
+        "sql": "CREATE INDEX \"challenges_deletedById_idx_6409fd1e\" ON \"public\".\"challenges\" (\"deletedById\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"challenges_deletedById_idx_6409fd1e\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"challenges_deletedById_idx_6409fd1e\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.challenges.challenges_sourceApplicationId_idx_d900dada",
+    "label": "Create index \"challenges_sourceApplicationId_idx_d900dada\" on \"challenges\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "challenges_sourceApplicationId_idx_d900dada",
+        "table": "challenges"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"challenges_sourceApplicationId_idx_d900dada\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"challenges_sourceApplicationId_idx_d900dada\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"challenges_sourceApplicationId_idx_d900dada\"",
+        "sql": "CREATE INDEX \"challenges_sourceApplicationId_idx_d900dada\" ON \"public\".\"challenges\" (\"sourceApplicationId\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"challenges_sourceApplicationId_idx_d900dada\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"challenges_sourceApplicationId_idx_d900dada\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.feedbacks.feedbacks_workId_idx_726bc97e",
+    "label": "Create index \"feedbacks_workId_idx_726bc97e\" on \"feedbacks\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "feedbacks_workId_idx_726bc97e",
+        "table": "feedbacks"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"feedbacks_workId_idx_726bc97e\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"feedbacks_workId_idx_726bc97e\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"feedbacks_workId_idx_726bc97e\"",
+        "sql": "CREATE INDEX \"feedbacks_workId_idx_726bc97e\" ON \"public\".\"feedbacks\" (\"workId\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"feedbacks_workId_idx_726bc97e\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"feedbacks_workId_idx_726bc97e\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.notifications.notifications_actorId_idx_a58f6b4b",
+    "label": "Create index \"notifications_actorId_idx_a58f6b4b\" on \"notifications\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "notifications_actorId_idx_a58f6b4b",
+        "table": "notifications"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"notifications_actorId_idx_a58f6b4b\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"notifications_actorId_idx_a58f6b4b\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"notifications_actorId_idx_a58f6b4b\"",
+        "sql": "CREATE INDEX \"notifications_actorId_idx_a58f6b4b\" ON \"public\".\"notifications\" (\"actorId\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"notifications_actorId_idx_a58f6b4b\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"notifications_actorId_idx_a58f6b4b\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.notifications.notifications_relatedWorkId_idx_8701ac35",
+    "label": "Create index \"notifications_relatedWorkId_idx_8701ac35\" on \"notifications\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "notifications_relatedWorkId_idx_8701ac35",
+        "table": "notifications"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"notifications_relatedWorkId_idx_8701ac35\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"notifications_relatedWorkId_idx_8701ac35\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"notifications_relatedWorkId_idx_8701ac35\"",
+        "sql": "CREATE INDEX \"notifications_relatedWorkId_idx_8701ac35\" ON \"public\".\"notifications\" (\"relatedWorkId\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"notifications_relatedWorkId_idx_8701ac35\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"notifications_relatedWorkId_idx_8701ac35\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.notifications.notifications_userId_idx_a489d58a",
+    "label": "Create index \"notifications_userId_idx_a489d58a\" on \"notifications\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "notifications_userId_idx_a489d58a",
+        "table": "notifications"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"notifications_userId_idx_a489d58a\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"notifications_userId_idx_a489d58a\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"notifications_userId_idx_a489d58a\"",
+        "sql": "CREATE INDEX \"notifications_userId_idx_a489d58a\" ON \"public\".\"notifications\" (\"userId\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"notifications_userId_idx_a489d58a\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"notifications_userId_idx_a489d58a\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.work_likes.work_likes_workId_idx_726bc97e",
+    "label": "Create index \"work_likes_workId_idx_726bc97e\" on \"work_likes\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "work_likes_workId_idx_726bc97e",
+        "table": "work_likes"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"work_likes_workId_idx_726bc97e\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"work_likes_workId_idx_726bc97e\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"work_likes_workId_idx_726bc97e\"",
+        "sql": "CREATE INDEX \"work_likes_workId_idx_726bc97e\" ON \"public\".\"work_likes\" (\"workId\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"work_likes_workId_idx_726bc97e\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"work_likes_workId_idx_726bc97e\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.public.challenge_applications.challenge_applications_status_createdAt_idx.rename",
+    "label": "Rename index \"challenge_applications_status_createdAt_idx\" to \"challenge_applications_status_createdAt_idx_58610442\" on \"challenge_applications\"",
+    "operationClass": "widening",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "challenge_applications_status_createdAt_idx_58610442",
+        "table": "challenge_applications"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"challenge_applications_status_createdAt_idx\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"challenge_applications_status_createdAt_idx\""
+        ]
+      },
+      {
+        "description": "ensure index \"challenge_applications_status_createdAt_idx_58610442\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"challenge_applications_status_createdAt_idx_58610442\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "rename index \"challenge_applications_status_createdAt_idx\" to \"challenge_applications_status_createdAt_idx_58610442\"",
+        "sql": "ALTER INDEX \"public\".\"challenge_applications_status_createdAt_idx\" RENAME TO \"challenge_applications_status_createdAt_idx_58610442\"",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"challenge_applications_status_createdAt_idx_58610442\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"challenge_applications_status_createdAt_idx_58610442\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.public.challenge_applications.challenge_applications_userId_idx.rename",
+    "label": "Rename index \"challenge_applications_userId_idx\" to \"challenge_applications_userId_idx_a489d58a\" on \"challenge_applications\"",
+    "operationClass": "widening",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "challenge_applications_userId_idx_a489d58a",
+        "table": "challenge_applications"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"challenge_applications_userId_idx\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"challenge_applications_userId_idx\""
+        ]
+      },
+      {
+        "description": "ensure index \"challenge_applications_userId_idx_a489d58a\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"challenge_applications_userId_idx_a489d58a\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "rename index \"challenge_applications_userId_idx\" to \"challenge_applications_userId_idx_a489d58a\"",
+        "sql": "ALTER INDEX \"public\".\"challenge_applications_userId_idx\" RENAME TO \"challenge_applications_userId_idx_a489d58a\"",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"challenge_applications_userId_idx_a489d58a\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"challenge_applications_userId_idx_a489d58a\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.public.challenge_participants.challenge_participants_userId_abandonedAt_idx.rename",
+    "label": "Rename index \"challenge_participants_userId_abandonedAt_idx\" to \"challenge_participants_userId_abandonedAt_idx_16029451\" on \"challenge_participants\"",
+    "operationClass": "widening",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "challenge_participants_userId_abandonedAt_idx_16029451",
+        "table": "challenge_participants"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"challenge_participants_userId_abandonedAt_idx\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"challenge_participants_userId_abandonedAt_idx\""
+        ]
+      },
+      {
+        "description": "ensure index \"challenge_participants_userId_abandonedAt_idx_16029451\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"challenge_participants_userId_abandonedAt_idx_16029451\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "rename index \"challenge_participants_userId_abandonedAt_idx\" to \"challenge_participants_userId_abandonedAt_idx_16029451\"",
+        "sql": "ALTER INDEX \"public\".\"challenge_participants_userId_abandonedAt_idx\" RENAME TO \"challenge_participants_userId_abandonedAt_idx_16029451\"",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"challenge_participants_userId_abandonedAt_idx_16029451\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"challenge_participants_userId_abandonedAt_idx_16029451\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.public.challenges.challenges_category_documentType_idx.rename",
+    "label": "Rename index \"challenges_category_documentType_idx\" to \"challenges_category_documentType_idx_107a77d0\" on \"challenges\"",
+    "operationClass": "widening",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "challenges_category_documentType_idx_107a77d0",
+        "table": "challenges"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"challenges_category_documentType_idx\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"challenges_category_documentType_idx\""
+        ]
+      },
+      {
+        "description": "ensure index \"challenges_category_documentType_idx_107a77d0\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"challenges_category_documentType_idx_107a77d0\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "rename index \"challenges_category_documentType_idx\" to \"challenges_category_documentType_idx_107a77d0\"",
+        "sql": "ALTER INDEX \"public\".\"challenges_category_documentType_idx\" RENAME TO \"challenges_category_documentType_idx_107a77d0\"",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"challenges_category_documentType_idx_107a77d0\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"challenges_category_documentType_idx_107a77d0\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.public.challenges.challenges_createdById_idx.rename",
+    "label": "Rename index \"challenges_createdById_idx\" to \"challenges_createdById_idx_8bf640ed\" on \"challenges\"",
+    "operationClass": "widening",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "challenges_createdById_idx_8bf640ed",
+        "table": "challenges"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"challenges_createdById_idx\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"challenges_createdById_idx\""
+        ]
+      },
+      {
+        "description": "ensure index \"challenges_createdById_idx_8bf640ed\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"challenges_createdById_idx_8bf640ed\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "rename index \"challenges_createdById_idx\" to \"challenges_createdById_idx_8bf640ed\"",
+        "sql": "ALTER INDEX \"public\".\"challenges_createdById_idx\" RENAME TO \"challenges_createdById_idx_8bf640ed\"",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"challenges_createdById_idx_8bf640ed\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"challenges_createdById_idx_8bf640ed\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.public.challenges.challenges_status_deadline_idx.rename",
+    "label": "Rename index \"challenges_status_deadline_idx\" to \"challenges_status_deadline_idx_7a6712cf\" on \"challenges\"",
+    "operationClass": "widening",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "challenges_status_deadline_idx_7a6712cf",
+        "table": "challenges"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"challenges_status_deadline_idx\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"challenges_status_deadline_idx\""
+        ]
+      },
+      {
+        "description": "ensure index \"challenges_status_deadline_idx_7a6712cf\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"challenges_status_deadline_idx_7a6712cf\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "rename index \"challenges_status_deadline_idx\" to \"challenges_status_deadline_idx_7a6712cf\"",
+        "sql": "ALTER INDEX \"public\".\"challenges_status_deadline_idx\" RENAME TO \"challenges_status_deadline_idx_7a6712cf\"",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"challenges_status_deadline_idx_7a6712cf\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"challenges_status_deadline_idx_7a6712cf\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.public.feedbacks.feedbacks_userId_idx.rename",
+    "label": "Rename index \"feedbacks_userId_idx\" to \"feedbacks_userId_idx_a489d58a\" on \"feedbacks\"",
+    "operationClass": "widening",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "feedbacks_userId_idx_a489d58a",
+        "table": "feedbacks"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"feedbacks_userId_idx\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"feedbacks_userId_idx\""
+        ]
+      },
+      {
+        "description": "ensure index \"feedbacks_userId_idx_a489d58a\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"feedbacks_userId_idx_a489d58a\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "rename index \"feedbacks_userId_idx\" to \"feedbacks_userId_idx_a489d58a\"",
+        "sql": "ALTER INDEX \"public\".\"feedbacks_userId_idx\" RENAME TO \"feedbacks_userId_idx_a489d58a\"",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"feedbacks_userId_idx_a489d58a\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"feedbacks_userId_idx_a489d58a\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.public.feedbacks.feedbacks_workId_createdAt_idx.rename",
+    "label": "Rename index \"feedbacks_workId_createdAt_idx\" to \"feedbacks_workId_createdAt_idx_638ee4a9\" on \"feedbacks\"",
+    "operationClass": "widening",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "feedbacks_workId_createdAt_idx_638ee4a9",
+        "table": "feedbacks"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"feedbacks_workId_createdAt_idx\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"feedbacks_workId_createdAt_idx\""
+        ]
+      },
+      {
+        "description": "ensure index \"feedbacks_workId_createdAt_idx_638ee4a9\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"feedbacks_workId_createdAt_idx_638ee4a9\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "rename index \"feedbacks_workId_createdAt_idx\" to \"feedbacks_workId_createdAt_idx_638ee4a9\"",
+        "sql": "ALTER INDEX \"public\".\"feedbacks_workId_createdAt_idx\" RENAME TO \"feedbacks_workId_createdAt_idx_638ee4a9\"",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"feedbacks_workId_createdAt_idx_638ee4a9\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"feedbacks_workId_createdAt_idx_638ee4a9\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.public.notifications.notifications_relatedChallengeId_idx.rename",
+    "label": "Rename index \"notifications_relatedChallengeId_idx\" to \"notifications_relatedChallengeId_idx_a2375290\" on \"notifications\"",
+    "operationClass": "widening",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "notifications_relatedChallengeId_idx_a2375290",
+        "table": "notifications"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"notifications_relatedChallengeId_idx\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"notifications_relatedChallengeId_idx\""
+        ]
+      },
+      {
+        "description": "ensure index \"notifications_relatedChallengeId_idx_a2375290\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"notifications_relatedChallengeId_idx_a2375290\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "rename index \"notifications_relatedChallengeId_idx\" to \"notifications_relatedChallengeId_idx_a2375290\"",
+        "sql": "ALTER INDEX \"public\".\"notifications_relatedChallengeId_idx\" RENAME TO \"notifications_relatedChallengeId_idx_a2375290\"",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"notifications_relatedChallengeId_idx_a2375290\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"notifications_relatedChallengeId_idx_a2375290\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.public.notifications.notifications_userId_readAt_createdAt_idx.rename",
+    "label": "Rename index \"notifications_userId_readAt_createdAt_idx\" to \"notifications_userId_readAt_createdAt_idx_9b6c3810\" on \"notifications\"",
+    "operationClass": "widening",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "notifications_userId_readAt_createdAt_idx_9b6c3810",
+        "table": "notifications"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"notifications_userId_readAt_createdAt_idx\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"notifications_userId_readAt_createdAt_idx\""
+        ]
+      },
+      {
+        "description": "ensure index \"notifications_userId_readAt_createdAt_idx_9b6c3810\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"notifications_userId_readAt_createdAt_idx_9b6c3810\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "rename index \"notifications_userId_readAt_createdAt_idx\" to \"notifications_userId_readAt_createdAt_idx_9b6c3810\"",
+        "sql": "ALTER INDEX \"public\".\"notifications_userId_readAt_createdAt_idx\" RENAME TO \"notifications_userId_readAt_createdAt_idx_9b6c3810\"",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"notifications_userId_readAt_createdAt_idx_9b6c3810\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"notifications_userId_readAt_createdAt_idx_9b6c3810\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.public.oauth_accounts.oauth_accounts_userId_idx.rename",
+    "label": "Rename index \"oauth_accounts_userId_idx\" to \"oauth_accounts_userId_idx_a489d58a\" on \"oauth_accounts\"",
+    "operationClass": "widening",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "oauth_accounts_userId_idx_a489d58a",
+        "table": "oauth_accounts"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"oauth_accounts_userId_idx\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"oauth_accounts_userId_idx\""
+        ]
+      },
+      {
+        "description": "ensure index \"oauth_accounts_userId_idx_a489d58a\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"oauth_accounts_userId_idx_a489d58a\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "rename index \"oauth_accounts_userId_idx\" to \"oauth_accounts_userId_idx_a489d58a\"",
+        "sql": "ALTER INDEX \"public\".\"oauth_accounts_userId_idx\" RENAME TO \"oauth_accounts_userId_idx_a489d58a\"",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"oauth_accounts_userId_idx_a489d58a\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"oauth_accounts_userId_idx_a489d58a\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.public.users.users_grade_idx.rename",
+    "label": "Rename index \"users_grade_idx\" to \"users_grade_idx_26d2b5f2\" on \"users\"",
+    "operationClass": "widening",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "users_grade_idx_26d2b5f2",
+        "table": "users"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"users_grade_idx\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"users_grade_idx\""
+        ]
+      },
+      {
+        "description": "ensure index \"users_grade_idx_26d2b5f2\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"users_grade_idx_26d2b5f2\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "rename index \"users_grade_idx\" to \"users_grade_idx_26d2b5f2\"",
+        "sql": "ALTER INDEX \"public\".\"users_grade_idx\" RENAME TO \"users_grade_idx_26d2b5f2\"",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"users_grade_idx_26d2b5f2\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"users_grade_idx_26d2b5f2\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.public.work_likes.work_likes_userId_idx.rename",
+    "label": "Rename index \"work_likes_userId_idx\" to \"work_likes_userId_idx_a489d58a\" on \"work_likes\"",
+    "operationClass": "widening",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "work_likes_userId_idx_a489d58a",
+        "table": "work_likes"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"work_likes_userId_idx\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"work_likes_userId_idx\""
+        ]
+      },
+      {
+        "description": "ensure index \"work_likes_userId_idx_a489d58a\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"work_likes_userId_idx_a489d58a\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "rename index \"work_likes_userId_idx\" to \"work_likes_userId_idx_a489d58a\"",
+        "sql": "ALTER INDEX \"public\".\"work_likes_userId_idx\" RENAME TO \"work_likes_userId_idx_a489d58a\"",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"work_likes_userId_idx_a489d58a\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"work_likes_userId_idx_a489d58a\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.public.works.works_participantId_idx.rename",
+    "label": "Rename index \"works_participantId_idx\" to \"works_participantId_idx_e6c70ceb\" on \"works\"",
+    "operationClass": "widening",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "works_participantId_idx_e6c70ceb",
+        "table": "works"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"works_participantId_idx\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"works_participantId_idx\""
+        ]
+      },
+      {
+        "description": "ensure index \"works_participantId_idx_e6c70ceb\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"works_participantId_idx_e6c70ceb\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "rename index \"works_participantId_idx\" to \"works_participantId_idx_e6c70ceb\"",
+        "sql": "ALTER INDEX \"public\".\"works_participantId_idx\" RENAME TO \"works_participantId_idx_e6c70ceb\"",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"works_participantId_idx_e6c70ceb\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"works_participantId_idx_e6c70ceb\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.public.works.works_submittedAt_idx.rename",
+    "label": "Rename index \"works_submittedAt_idx\" to \"works_submittedAt_idx_2ce3650f\" on \"works\"",
+    "operationClass": "widening",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "works_submittedAt_idx_2ce3650f",
+        "table": "works"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"works_submittedAt_idx\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"works_submittedAt_idx\""
+        ]
+      },
+      {
+        "description": "ensure index \"works_submittedAt_idx_2ce3650f\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"works_submittedAt_idx_2ce3650f\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "rename index \"works_submittedAt_idx\" to \"works_submittedAt_idx_2ce3650f\"",
+        "sql": "ALTER INDEX \"public\".\"works_submittedAt_idx\" RENAME TO \"works_submittedAt_idx_2ce3650f\"",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"works_submittedAt_idx_2ce3650f\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"works_submittedAt_idx_2ce3650f\""
+        ]
+      }
+    ]
+  }
+]

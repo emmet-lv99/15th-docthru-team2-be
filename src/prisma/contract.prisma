@@ -1,0 +1,266 @@
+// use prisma-8
+//
+// 독스루 계약 (Prisma 8 native) — prisma/schema.prisma(v7 원본)의 1:1 전환 초안
+// 스칼라: timestamp(3) 컬럼 → TimestamptzString (강사님 prisma-8 starter 방식)
+//   → dry-run 결과에 따라 컬럼 타입 변환(ALTER) 여부가 결정된 (게이트 값)
+native_enum UserRole {
+  USER  = "USER"
+  ADMIN = "ADMIN"
+}
+
+native_enum UserGrade {
+  NORMAL = "NORMAL"
+  EXPERT = "EXPERT"
+}
+
+native_enum OAuthProvider {
+  GOOGLE = "GOOGLE"
+}
+
+native_enum Category {
+  NEXT_JS   = "NEXT_JS"
+  MODERN_JS = "MODERN_JS"
+  API       = "API"
+  WEB       = "WEB"
+  CAREER    = "CAREER"
+}
+
+native_enum DocumentType {
+  OFFICIAL = "OFFICIAL"
+  BLOG     = "BLOG"
+  BOOK     = "BOOK"
+  OTHER    = "OTHER"
+}
+
+native_enum ChallengeStatus {
+  IN_PROGRESS = "IN_PROGRESS"
+  CLOSED      = "CLOSED"
+}
+
+native_enum ApplicationStatus {
+  PENDING   = "PENDING"
+  APPROVED  = "APPROVED"
+  REJECTED  = "REJECTED"
+  CANCELLED = "CANCELLED"
+}
+
+// ⚠️ 멤버 순서 = DB enum sortorder (Postgres enum 은 append-only — 2026-10-11 마이그레이션 순서)
+native_enum NotificationType {
+  CHALLENGE_APPROVED = "CHALLENGE_APPROVED"
+  CHALLENGE_REJECTED = "CHALLENGE_REJECTED"
+  CHALLENGE_UPDATED  = "CHALLENGE_UPDATED"
+  CHALLENGE_DELETED  = "CHALLENGE_DELETED"
+  WORK_ADDED         = "WORK_ADDED"
+  FEEDBACK_ADDED     = "FEEDBACK_ADDED"
+  FEEDBACK_UPDATED   = "FEEDBACK_UPDATED"
+  CHALLENGE_DEADLINE = "CHALLENGE_DEADLINE"
+  FEEDBACK_DELETED   = "FEEDBACK_DELETED"
+}
+
+model User {
+  id           Int  @id @default(autoincrement())
+  email        String @unique
+  nickname     String @unique
+  passwordHash String?
+  role         pg.enum(UserRole)  @default("USER")
+  grade        pg.enum(UserGrade) @default("NORMAL")
+
+  oauthAccounts       OAuthAccount[]
+  applications        ChallengeApplication[] @relation("Applicant")
+  decidedApplications ChallengeApplication[] @relation("Decider")
+  createdChallenges   Challenge[]            @relation("ChallengeCreator")
+  deletedChallenges   Challenge[]            @relation("ChallengeDeleter")
+  participations      ChallengeParticipant[]
+  feedbacks           Feedback[]
+  workLikes           WorkLike[]
+  notifications       Notification[]         @relation("NotificationReceiver")
+  actedNotifications  Notification[]         @relation("NotificationActor")
+
+  createdAt TimestamptzString @default(now())
+  updatedAt temporal.updatedAtString()
+
+  @@index([grade])
+  @@map("users")
+}
+
+model OAuthAccount {
+  id                Int  @id @default(autoincrement())
+  userId            Int
+  user              User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  provider          pg.enum(OAuthProvider)
+  providerAccountId String
+
+  createdAt TimestamptzString @default(now())
+
+  @@unique([provider, providerAccountId])
+  @@index([userId])
+  @@map("oauth_accounts")
+}
+
+model ChallengeApplication {
+  id     Int  @id @default(autoincrement())
+  userId Int
+  user   User @relation("Applicant", fields: [userId], references: [id], onDelete: Cascade)
+
+  title           String
+  category        pg.enum(Category)
+  documentType    pg.enum(DocumentType)
+  sourceUrl       String
+  content         String?
+  desiredDeadline TimestamptzString
+  maxParticipants Int
+
+  status          pg.enum(ApplicationStatus) @default("PENDING")
+  rejectionReason String?
+  decidedAt       TimestamptzString?
+  decidedById     Int?
+  decidedBy       User?             @relation("Decider", fields: [decidedById], references: [id], onDelete: SetNull)
+  cancelledAt     TimestamptzString?
+
+  createdAt  TimestamptzString @default(now())
+  updatedAt  temporal.updatedAtString()
+  challenges Challenge[]
+
+  @@index([status, createdAt])
+  @@index([userId])
+  @@map("challenge_applications")
+}
+
+model Challenge {
+  id        Int @id @default(autoincrement())
+  title     String
+  category  pg.enum(Category)
+  documentType pg.enum(DocumentType)
+  sourceUrl String
+  content   String?
+  deadline  TimestamptzString
+  maxParticipants Int
+  status    pg.enum(ChallengeStatus) @default("IN_PROGRESS")
+  createdById Int
+  createdBy User @relation("ChallengeCreator", fields: [createdById], references: [id], onDelete: Restrict)
+
+  sourceApplicationId Int?
+  sourceApplication    ChallengeApplication? @relation(fields: [sourceApplicationId], references: [id], onDelete: SetNull)
+
+  deletedAt    TimestamptzString?
+  deleteReason String?
+  deletedById  Int?
+  deletedBy    User?    @relation("ChallengeDeleter", fields: [deletedById], references: [id], onDelete: SetNull)
+
+  participants  ChallengeParticipant[]
+  notifications Notification[]
+
+  createdAt TimestamptzString @default(now())
+  updatedAt temporal.updatedAtString()
+
+  @@index([status, deadline])
+  @@index([category, documentType])
+  @@index([createdById])
+  @@map("challenges")
+}
+
+model ChallengeParticipant {
+  id          Int       @id @default(autoincrement())
+  challengeId Int
+  challenge   Challenge @relation(fields: [challengeId], references: [id], onDelete: Cascade)
+  userId      Int
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  joinedAt    TimestamptzString @default(now())
+  abandonedAt TimestamptzString?
+
+  work  Work[]
+  draft Draft?
+
+  createdAt TimestamptzString @default(now())
+  updatedAt temporal.updatedAtString()
+
+  @@unique([challengeId, userId])
+  @@index([userId, abandonedAt])
+  @@map("challenge_participants")
+}
+
+model Draft {
+  id Int @id @default(autoincrement())
+  participantId Int @unique
+  participant   ChallengeParticipant @relation(fields: [participantId], references: [id], onDelete: Cascade)
+  content String
+
+  createdAt TimestamptzString @default(now())
+  updatedAt temporal.updatedAtString()
+
+  @@map("drafts")
+}
+
+model Work {
+  id Int @id @default(autoincrement())
+  participantId Int
+  participant   ChallengeParticipant @relation(fields: [participantId], references: [id], onDelete: Cascade)
+  content       String
+  submittedAt   TimestamptzString @default(now())
+
+  feedbacks     Feedback[]
+  likes         WorkLike[]
+  notifications Notification[]
+
+  createdAt TimestamptzString @default(now())
+  updatedAt temporal.updatedAtString()
+
+  @@index([participantId])
+  @@index([submittedAt])
+  @@map("works")
+}
+
+model Feedback {
+  id      Int @id @default(autoincrement())
+  workId  Int
+  work    Work @relation(fields: [workId], references: [id], onDelete: Cascade)
+  userId  Int
+  user    User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  content String
+
+  createdAt TimestamptzString @default(now())
+  updatedAt temporal.updatedAtString()
+
+  @@index([workId, createdAt])
+  @@index([userId])
+  @@map("feedbacks")
+}
+
+model WorkLike {
+  id     Int @id @default(autoincrement())
+  workId Int
+  work   Work @relation(fields: [workId], references: [id], onDelete: Cascade)
+  userId Int
+  user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt TimestamptzString @default(now())
+
+  @@unique([workId, userId])
+  @@index([userId])
+  @@map("work_likes")
+}
+
+model Notification {
+  id     Int @id @default(autoincrement())
+  userId Int
+  user   User @relation("NotificationReceiver", fields: [userId], references: [id], onDelete: Cascade)
+  type   pg.enum(NotificationType)
+
+  reason String?
+
+  relatedChallengeId Int?
+  relatedChallenge   Challenge? @relation(fields: [relatedChallengeId], references: [id], onDelete: Cascade)
+  relatedWorkId      Int?
+  relatedWork        Work?      @relation(fields: [relatedWorkId], references: [id], onDelete: Cascade)
+  actorId            Int?
+  actor              User?      @relation("NotificationActor", fields: [actorId], references: [id], onDelete: SetNull)
+
+  dedupeKey String? @unique
+  readAt    TimestamptzString?
+
+  createdAt TimestamptzString @default(now())
+
+  @@index([userId, readAt, createdAt])
+  @@index([relatedChallengeId])
+  @@map("notifications")
+}

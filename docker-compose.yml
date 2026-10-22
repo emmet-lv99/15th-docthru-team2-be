@@ -1,0 +1,72 @@
+# docker-compose.yml — 이 repo(백엔드)만 로컬에서 띄운다
+#
+# 사용법 (backend repo 루트에서)
+#   docker compose up --build        # postgres + backend
+#   docker compose exec backend pnpm db:update
+#   docker compose exec backend pnpm seed
+#   docker compose down -v
+#
+# ℹ️ 프론트엔드는 별도 repo(docthru-frontend)예요.
+#    화면까지 함께 띄우려면 프론트 repo 도 따로 실행해 주세요.
+#
+# ─────────────────────────────────────────────────────────────
+#  배포와 다른 점 (이해하고 넘어가세요)
+# ─────────────────────────────────────────────────────────────
+#   · 마이그레이션은 여기서 자동 실행되지 않습니다.
+#     여러 컨테이너가 동시에 migrate 하면 락 경합이 생기므로,
+#     운영에서는 배포 파이프라인에서 별도 단계로 실행합니다.
+#   · ENABLE_DEV_LOGIN 이 compose 에서는 true 입니다.
+#     운영(Cloud Run)에서는 이 값을 설정하지 않습니다(기본 false).
+
+name: docthru
+
+services:
+  db:
+    image: postgres:18-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: docthru
+      POSTGRES_PASSWORD: docthru
+      # ⚠️ 시드 안전장치(seed-safety)가 이 이름을 확인합니다 — 바꾸면 package.json 의
+      #    `--allow-reset=` 과 scripts/seed-safety.js 의 DATABASE_NAME 도 함께 바꿔야 해요.
+      POSTGRES_DB: docthru_bp
+    ports:
+      # 호스트 5432 를 쓰고 싶으면 주석을 해제하세요.
+      # ⚠️ 이미 로컬 PostgreSQL 이 있으면 충돌합니다.
+      # - "5432:5432"
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    healthcheck:
+      # ⚠️ 이 healthcheck 가 없다면 backend 가 DB 에 접속하기 전에 죽습니다.
+      test: ['CMD-SHELL', 'pg_isready -U docthru -d docthru_bp']
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      NODE_ENV: development
+      PORT: 8080
+      # 컨테이너 안에서는 서비스 이름(db)으로 접속한다.
+      DATABASE_URL: postgresql://docthru:docthru@db:5432/docthru_bp
+      JWT_ACCESS_SECRET: dev-only-access-secret-change-me-at-least-32chars
+      JWT_REFRESH_SECRET: dev-only-refresh-secret-change-me-at-least-32chars
+      # ⚠️ 운영에서 절대 true 로 두지 마세요
+      ENABLE_DEV_LOGIN: 'true'
+      CLIENT_BASE_URL: http://localhost:3000
+      CORS_ORIGINS: http://localhost:3000
+      API_BASE_URL: http://localhost:5010/api/v1
+      DB_POOL_MAX: 5
+    ports:
+      - '5010:8080'
+
+volumes:
+  db-data:

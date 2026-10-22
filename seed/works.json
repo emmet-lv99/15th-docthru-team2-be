@@ -1,0 +1,461 @@
+[
+  {
+    "id": 1,
+    "challengeId": 1,
+    "userId": 20,
+    "description": "파이썬은 고급 범용 프로그래밍 언어입니다.",
+    "lastModifiedAt": "2025-05-25T01:00:00.000Z",
+    "isSubmitted": true,
+    "submittedAt": "2025-05-25T02:00:00.000Z"
+  },
+  {
+    "id": 2,
+    "challengeId": 1,
+    "userId": 20,
+    "description": "Node.js는 이벤트 기반, 논블로킹 I/O 모델을 사용하여 가볍고 효율적입니다.",
+    "lastModifiedAt": "2025-05-25T02:00:00.000Z",
+    "isSubmitted": false,
+    "submittedAt": null
+  },
+  {
+    "id": 3,
+    "challengeId": 1,
+    "userId": 5,
+    "description": "Node.js는 이벤트 기반, 논블로킹 I/O 모델을 사용하여 가볍고 효율적입니다.",
+    "lastModifiedAt": "2025-05-26T01:00:00.000Z",
+    "isSubmitted": true,
+    "submittedAt": "2025-05-26T02:00:00.000Z"
+  },
+  {
+    "id": 4,
+    "challengeId": 1,
+    "userId": 2,
+    "description": "Django는 파이썬 기반의 강력한 웹 프레임워크입니다.",
+    "lastModifiedAt": "2025-05-27T01:00:00.000Z",
+    "isSubmitted": true,
+    "submittedAt": "2025-05-27T02:00:00.000Z"
+  },
+  {
+    "id": 5,
+    "challengeId": 1,
+    "userId": 2,
+    "description": "Next.js의 App Router는 파일 기반 라우팅을 지원합니다.",
+    "lastModifiedAt": "2025-05-27T02:00:00.000Z",
+    "isSubmitted": false,
+    "submittedAt": null
+  },
+  {
+    "id": 6,
+    "challengeId": 1,
+    "userId": 14,
+    "description": "Next.js의 App Router는 파일 기반 라우팅을 지원합니다.",
+    "lastModifiedAt": "2025-05-28T01:00:00.000Z",
+    "isSubmitted": true,
+    "submittedAt": "2025-05-28T02:00:00.000Z"
+  },
+  {
+    "id": 7,
+    "challengeId": 1,
+    "userId": 7,
+    "description": "Jest는 자바스크립트 테스트 프레임워크입니다.",
+    "lastModifiedAt": "2025-05-29T01:00:00.000Z",
+    "isSubmitted": true,
+    "submittedAt": "2025-05-29T02:00:00.000Z"
+  },
+  {
+    "id": 8,
+    "challengeId": 1,
+    "userId": 7,
+    "description": "컨테이너 이미지는 Dockerfile로 정의합니다.",
+    "lastModifiedAt": "2025-05-29T02:00:00.000Z",
+    "isSubmitted": false,
+    "submittedAt": null
+  },
+  {
+    "id": 9,
+    "challengeId": 1,
+    "userId": 12,
+    "description": "컨테이너 이미지는 Dockerfile로 정의합니다.",
+    "lastModifiedAt": "2025-05-30T01:00:00.000Z",
+    "isSubmitted": true,
+    "submittedAt": "2025-05-30T02:00:00.000Z"
+  },
+  {
+    "id": 10,
+    "challengeId": 1,
+    "userId": 4,
+    "description": "파이썬이란 무엇인가요?",
+    "lastModifiedAt": "2025-05-31T01:00:00.000Z",
+    "isSubmitted": true,
+    "submittedAt": "2025-05-31T02:00:00.000Z"
+  },
+  {
+    "id": 11,
+    "challengeId": 1,
+    "userId": 4,
+    "description": "React Hooks는 함수 컴포넌트에서 React state와 생명주기 기능에 \"hook into(접근)\"할 수 있게 해주는 함수입니다.",
+    "lastModifiedAt": "2025-05-31T02:00:00.000Z",
+    "isSubmitted": false,
+    "submittedAt": null
+  },
+  {
+    "id": 12,
+    "challengeId": 1,
+    "userId": 8,
+    "description": "React Hooks는 함수 컴포넌트에서 React state와 생명주기 기능에 \"hook into(접근)\"할 수 있게 해주는 함수입니다.",
+    "lastModifiedAt": "2025-06-01T01:00:00.000Z",
+    "isSubmitted": true,
+    "submittedAt": "2025-06-01T02:00:00.000Z"
+  },
+  {
+    "id": 13,
+    "challengeId": 2,
+    "userId": 18,
+    "description": "Node.js는 이벤트 기반, 논블로킹 I/O 모델을 사용하여 가볍고 효율적입니다.",
+    "lastModifiedAt": "2025-06-02T01:00:00.000Z",
+    "isSubmitted": true,
+    "submittedAt": "2025-06-02T02:00:00.000Z"
+  },
+  {
+    "id": 14,
+    "challengeId": 2,
+    "userId": 18,
+    "description": "Docker는 컨테이너 기반의 가상화 플랫폼입니다.",
+    "lastModifiedAt": "2025-06-02T02:00:00.000Z",
+    "isSubmitted": false,
+    "submittedAt": null
+  },
+  {
+    "id": 15,
+    "challengeId": 2,
+    "userId": 13,
+    "description": "Docker는 컨테이너 기반의 가상화 플랫폼입니다.",
+    "lastModifiedAt": "2025-06-03T01:00:00.000Z",
+    "isSubmitted": true,
+    "submittedAt": "2025-06-03T02:00:00.000Z"
+  },
+  {
+    "id": 16,
+    "challengeId": 2,
+    "userId": 7,
+    "description": "Next.js의 App Router는 파일 기반 라우팅을 지원합니다.",
+    "lastModifiedAt": "2025-06-04T01:00:00.000Z",
+    "isSubmitted": true,
+    "submittedAt": "2025-06-04T02:00:00.000Z"
+  },
+  {
+    "id": 17,
+    "challengeId": 2,
+    "userId": 7,
+    "description": "테스트 코드는 코드 품질을 높여줍니다.",
+    "lastModifiedAt": "2025-06-04T02:00:00.000Z",
+    "isSubmitted": false,
+    "submittedAt": null
+  },
+  {
+    "id": 18,
+    "challengeId": 2,
+    "userId": 17,
+    "description": "테스트 코드는 코드 품질을 높여줍니다.",
+    "lastModifiedAt": "2025-06-05T01:00:00.000Z",
+    "isSubmitted": true,
+    "submittedAt": "2025-06-05T02:00:00.000Z"
+  },
+  {
+    "id": 19,
+    "challengeId": 3,
+    "userId": 17,
+    "description": "컨테이너 이미지는 Dockerfile로 정의합니다.",
+    "lastModifiedAt": "2025-06-06T01:00:00.000Z",
+    "isSubmitted": true,
+    "submittedAt": "2025-06-06T02:00:00.000Z"
+  },
+  {
+    "id": 20,
+    "challengeId": 3,
+    "userId": 17,
+    "description": "파이썬은 고급 범용 프로그래밍 언어입니다.",
+    "lastModifiedAt": "2025-06-06T02:00:00.000Z",
+    "isSubmitted": false,
+    "submittedAt": null
+  },
+  {
+    "id": 21,
+    "challengeId": 3,
+    "userId": 4,
+    "description": "파이썬은 고급 범용 프로그래밍 언어입니다.",
+    "lastModifiedAt": "2025-06-07T01:00:00.000Z",
+    "isSubmitted": true,
+    "submittedAt": "2025-06-07T02:00:00.000Z"
+  },
+  {
+    "id": 22,
+    "challengeId": 3,
+    "userId": 18,
+    "description": "React Hooks는 함수 컴포넌트에서 React state와 생명주기 기능에 \"hook into(접근)\"할 수 있게 해주는 함수입니다.",
+    "lastModifiedAt": "2025-06-08T01:00:00.000Z",
+    "isSubmitted": true,
+    "submittedAt": "2025-06-08T02:00:00.000Z"
+  },
+  {
+    "id": 23,
+    "challengeId": 3,
+    "userId": 18,
+    "description": "Django는 파이썬 기반의 강력한 웹 프레임워크입니다.",
+    "lastModifiedAt": "2025-06-08T02:00:00.000Z",
+    "isSubmitted": false,
+    "submittedAt": null
+  },
+  {
+    "id": 24,
+    "challengeId": 3,
+    "userId": 12,
+    "description": "Django는 파이썬 기반의 강력한 웹 프레임워크입니다.",
+    "lastModifiedAt": "2025-06-09T01:00:00.000Z",
+    "isSubmitted": true,
+    "submittedAt": "2025-06-09T02:00:00.000Z"
+  },
+  {
+    "id": 25,
+    "challengeId": 3,
+    "userId": 14,
+    "description": "Docker는 컨테이너 기반의 가상화 플랫폼입니다.",
+    "lastModifiedAt": "2025-06-10T01:00:00.000Z",
+    "isSubmitted": true,
+    "submittedAt": "2025-06-10T02:00:00.000Z"
+  },
+  {
+    "id": 26,
+    "challengeId": 3,
+    "userId": 14,
+    "description": "Jest는 자바스크립트 테스트 프레임워크입니다.",
+    "lastModifiedAt": "2025-06-10T02:00:00.000Z",
+    "isSubmitted": false,
+    "submittedAt": null
+  },
+  {
+    "id": 27,
+    "challengeId": 3,
+    "userId": 7,
+    "description": "Jest는 자바스크립트 테스트 프레임워크입니다.",
+    "lastModifiedAt": "2025-06-11T01:00:00.000Z",
+    "isSubmitted": true,
+    "submittedAt": "2025-06-11T02:00:00.000Z"
+  },
+  {
+    "id": 28,
+    "challengeId": 3,
+    "userId": 5,
+    "description": "테스트 코드는 코드 품질을 높여줍니다.",
+    "lastModifiedAt": "2025-06-12T01:00:00.000Z",
+    "isSubmitted": true,
+    "submittedAt": "2025-06-12T02:00:00.000Z"
+  },
+  {
+    "id": 29,
+    "challengeId": 3,
+    "userId": 5,
+    "description": "파이썬이란 무엇인가요?",
+    "lastModifiedAt": "2025-06-12T02:00:00.000Z",
+    "isSubmitted": false,
+    "submittedAt": null
+  },
+  {
+    "id": 30,
+    "challengeId": 3,
+    "userId": 2,
+    "description": "파이썬이란 무엇인가요?",
+    "lastModifiedAt": "2025-06-13T01:00:00.000Z",
+    "isSubmitted": true,
+    "submittedAt": "2025-06-13T02:00:00.000Z"
+  },
+  {
+    "id": 31,
+    "challengeId": 4,
+    "userId": 9,
+    "description": "파이썬은 고급 범용 프로그래밍 언어입니다.",
+    "lastModifiedAt": "2025-06-14T01:00:00.000Z",
+    "isSubmitted": true,
+    "submittedAt": "2025-06-14T02:00:00.000Z"
+  },
+  {
+    "id": 32,
+    "challengeId": 4,
+    "userId": 9,
+    "description": "Node.js는 이벤트 기반, 논블로킹 I/O 모델을 사용하여 가볍고 효율적입니다.",
+    "lastModifiedAt": "2025-06-14T02:00:00.000Z",
+    "isSubmitted": false,
+    "submittedAt": null
+  },
+  {
+    "id": 33,
+    "challengeId": 4,
+    "userId": 17,
+    "description": "Node.js는 이벤트 기반, 논블로킹 I/O 모델을 사용하여 가볍고 효율적입니다.",
+    "lastModifiedAt": "2025-06-15T01:00:00.000Z",
+    "isSubmitted": true,
+    "submittedAt": "2025-06-15T02:00:00.000Z"
+  },
+  {
+    "id": 34,
+    "challengeId": 4,
+    "userId": 13,
+    "description": "Django는 파이썬 기반의 강력한 웹 프레임워크입니다.",
+    "lastModifiedAt": "2025-06-16T01:00:00.000Z",
+    "isSubmitted": true,
+    "submittedAt": "2025-06-16T02:00:00.000Z"
+  },
+  {
+    "id": 35,
+    "challengeId": 4,
+    "userId": 13,
+    "description": "Next.js의 App Router는 파일 기반 라우팅을 지원합니다.",
+    "lastModifiedAt": "2025-06-16T02:00:00.000Z",
+    "isSubmitted": false,
+    "submittedAt": null
+  },
+  {
+    "id": 36,
+    "challengeId": 5,
+    "userId": 6,
+    "description": "Next.js의 App Router는 파일 기반 라우팅을 지원합니다.",
+    "lastModifiedAt": "2025-06-17T01:00:00.000Z",
+    "isSubmitted": true,
+    "submittedAt": "2025-06-17T02:00:00.000Z"
+  },
+  {
+    "id": 37,
+    "challengeId": 5,
+    "userId": 3,
+    "description": "Jest는 자바스크립트 테스트 프레임워크입니다.",
+    "lastModifiedAt": "2025-06-18T01:00:00.000Z",
+    "isSubmitted": true,
+    "submittedAt": "2025-06-18T02:00:00.000Z"
+  },
+  {
+    "id": 38,
+    "challengeId": 5,
+    "userId": 3,
+    "description": "컨테이너 이미지는 Dockerfile로 정의합니다.",
+    "lastModifiedAt": "2025-06-18T02:00:00.000Z",
+    "isSubmitted": false,
+    "submittedAt": null
+  },
+  {
+    "id": 39,
+    "challengeId": 6,
+    "userId": 5,
+    "description": "컨테이너 이미지는 Dockerfile로 정의합니다.",
+    "lastModifiedAt": "2025-06-19T01:00:00.000Z",
+    "isSubmitted": true,
+    "submittedAt": "2025-06-19T02:00:00.000Z"
+  },
+  {
+    "id": 40,
+    "challengeId": 6,
+    "userId": 13,
+    "description": "파이썬이란 무엇인가요?",
+    "lastModifiedAt": "2025-06-20T01:00:00.000Z",
+    "isSubmitted": true,
+    "submittedAt": "2025-06-20T02:00:00.000Z"
+  },
+  {
+    "id": 41,
+    "challengeId": 6,
+    "userId": 13,
+    "description": "React Hooks는 함수 컴포넌트에서 React state와 생명주기 기능에 \"hook into(접근)\"할 수 있게 해주는 함수입니다.",
+    "lastModifiedAt": "2025-06-20T02:00:00.000Z",
+    "isSubmitted": false,
+    "submittedAt": null
+  },
+  {
+    "id": 42,
+    "challengeId": 6,
+    "userId": 12,
+    "description": "React Hooks는 함수 컴포넌트에서 React state와 생명주기 기능에 \"hook into(접근)\"할 수 있게 해주는 함수입니다.",
+    "lastModifiedAt": "2025-06-21T01:00:00.000Z",
+    "isSubmitted": true,
+    "submittedAt": "2025-06-21T02:00:00.000Z"
+  },
+  {
+    "id": 43,
+    "challengeId": 6,
+    "userId": 20,
+    "description": "Node.js는 이벤트 기반, 논블로킹 I/O 모델을 사용하여 가볍고 효율적입니다.",
+    "lastModifiedAt": "2025-06-22T01:00:00.000Z",
+    "isSubmitted": true,
+    "submittedAt": "2025-06-22T02:00:00.000Z"
+  },
+  {
+    "id": 44,
+    "challengeId": 6,
+    "userId": 20,
+    "description": "Docker는 컨테이너 기반의 가상화 플랫폼입니다.",
+    "lastModifiedAt": "2025-06-22T02:00:00.000Z",
+    "isSubmitted": false,
+    "submittedAt": null
+  },
+  {
+    "id": 45,
+    "challengeId": 6,
+    "userId": 6,
+    "description": "Docker는 컨테이너 기반의 가상화 플랫폼입니다.",
+    "lastModifiedAt": "2025-06-23T01:00:00.000Z",
+    "isSubmitted": true,
+    "submittedAt": "2025-06-23T02:00:00.000Z"
+  },
+  {
+    "id": 46,
+    "challengeId": 7,
+    "userId": 12,
+    "description": "Next.js의 App Router는 파일 기반 라우팅을 지원합니다.",
+    "lastModifiedAt": "2025-06-24T01:00:00.000Z",
+    "isSubmitted": true,
+    "submittedAt": "2025-06-24T02:00:00.000Z"
+  },
+  {
+    "id": 47,
+    "challengeId": 7,
+    "userId": 12,
+    "description": "테스트 코드는 코드 품질을 높여줍니다.",
+    "lastModifiedAt": "2025-06-24T02:00:00.000Z",
+    "isSubmitted": false,
+    "submittedAt": null
+  },
+  {
+    "id": 48,
+    "challengeId": 7,
+    "userId": 8,
+    "description": "테스트 코드는 코드 품질을 높여줍니다.",
+    "lastModifiedAt": "2025-06-25T01:00:00.000Z",
+    "isSubmitted": true,
+    "submittedAt": "2025-06-25T02:00:00.000Z"
+  },
+  {
+    "id": 49,
+    "challengeId": 7,
+    "userId": 3,
+    "description": "컨테이너 이미지는 Dockerfile로 정의합니다.",
+    "lastModifiedAt": "2025-06-26T01:00:00.000Z",
+    "isSubmitted": true,
+    "submittedAt": "2025-06-26T02:00:00.000Z"
+  },
+  {
+    "id": 50,
+    "challengeId": 7,
+    "userId": 3,
+    "description": "파이썬은 고급 범용 프로그래밍 언어입니다.",
+    "lastModifiedAt": "2025-06-26T02:00:00.000Z",
+    "isSubmitted": false,
+    "submittedAt": null
+  },
+  {
+    "id": 51,
+    "challengeId": 7,
+    "userId": 16,
+    "description": "파이썬은 고급 범용 프로그래밍 언어입니다.",
+    "lastModifiedAt": "2025-06-27T01:00:00.000Z",
+    "isSubmitted": true,
+    "submittedAt": "2025-06-27T02:00:00.000Z"
+  }
+]

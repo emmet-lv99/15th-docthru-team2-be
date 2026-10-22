@@ -1,0 +1,24 @@
+# pnpm-workspace.yaml — backend 단독 repo 설정
+#
+# 이 repo 는 단독 패키지라 `packages` 목록은 필요 없어요.
+# 여기서 꼭 필요한 건 **allowBuilds** 하나입니다.
+#
+# ⚠️ 이 블록을 지우면 `pnpm install` 이 아래 에러로 실패해요:
+#     ERR_PNPM_IGNORED_BUILDS
+#   네이티브 바이너리/엔진을 빌드해야 하는 패키지들이라
+#   설치 시 스크립트 실행을 허용해 줘야 합니다.
+#
+# ⚠️ pnpm 12 부터는 package.json 의 `pnpm` 필드를 읽지 않아요.
+#   그래서 이 파일(pnpm-workspace.yaml)에 적어야 동작합니다. (결정 D-45)
+allowBuilds:
+  # ── Prisma 8 엔진 ──
+  '@prisma/engines': true
+  prisma: true
+  # prisma 8 CLI 가 끌어오는 실험용 디펜던시 — 텔레메트리가 아니라 빌드 허용
+  workerd: true
+  # prisma 8 CLI 가 끌어오는 번들러 (설치 스크립트로 바이너리를 놓는다)
+  esbuild: true
+  # 원격 분석 텔레메트리 — 굳이 설치 단계를 허용하지 않는다
+  '@scarf/scarf': false
+  # ── 비밀번호 해시(네이티브 모듈) ──
+  bcrypt: true

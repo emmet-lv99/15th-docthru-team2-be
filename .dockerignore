@@ -1,0 +1,17 @@
+# backend
+node_modules
+.env
+.env.*
+!.env.example
+env/
+generated/
+coverage/
+test/
+.git
+.gitignore
+Dockerfile
+.dockerignore
+README.md
+.eslintcache
+*.log
+.DS_Store

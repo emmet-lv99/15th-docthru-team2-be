@@ -1,0 +1,70 @@
+{
+  "name": "docthru-backend",
+  "version": "0.1.0",
+  "description": "독스루(Docthru) 백엔드 API 서버 — 팀 공용 뼈대",
+  "private": true,
+  "type": "module",
+  "main": "./src/main.js",
+  "imports": {
+    "#config": "./src/config/config.js",
+    "#prisma/*": "./src/prisma/*",
+    "#repositories": "./src/repositories/index.js",
+    "#constants": "./src/common/constants/index.js",
+    "#utils": "./src/common/utils/index.js",
+    "#exceptions": "./src/common/exceptions/index.js",
+    "#services": "./src/services/index.js",
+    "#controllers": "./src/controllers/index.js",
+    "#controllers/*": "./src/controllers/*",
+    "#middlewares": "./src/middlewares/index.js",
+    "#providers": "./src/providers/index.js",
+    "#docs/*": "./src/docs/*",
+    "#common/di/container.js": "./src/common/di/container.js",
+    "#common/*": "./src/common/*",
+    "#middlewares/*": "./src/middlewares/*"
+  },
+  "scripts": {
+    "dev": "nodemon --env-file=./env/.env.development ./src/main.js",
+    "prod": "node --env-file=./env/.env.production src/main.js",
+    "seed": "node --env-file=./env/.env.development ./scripts/seed.js --allow-reset=docthru_bp",
+    "contract:emit": "prisma contract emit",
+    "db:init": "dotenv -e ./env/.env.development -- prisma db init",
+    "db:update": "dotenv -e ./env/.env.development -- prisma db update",
+    "migration:plan": "prisma migration plan",
+    "db:migrate": "dotenv -e ./env/.env.development -- prisma db migrate --advance-ref db",
+    "migration:status": "dotenv -e ./env/.env.development -- prisma migration status",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "lint": "eslint .",
+    "test": "node --env-file-if-exists=./env/.env.development --test test/*.test.js",
+    "test:contract": "node --env-file-if-exists=./env/.env.development --test test/contract/contract.test.js",
+    "check": "pnpm format:check && pnpm lint && pnpm test"
+  },
+  "license": "ISC",
+  "engines": {
+    "node": ">=24"
+  },
+  "packageManager": "pnpm@12.5.1",
+  "dependencies": {
+    "@prisma/orm-postgres": "8.0.0-rc.18",
+    "awilix": "^13.0.0",
+    "bcrypt": "^6.0.0",
+    "cookie-parser": "^1.4.7",
+    "dotenv-cli": "^11.0.0",
+    "express": "^5.2.1",
+    "jsonwebtoken": "^9.0.3",
+    "pg": "^8.23.1",
+    "swagger-ui-express": "^5.0.1",
+    "zod": "^4.2.1",
+    "zod-openapi": "^6.0.2"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.39.2",
+    "@faker-js/faker": "^10.1.0",
+    "@types/node": "^26.6.5",
+    "eslint": "^9.39.2",
+    "globals": "^17.2.0",
+    "nodemon": "^3.1.11",
+    "prettier": "^3.7.4",
+    "prisma": "8.0.0-rc.23"
+  }
+}

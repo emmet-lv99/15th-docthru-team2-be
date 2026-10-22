@@ -1,0 +1,71 @@
+// src/controllers/works/works-controller.js
+//
+// ══════════════════════════════════════════════════════════════
+// 👤 담당: 팀원 ②(작업물 · 임시저장) — 제출·수정·삭제·하트 + drafts 3건(D-98)
+// 📍 이 파일: src/controllers/works/works-controller.js → 라우트 /works · /challenges/{challengeId}/works
+// 🔗 협력: ①(도전·포기) · ④(피드백 — 작업물 상세 화면에서 경계 협력)
+// 🔨 상태: 뼈대(지침서) — routes() 를 이 파일 안 "연결 가이드 ①②③" 순서대로 채워 주세요
+// ══════════════════════════════════════════════════════════════
+//
+// 🐘 prisma-8 메모 — DB 는 repositories 에서만 부르고, 아래 v7 문법은 쓰지 않아요
+//    · 업서트  v7 upsert → .select(...).upsert({ create, update, conflictOn })   (v8 은 .where() 없이)
+//    · 하트    추가 = .create(...) / 취소 = .where({ ... }).deleteAll()
+//              (중복 하트는 err.sqlState === '23505' → 기존 상태 반환)
+//    · 카운트  likeCount·feedbackCount 는 .include('likes', (r) => r.count()) 로 조립
+//    · 묶음    v7 $transaction([...]) 금지 → db.transaction(async (tx) => { ... })
+//
+// 이 도메인이 하는 것 — 작업물(번역 결과물) 관리 · 좋아요 (요구 2.4 · 2.7)
+//
+// 구현 대상 API (6건 — 입력·응답 필드는 /api-docs (Swagger) · works.schema.js 참고)
+//   GET    /challenges/{challengeId}/works/{workId}  비회원 가능 · 상세 (좋아요 수 · 내 하트 여부)
+//   PUT    /challenges/{challengeId}/works/me        참여 USER · 제출 (최초 201 · 갱신 200)
+//   PATCH  /works/{workId}                            작성자·ADMIN · 수정 (마감 후 409 CHALLENGE_CLOSED)
+//   DELETE /works/{workId}                            작성자·ADMIN · 삭제 (어드민은 {reason} 필수)
+//   PUT    /works/{workId}/like                        USER · 하트 추가 (백엔드가 토글 D-83)
+//   DELETE /works/{workId}/like                        USER · 하트 취소 (204)
+
+// ─────────────────────────────────────────────────────────
+//  연결 가이드 — 구현 시 아래 3단계를 순서대로 붙이면 돼요
+// ─────────────────────────────────────────────────────────
+//  ① 컨트롤러 — 이 파일의 TODO 자리에 routes() 를 채워요
+//       구현 예시는 auth-controller.js 의 /auth/me 엔드포인트가 좋아요
+//  ② DI 등록 — src/common/di/container.js 의 "Controllers" 영역에 한 줄:
+//       worksController: singleton(WorksController),
+//  ③ 라우트 조립 — src/controllers/index.js 에 세 곳:
+//       #worksController;                       (필드 선언)
+//       constructor 인자에 worksController 추가 → this.#worksController = worksController;
+//       this.router.use('/', this.#worksController.routes());
+//
+//  ⚠️ ② 를 빠뜨리면 서버 기동이 실패합니다 —
+//       AwilixResolutionError: Could not resolve 'worksController'
+//       (컨테이너가 InjectionMode.PROXY + strict 로 돌아가기 때문이에요)
+//
+// ─────────────────────────────────────────────────────────
+//  계층 배분 — 한 사람이 계층 전체를 맡기보다, 계층별로 나눠도 됩니다 (팀에서 정해요)
+// ─────────────────────────────────────────────────────────
+//    controllers/works/works-controller.js          라우트·요청 파싱
+//    services/work-service.js                 비즈니스 규칙 (마감·소유자·하트 토글)
+//    repositories/work-repository.js                  Prisma 호출
+//    controllers/works/works.schema.js              Zod 스키마 (제공 · 수정 불필요)
+//
+// ─────────────────────────────────────────────────────────
+//  OpenAPI 반영 — 이미 되어 있습니다 (6건)
+// ─────────────────────────────────────────────────────────
+//  이 도메인의 Zod 스키마(works.schema.js)는 보일러플레이트가 제공했고,
+//  각 도메인 스키마의 *Paths는 src/docs/openapi.js가 한데 모아 OpenAPI를 만듭니다.
+//  스키마 파일은 수정하지 말고, 컨트롤러만 구현하면 됩니다.
+//  스키마는 "계약(약속) 파일"이고 — 응답이 이것과 다르면 개발 중 500 RESPONSE_CONTRACT_MISMATCH 로
+//  바로 알려줍니다. 실사용 중 구현이 계약을 어기는지 쉽게 확인할 수 있어요.
+//
+import { BaseController } from '#controllers/base-controller.js';
+
+export class WorksController extends BaseController {
+  constructor() {
+    super();
+  }
+
+  routes() {
+    // TODO: 라우트를 추가한다
+    return this.router;
+  }
+}

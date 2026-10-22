@@ -1,0 +1,34 @@
+node_modules/
+generated/
+coverage/
+
+# prisma contract emit 이 만드는 파일 (정판과 동일)
+src/prisma/contract.json
+src/prisma/contract.d.ts
+
+# env 는 절대 커밋하지 않는다 (env/.env.development 에 실제 값이 들어 있다)
+env/
+.env
+.env.*
+!.env.example
+
+# 빌드 산출물
+dist/
+*.log
+
+# OS
+.DS_Store
+
+# 에디터
+.vscode/
+.idea/
+# 잠금파일은 서식 검사를 하지 않는다
+pnpm-lock.yaml
+
+# prisma db init·db update·migration plan 이 만드는 기록 (정판과 동일)
+migrations/
+
+# 참조 문서 — 원본 그대로 보존한다 (자동 서식 대상이 아니다)
+docs/
+API-명세.md
+요구사항.md

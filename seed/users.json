@@ -1,0 +1,182 @@
+[
+  {
+    "id": 1,
+    "role": "admin",
+    "nickName": "어드민 유저",
+    "email": "admin@example.com",
+    "password": "pw1000",
+    "createdAt": "2025-04-10T09:00:00Z",
+    "grade": null
+  },
+  {
+    "id": 2,
+    "role": "user",
+    "nickName": "유저2",
+    "email": "user2@example.com",
+    "password": "pw1001",
+    "createdAt": "2025-04-11T09:00:00Z",
+    "grade": "basic"
+  },
+  {
+    "id": 3,
+    "role": "user",
+    "nickName": "유저3",
+    "email": "user3@example.com",
+    "password": "pw1002",
+    "createdAt": "2025-04-12T09:00:00Z",
+    "grade": "basic"
+  },
+  {
+    "id": 4,
+    "role": "user",
+    "nickName": "유저4",
+    "email": "user4@example.com",
+    "password": "pw1003",
+    "createdAt": "2025-04-13T09:00:00Z",
+    "grade": "pro"
+  },
+  {
+    "id": 5,
+    "role": "user",
+    "nickName": "유저5",
+    "email": "user5@example.com",
+    "password": "pw1004",
+    "createdAt": "2025-04-14T09:00:00Z",
+    "grade": "basic"
+  },
+  {
+    "id": 6,
+    "role": "user",
+    "nickName": "유저6",
+    "email": "user6@example.com",
+    "password": "pw1005",
+    "createdAt": "2025-04-15T09:00:00Z",
+    "grade": "basic"
+  },
+  {
+    "id": 7,
+    "role": "user",
+    "nickName": "유저7",
+    "email": "user7@example.com",
+    "password": "pw1006",
+    "createdAt": "2025-04-16T09:00:00Z",
+    "grade": "pro"
+  },
+  {
+    "id": 8,
+    "role": "user",
+    "nickName": "유저8",
+    "email": "user8@example.com",
+    "password": "pw1007",
+    "createdAt": "2025-04-17T09:00:00Z",
+    "grade": "basic"
+  },
+  {
+    "id": 9,
+    "role": "user",
+    "nickName": "유저9",
+    "email": "user9@example.com",
+    "password": "pw1008",
+    "createdAt": "2025-04-18T09:00:00Z",
+    "grade": "basic"
+  },
+  {
+    "id": 10,
+    "role": "user",
+    "nickName": "유저10",
+    "email": "user10@example.com",
+    "password": "pw1009",
+    "createdAt": "2025-04-19T09:00:00Z",
+    "grade": "pro"
+  },
+  {
+    "id": 11,
+    "role": "user",
+    "nickName": "유저11",
+    "email": "user11@example.com",
+    "password": "pw1010",
+    "createdAt": "2025-04-20T09:00:00Z",
+    "grade": "basic"
+  },
+  {
+    "id": 12,
+    "role": "user",
+    "nickName": "유저12",
+    "email": "user12@example.com",
+    "password": "pw1011",
+    "createdAt": "2025-04-21T09:00:00Z",
+    "grade": "basic"
+  },
+  {
+    "id": 13,
+    "role": "user",
+    "nickName": "유저13",
+    "email": "user13@example.com",
+    "password": "pw1012",
+    "createdAt": "2025-04-22T09:00:00Z",
+    "grade": "pro"
+  },
+  {
+    "id": 14,
+    "role": "user",
+    "nickName": "유저14",
+    "email": "user14@example.com",
+    "password": "pw1013",
+    "createdAt": "2025-04-23T09:00:00Z",
+    "grade": "basic"
+  },
+  {
+    "id": 15,
+    "role": "user",
+    "nickName": "유저15",
+    "email": "user15@example.com",
+    "password": "pw1014",
+    "createdAt": "2025-04-24T09:00:00Z",
+    "grade": "basic"
+  },
+  {
+    "id": 16,
+    "role": "user",
+    "nickName": "유저16",
+    "email": "user16@example.com",
+    "password": "pw1015",
+    "createdAt": "2025-04-25T09:00:00Z",
+    "grade": "pro"
+  },
+  {
+    "id": 17,
+    "role": "user",
+    "nickName": "유저17",
+    "email": "user17@example.com",
+    "password": "pw1016",
+    "createdAt": "2025-04-26T09:00:00Z",
+    "grade": "basic"
+  },
+  {
+    "id": 18,
+    "role": "user",
+    "nickName": "유저18",
+    "email": "user18@example.com",
+    "password": "pw1017",
+    "createdAt": "2025-04-27T09:00:00Z",
+    "grade": "basic"
+  },
+  {
+    "id": 19,
+    "role": "user",
+    "nickName": "유저19",
+    "email": "user19@example.com",
+    "password": "pw1018",
+    "createdAt": "2025-04-28T09:00:00Z",
+    "grade": "pro"
+  },
+  {
+    "id": 20,
+    "role": "user",
+    "nickName": "유저20",
+    "email": "user20@example.com",
+    "password": "pw1019",
+    "createdAt": "2025-04-29T09:00:00Z",
+    "grade": "basic"
+  }
+]

@@ -1,0 +1,79 @@
+[
+  {
+    "id": 1,
+    "title": "파이썬 초급",
+    "field": "backend",
+    "docType": "official",
+    "docUrl": "https://docs.python.org/3/tutorial/index.html",
+    "deadLine": "2026-10-20T23:59:59Z",
+    "progress": 0,
+    "maxParticipants": 10,
+    "createdBy": 14
+  },
+  {
+    "id": 2,
+    "title": "리액트 hooks",
+    "field": "frontend",
+    "docType": "article",
+    "docUrl": "https://reactjs.org/docs/hooks-intro.html",
+    "deadLine": "2026-10-09T23:59:59Z",
+    "progress": 0,
+    "maxParticipants": 11,
+    "createdBy": 13
+  },
+  {
+    "id": 3,
+    "title": "Node.js 비동기 프로그래밍",
+    "field": "backend",
+    "docType": "official",
+    "docUrl": "https://nodejs.org/en/docs/guides/event-loop-timers-and-nexttick/",
+    "deadLine": "2026-10-27T23:59:59Z",
+    "progress": 0,
+    "maxParticipants": 12,
+    "createdBy": 13
+  },
+  {
+    "id": 4,
+    "title": "Django 기초",
+    "field": "backend",
+    "docType": "official",
+    "docUrl": "https://docs.djangoproject.com/en/4.0/intro/",
+    "deadLine": "2026-10-15T23:59:59Z",
+    "progress": 0,
+    "maxParticipants": 3,
+    "createdBy": 7
+  },
+  {
+    "id": 5,
+    "title": "Docker 시작하기",
+    "field": "devops",
+    "docType": "official",
+    "docUrl": "https://docs.docker.com/get-started/",
+    "deadLine": "2026-10-05T23:59:59Z",
+    "progress": 0,
+    "maxParticipants": 14,
+    "createdBy": 11
+  },
+  {
+    "id": 6,
+    "title": "Next.js App Router",
+    "field": "frontend",
+    "docType": "article",
+    "docUrl": "https://nextjs.org/docs/app/building-your-application/routing",
+    "deadLine": "2025-06-15T23:59:59Z",
+    "progress": 0,
+    "maxParticipants": 10,
+    "createdBy": 2
+  },
+  {
+    "id": 7,
+    "title": "Jest test framework",
+    "field": "test",
+    "docType": "official",
+    "docUrl": "https://jestjs.io/docs/getting-started",
+    "deadLine": "2026-10-24T23:59:59Z",
+    "progress": 0,
+    "maxParticipants": 11,
+    "createdBy": 6
+  }
+]
