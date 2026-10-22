@@ -229,7 +229,27 @@ Swagger 화면에서 `POST /dev/login` 을 실행하면 브라우저에 인증 �
 | **updateMe**    | 계정 수정 API             | **미채택**                                                       | 요구사항에 없음                                                | 필요하면 팀이 새로 결정                       |
 | **피드백 개수** | 댓글 1개 제한 여부        | **현재 여러 개 허용** — `Feedback` unique 없음, `WorkLike`만 1개 | 2.7 — N개 + 더 보기, 1개 제한 없음                             | 1개 제한을 원하면 계약·DB 변경                |
 
-## 7. 관련 문서
+## 7. 배포 · 브랜치 규칙
+
+```text
+develop 에서 개발 → push → CI 자동 검사 → PR → main 머지 → 자동 배포 🚀
+```
+
+| 항목         | 값                                                                      |
+| ------------ | ----------------------------------------------------------------------- |
+| 배포 주소    | `https://docthru-be-xwfe2o3yfa-du.a.run.app`                            |
+| 헬스 체크    | `/api/v1/ping` → `{"message":"pong"}`                                   |
+| 자동 배포    | Cloud Build + [`cloudbuild.yaml`](./cloudbuild.yaml) (`main` push 감시) |
+| CI           | GitHub Actions `ci.yml` (PR·push) — postgres 자동 준비, 비밀값 0개      |
+| 환경변수 8종 | Cloud Run **서비스에 등록** (이미지 교체가 아니라 서비스에 머무름)      |
+
+> ⚠️ `contract`(스키마)를 바꿨다면 main 머지 후 `pnpm exec prisma db init` 을 **1회** 실행해야 합니다.
+> ⚠️ `--set-env-vars` 는 env 목록 **전체 교체**입니다. 일부만 넣으면 다른 변수가 사라져요.
+
+자세한 절차·시드 안전장치·문제 해결은 **[`docs/배포-런북.md`](./docs/배포-런북.md)** 에 있습니다.
+
+## 8. 관련 문서
 
 - **요구사항 추적표** — [`docs/화면-라우트-API-대조.md`](./docs/화면-라우트-API-대조.md): **요구 ↔ 화면 ↔ API** 한 표 (미커버·과잉·편차 점검)
+- **배포 · 브랜치 런북** — [`docs/배포-런북.md`](./docs/배포-런북.md): 브랜치 규칙 · CI/배포 흐름 · 환경변수 8종 · 스키마 규칙 · 시드 안전장치 · 자주 나는 문제
 - [`docs/BE-요구사항.md`](./docs/BE-요구사항.md) · [`docs/API-명세.md`](./docs/API-명세.md) · [`docs/ERD.md`](./docs/ERD.md)
