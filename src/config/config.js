@@ -37,6 +37,15 @@ const envSchema = z
     API_BASE_URL: z.string().optional().default(''),
     CORS_ORIGINS: z.string().optional().default(''),
 
+    // ── 메일 / 비밀번호 재설정 ────────────────────────────────
+    // 기본은 콘솔 출력이에요. SES 자격 증명이 준비되면 MAIL_PROVIDER=ses 로 바꾸면 됩니다.
+    MAIL_PROVIDER: z.enum(['console', 'ses']).optional().default('console'),
+    MAIL_FROM: z.string().trim().optional().default('no-reply@docthru.local'),
+    SES_REGION: z.string().trim().optional().default('ap-northeast-2'),
+    // 비우면 CLIENT_BASE_URL + /password-reset/confirm 으로 자동 생성해요.
+    PASSWORD_RESET_URL: z.string().trim().optional().default(''),
+    PASSWORD_RESET_TTL_MINUTES: z.coerce.number().int().min(1).max(180).default(30),
+
     // ── Google OAuth (선택) ───────────────────────────────────
     // ⚠️ 자격 증명이 없어도 앱은 정상으로 떠야 해요.
     //    값이 비어 있으면 /auth/google 이 302 대신 400 으로 "설정을 채워 달라"고 안내합니다.
@@ -70,6 +79,11 @@ const apiBaseUrl = parsed.data.API_BASE_URL || `http://localhost:${parsed.data.P
 
 const googleRedirectUri = parsed.data.GOOGLE_REDIRECT_URI || `${apiBaseUrl}/auth/google/callback`;
 
+// 비밀번호 재설정 링크 — FE 확인 화면으로 바로 보내요. (쿼리 token 은 서비스가 붙입니다)
+const passwordResetUrl =
+  parsed.data.PASSWORD_RESET_URL ||
+  `${parsed.data.CLIENT_BASE_URL.replace(/\/$/, '')}/password-reset/confirm`;
+
 // 거래 쿠키를 콜백 경로에만 내려주려고 pathname 만 뽑아 둬요.
 // (혹시 잘못된 URL 이 들어와도 앱이 죽지 않게 기본 경로로 되돌립니다)
 const googleCallbackPath = (() => {
@@ -92,6 +106,13 @@ export const config = {
   API_BASE_URL: apiBaseUrl,
   CORS_ORIGINS: parsed.data.CORS_ORIGINS,
   IS_PRODUCTION: parsed.data.NODE_ENV === 'production',
+
+  // 메일 — 기본 console, SES 로 전환할 때만 MAIL_PROVIDER=ses
+  MAIL_PROVIDER: parsed.data.MAIL_PROVIDER,
+  MAIL_FROM: parsed.data.MAIL_FROM,
+  SES_REGION: parsed.data.SES_REGION,
+  PASSWORD_RESET_URL: passwordResetUrl,
+  PASSWORD_RESET_TTL_MINUTES: parsed.data.PASSWORD_RESET_TTL_MINUTES,
 
   // Google OAuth — 자격 증명이 비어 있어도 기동은 그대로 됩니다.
   GOOGLE_CLIENT_ID: parsed.data.GOOGLE_CLIENT_ID,

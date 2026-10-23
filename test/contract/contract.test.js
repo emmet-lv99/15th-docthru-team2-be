@@ -122,11 +122,11 @@ describe('② OpenAPI 문서 등록 상태 (D-51)', () => {
     );
   });
 
-  test('문서에 경로가 제대로 등록되어 있다 (계약 42건 + Google OAuth 2건 = 44건)', () => {
+  test('문서에 경로가 제대로 등록되어 있다 (계약 46건 + Google OAuth 2건 = 48건)', () => {
     const { operations } = loadSpecOps();
     assert.ok(
-      operations.length >= 42,
-      `계약 스키마를 모두 담으면 오퍼레이션 42건이 나옵니다 (지금 ${operations.length}건) — ` +
+      operations.length >= 48,
+      `계약 스키마를 모두 담으면 오퍼레이션 48건이 나옵니다 (지금 ${operations.length}건) — ` +
         '스키마 모듈이 로드되지 않았을 수 있어요',
     );
   });

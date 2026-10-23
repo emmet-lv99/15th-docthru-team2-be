@@ -45,6 +45,7 @@
   },
   "packageManager": "pnpm@12.5.1",
   "dependencies": {
+    "@aws-sdk/client-sesv2": "^3.1155.0",
     "@prisma/orm-postgres": "8.0.0-rc.18",
     "awilix": "^13.0.0",
     "bcrypt": "^6.0.0",

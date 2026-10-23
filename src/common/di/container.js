@@ -33,8 +33,15 @@ import { AuthController } from '#controllers/auth/auth-controller.js';
 import { GoogleAuthController } from '#controllers/auth/google-controller.js';
 import { DevController } from '#controllers/dev/dev-controller.js';
 import { AuthService, GoogleAuthService, GradeService } from '#services';
-import { GradeRepository, UserRepository } from '#repositories';
-import { CookieProvider, OAuthStateProvider, PasswordProvider, TokenProvider } from '#providers';
+import { GradeRepository, PasswordResetTokenRepository, UserRepository } from '#repositories';
+import {
+  CookieProvider,
+  MailProvider,
+  OAuthStateProvider,
+  PasswordProvider,
+  PasswordResetTokenProvider,
+  TokenProvider,
+} from '#providers';
 import { AuthMiddleware } from '#middlewares/auth-middleware.js';
 
 // asClass(X, { lifetime: SINGLETON }) 의 짧은 별칭
@@ -68,17 +75,26 @@ export const createContainer = () => {
     googleClientSecret: asValue(config.GOOGLE_CLIENT_SECRET),
     googleRedirectUri: asValue(config.GOOGLE_REDIRECT_URI),
 
+    // ── 메일 / 비밀번호 재설정 값 ─────────────────────────────
+    passwordResetUrl: asValue(config.PASSWORD_RESET_URL),
+    passwordResetTtlMinutes: asValue(config.PASSWORD_RESET_TTL_MINUTES),
+
     // ── Providers ────────────────────────────────────────────
     // 외부_IO 를 감싼 것. 컨트롤러·서비스가 직접 호출하지 않는다.
     cookieProvider: singleton(CookieProvider),
     passwordProvider: singleton(PasswordProvider),
     tokenProvider: singleton(TokenProvider),
+    // 메일 — 기본 console, MAIL_PROVIDER=ses 로 실제 발송 전환
+    mailProvider: singleton(MailProvider),
+    // 재설정 토큰 원문 생성·SHA-256 해시
+    passwordResetTokenProvider: singleton(PasswordResetTokenProvider),
     // state 서명 · PKCE 생성/검증 (Google 단일 공급자)
     oauthStateProvider: singleton(OAuthStateProvider),
 
     // ── Repositories ─────────────────────────────────────────
     // Prisma 를 감싼 것. 서비스의 유일한 DB 출구.
     userRepository: singleton(UserRepository),
+    passwordResetTokenRepository: singleton(PasswordResetTokenRepository),
     // 등급 진행도 집계 — 공용 인프라. GET /auth/me(gradeProgress) 와
     // 로그인 자동 승급(담당 ③)이 함께 쓴다.
     gradeRepository: singleton(GradeRepository),

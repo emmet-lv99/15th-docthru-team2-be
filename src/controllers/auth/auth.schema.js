@@ -1,9 +1,9 @@
 // 인증 Zod 스키마 — 검증과 OpenAPI 문서를 한 곳에서 얻는다 (D-20)
 //
-// ★ 계약(약속) 파일입니다 — 보일러플레이트 작업자가 제공했어요.
-//   회원가입·로그인·로그아웃·me 4의 필드·응답이 여기 정해져 있으니
-//   담당자님은 이 파일을 수정할 필요 없이 컨트롤러·서비스만 구현해 주세요.
-//   (응답이 이 스키마와 다르면 개발 중 500 RESPONSE_CONTRACT_MISMATCH 가 나옵니다)
+// ★ 계약(약속) 파일입니다.
+//   회원가입·로그인·로그아웃·me·내 정보 수정·탈퇴·비밀번호 재설정 8경로의
+//   필드·응답이 여기 정해져 있어요. 응답이 스키마와 다르면 개발 중
+//   500 RESPONSE_CONTRACT_MISMATCH 가 납니다.
 //
 // 📌 Google OAuth 2경로(/auth/google · /auth/google/callback)도 계약에 포함됐어요.
 //   요청 검증은 controllers/auth/dto/google-dto.js 가 맡고, OpenAPI 등록은 이 파일 아래에서 해요.
@@ -95,14 +95,22 @@ const passwordSchema = z
     description: `8자 이상. bcrypt 72바이트 제한을 UTF-8 바이트 기준으로 검증합니다 (최대 ${BCRYPT_MAX_BYTES} bytes).`,
   });
 
+// 닉네임은 앞뒤 공백을 먼저 제거한 뒤 길이를 재요 — "  a  " 가 2자로 통과하는 것을 막아요.
+const nicknameSchema = z
+  .string()
+  .trim()
+  .min(2, '닉네임은 2자 이상이어야 합니다.')
+  .max(20, '닉네임은 20자 이하여야 합니다.')
+  .meta({ example: '체다치즈' });
+
 export const signUpSchema = z
   .object({
-    email: z.string().email('올바른 이메일 형식이 아닙니다.').meta({ example: 'user@example.com' }),
-    nickname: z
+    email: z
       .string()
-      .min(2, '닉네임은 2자 이상이어야 합니다.')
-      .max(20, '닉네임은 20자 이하여야 합니다.')
-      .meta({ example: '체다치즈' }),
+      .trim()
+      .email('올바른 이메일 형식이 아닙니다.')
+      .meta({ example: 'user@example.com' }),
+    nickname: nicknameSchema,
     password: passwordSchema,
   })
   .meta({ description: '이메일 회원가입 요청' })
@@ -110,11 +118,58 @@ export const signUpSchema = z
 
 export const loginSchema = z
   .object({
-    email: z.string().email('올바른 이메일 형식이 아닙니다.').meta({ example: 'user@example.com' }),
+    email: z
+      .string()
+      .trim()
+      .email('올바른 이메일 형식이 아닙니다.')
+      .meta({ example: 'user@example.com' }),
     password: z.string().min(1, '비밀번호를 입력해주세요.').meta({ example: 'password1234' }),
   })
   .meta({ description: '이메일 로그인 요청' })
   .meta({ id: 'LoginRequest' });
+
+/** PATCH /auth/me — 닉네임·비밀번호 중 최소 하나는 보내야 해요. */
+export const updateMeSchema = z
+  .object({
+    nickname: nicknameSchema.optional(),
+    password: passwordSchema.optional(),
+  })
+  .refine((value) => value.nickname !== undefined || value.password !== undefined, {
+    message: '수정할 닉네임 또는 비밀번호를 하나 이상 보내 주세요.',
+  })
+  .meta({ description: '내 정보 수정 요청 (닉네임·비밀번호 선택)' })
+  .meta({ id: 'UpdateMeRequest' });
+
+/** POST /auth/password-reset/request — 계정 존재 여부와 무관하게 같은 안내를 돌려줘요. */
+export const passwordResetRequestSchema = z
+  .object({
+    email: z
+      .string()
+      .trim()
+      .email('올바른 이메일 형식이 아닙니다.')
+      .meta({ example: 'user@example.com' }),
+  })
+  .meta({ description: '비밀번호 재설정 메일 요청' })
+  .meta({ id: 'PasswordResetRequest' });
+
+/** POST /auth/password-reset/confirm — 메일 링크의 원문 토큰 + 새 비밀번호. */
+export const passwordResetConfirmSchema = z
+  .object({
+    token: z
+      .string()
+      .min(32, '재설정 토큰이 올바르지 않습니다.')
+      .meta({
+        example: 'a'.repeat(64),
+      }),
+    newPassword: passwordSchema,
+  })
+  .meta({ description: '비밀번호 재설정 확정 요청' })
+  .meta({ id: 'PasswordResetConfirmRequest' });
+
+export const passwordResetRequestResponseSchema = z
+  .object({ message: z.string() })
+  .meta({ description: '재설정 요청 공통 안내 (계정 존재 여부 비노출)' })
+  .meta({ id: 'PasswordResetRequestResponse' });
 
 // ── OpenAPI 경로 등록 ──────────────────────────────────────────
 const authTag = 'Auth';
@@ -186,6 +241,75 @@ export const authPaths = {
         ...registerCommonErrorResponses(),
       },
     },
+    patch: {
+      tags: [authTag],
+      summary: '내 정보 수정',
+      description:
+        '로그인 필요. 닉네임·비밀번호 중 보낸 값만 수정합니다.\n\n' +
+        '⚠️ 비밀번호를 바꾸면 tokenVersion 이 올라가 기존 토큰이 모두 무효가 됩니다. ' +
+        '응답과 함께 새 httpOnly 쿠키를 내려 현재 기기만 이어서 로그인 상태를 유지해요.',
+      security: secured,
+      requestBody: {
+        required: true,
+        content: { 'application/json': { schema: updateMeSchema } },
+      },
+      responses: {
+        200: {
+          description: '수정 성공 (me 본문 + 비밀번호 변경 시 새 쿠키)',
+          content: { 'application/json': { schema: meResponseSchema } },
+        },
+        ...registerCommonErrorResponses(),
+      },
+    },
+    delete: {
+      tags: [authTag],
+      summary: '회원 탈퇴',
+      description:
+        '로그인 필요. 소프트 삭제 후 개인정보를 익명화하고 쿠키를 지웁니다. ' +
+        '챌린지·작업물·피드백은 보존되며, 204 를 반환합니다.',
+      security: secured,
+      responses: {
+        204: { description: '탈퇴 완료' },
+        ...registerCommonErrorResponses(),
+      },
+    },
+  },
+  '/auth/password-reset/request': {
+    post: {
+      tags: [authTag],
+      summary: '비밀번호 재설정 메일 요청',
+      description:
+        '비회원. 가입된 이메일이면 30분·1회용 링크를 메일로 보냅니다. ' +
+        '계정 존재 여부를 노출하지 않도록 항상 같은 안내를 반환해요.',
+      requestBody: {
+        required: true,
+        content: { 'application/json': { schema: passwordResetRequestSchema } },
+      },
+      responses: {
+        200: {
+          description: '요청 접수 (가입 여부와 무관하게 동일 응답)',
+          content: { 'application/json': { schema: passwordResetRequestResponseSchema } },
+        },
+        ...registerCommonErrorResponses(),
+      },
+    },
+  },
+  '/auth/password-reset/confirm': {
+    post: {
+      tags: [authTag],
+      summary: '비밀번호 재설정 확정',
+      description:
+        '비회원. 메일 링크의 원문 토큰과 새 비밀번호로 교체합니다. ' +
+        '토큰은 30분·1회용이며, 성공 시 기존 세션을 모두 무효화하고 204 를 반환해요.',
+      requestBody: {
+        required: true,
+        content: { 'application/json': { schema: passwordResetConfirmSchema } },
+      },
+      responses: {
+        204: { description: '비밀번호 변경 완료' },
+        ...registerCommonErrorResponses(),
+      },
+    },
   },
   '/auth/google': {
     get: {
@@ -210,7 +334,7 @@ export const authPaths = {
       summary: 'Google 로그인 콜백',
       description:
         'Google 이 돌려준 code·state 를 검증하고(PKCE 포함) 토큰을 교환합니다. ' +
-        '연결된 OAuthAccount → 같은 이메일 계정 연결 → 새 계정+연결 순으로 사용자를 정한 뒤 ' +
+        '기존 Google 연결 → 같은 이메일 계정 연결 → 새 계정+연결 순으로 사용자를 정한 뒤 ' +
         '독스루 access/refresh 토큰을 httpOnly 쿠키로 설정하고 CLIENT_BASE_URL(+next)로 302 이동합니다.',
       requestParams: { query: googleCallbackQueryDocsSchema },
       responses: {

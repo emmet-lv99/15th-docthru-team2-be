@@ -55,6 +55,9 @@ export const ERROR_MESSAGE = {
     'GOOGLE_CLIENT_ID 와 GOOGLE_CLIENT_SECRET 을 채운 뒤 다시 시도해 주세요.',
   EMAIL_ALREADY_EXISTS: '이미 가입된 이메일입니다.',
   NICKNAME_TAKEN: '이미 사용 중인 닉네임입니다.',
+  PASSWORD_RESET_REQUESTED:
+    '비밀번호 재설정 안내를 보냈습니다. 메일함을 확인해 주세요. (가입된 이메일인 경우)',
+  INVALID_RESET_TOKEN: '비밀번호 재설정 링크가 유효하지 않거나 만료되었습니다.',
 
   // 챌린지
   CHALLENGE_NOT_FOUND: '챌린지를 찾을 수 없습니다.',

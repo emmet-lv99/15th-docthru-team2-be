@@ -37,11 +37,22 @@ describe('DI 컨테이너', () => {
   });
 
   it('인증 인프라가 모두 해석된다', () => {
-    const { tokenProvider, cookieProvider, passwordProvider, userRepository, authService } =
-      createContainer();
+    const {
+      tokenProvider,
+      cookieProvider,
+      passwordProvider,
+      mailProvider,
+      passwordResetTokenProvider,
+      passwordResetTokenRepository,
+      userRepository,
+      authService,
+    } = createContainer();
     assert.ok(tokenProvider);
     assert.ok(cookieProvider);
     assert.ok(passwordProvider);
+    assert.ok(mailProvider);
+    assert.ok(passwordResetTokenProvider);
+    assert.ok(passwordResetTokenRepository);
     assert.ok(userRepository);
     assert.ok(authService);
   });

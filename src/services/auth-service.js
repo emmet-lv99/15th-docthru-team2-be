@@ -3,39 +3,59 @@
 // ══════════════════════════════════════════════════════════════
 // 👤 담당: 팀원 ③(인증 · 마이) — auth service
 // 📍 이 파일: src/services/auth-service.js
-// 🔗 협력: controllers/auth/auth-controller.js(호출) · repositories/user-repository.js(DB) · providers(토큰·쿠키·비밀번호)
-// 🔨 상태: 일부 제공 — `/auth/me` 는 동작, **signup·login·logout 은 ③이 구현**
+// 🔗 협력: controllers/auth/auth-controller.js(호출) · repositories/user-repository.js(DB)
+//          · providers(토큰·쿠키·비밀번호·메일·재설정 토큰)
+// 🔨 상태: 이메일 가입·로그인·로그아웃·내 정보·탈퇴·비밀번호 재설정 구현
 // ══════════════════════════════════════════════════════════════
 //
-// ★ 계층 규칙: 서비스는 **비즈니스 규칙**만 한다.
-//   · Prisma 를 직접 부르지 않는다 (리포지토리를 쓴다)
-//   · bcrypt / jwt 를 직접 부르지 않는다 (Provider 를 쓴다)
-//   · HTTP 상태코드를 만들지 않는다 (컨트롤러가 한다)
-//
-//
-// ⚠️ 이 파일에는 **로그인·회원가입 로직이 없다.**
-//    signup·login·logout 은 담당(③)이 아래에 추가한다.
-import { NotFoundException, UnauthorizedException } from '#exceptions';
-import { ERROR_MESSAGE } from '#constants';
+// ★ 계층 규칙: 서비스는 **비즈니스 규칙**만 해요.
+//   · Prisma 를 직접 부르지 않아요 (리포지토리를 써요)
+//   · bcrypt / jwt / crypto 를 직접 부르지 않아요 (Provider 를 써요)
+//   · HTTP 상태코드를 만들지 않아요 (컨트롤러가 해요)
+import {
+  BadRequestException,
+  ConflictException,
+  NotFoundException,
+  UnauthorizedException,
+} from '#exceptions';
+import { DB_ERROR, ERROR_MESSAGE } from '#constants';
 import { toPublicUser } from '#controllers/auth/dto/auth-dto.js';
+
+const normalizeEmail = (email) => String(email).trim().toLowerCase();
+const normalizeNickname = (nickname) => String(nickname).trim();
 
 export class AuthService {
   #userRepository;
   #gradeService;
   #tokenProvider;
+  #passwordProvider;
+  #passwordResetTokenRepository;
+  #passwordResetTokenProvider;
+  #mailProvider;
+  #passwordResetUrl;
+  #passwordResetTtlMinutes;
 
-  // ⚠️ signup·login 을 구현할 때 아래 하나를 생성자에 더 받는다.
-  //    passwordProvider
-  //    (tokenProvider 는 refresh 재발급(refreshTokens)에 쓰여서 이미 받아 두었어요)
-  constructor({ userRepository, gradeService, tokenProvider }) {
+  constructor({
+    userRepository,
+    gradeService,
+    tokenProvider,
+    passwordProvider,
+    passwordResetTokenRepository,
+    passwordResetTokenProvider,
+    mailProvider,
+    passwordResetUrl,
+    passwordResetTtlMinutes,
+  }) {
     this.#userRepository = userRepository;
     this.#gradeService = gradeService;
     this.#tokenProvider = tokenProvider;
+    this.#passwordProvider = passwordProvider;
+    this.#passwordResetTokenRepository = passwordResetTokenRepository;
+    this.#passwordResetTokenProvider = passwordResetTokenProvider;
+    this.#mailProvider = mailProvider;
+    this.#passwordResetUrl = passwordResetUrl;
+    this.#passwordResetTtlMinutes = passwordResetTtlMinutes;
   }
-
-  // ── 공통 ──────────────────────────────────────────────────
-  // 응답·로그에 노출할 필드만 고르는 toPublicUser 는
-  // controllers/auth/dto/auth-dto.js 로 옮겼어요 (passwordHash 는 절대 포함하지 않아요).
 
   // ── 조회 ──────────────────────────────────────────────────
   /** 현재 사용자 + 활동 집계 (GET /auth/me) */
@@ -60,7 +80,80 @@ export class AuthService {
     };
   }
 
-  // ── 세션 복구 (refresh 재발급) ────────────────────────────
+  // ── 가입·로그인 ───────────────────────────────────────────
+  /**
+   * 이메일 회원가입 — 중복을 먼저 확인하고, bcrypt 해시를 저장한 뒤 토큰을 발급해요.
+   *   DB 의 UNIQUE 제약이 최종 방어선이라 23505 도 409 로 바꿉니다.
+   */
+  async signUp({ email, nickname, password }) {
+    const normalizedEmail = normalizeEmail(email);
+    const normalizedNickname = normalizeNickname(nickname);
+
+    if (await this.#userRepository.findByEmail(normalizedEmail)) {
+      throw new ConflictException(ERROR_MESSAGE.EMAIL_ALREADY_EXISTS);
+    }
+    if (await this.#userRepository.findByNickname(normalizedNickname)) {
+      throw new ConflictException(ERROR_MESSAGE.NICKNAME_TAKEN);
+    }
+
+    const passwordHash = await this.#passwordProvider.hash(password);
+
+    let user;
+    try {
+      user = await this.#userRepository.createLocal({
+        email: normalizedEmail,
+        nickname: normalizedNickname,
+        passwordHash,
+      });
+    } catch (error) {
+      // 동시에 같은 이메일/닉네임이 들어온 경우 — UNIQUE 위반을 409 로 안내해요.
+      if (error?.sqlState === DB_ERROR.UNIQUE_VIOLATION) {
+        throw new ConflictException(ERROR_MESSAGE.RESOURCE_CONFLICT);
+      }
+      throw error;
+    }
+
+    const tokens = this.#tokenProvider.generateTokens(user);
+    return { user: toPublicUser(user), tokens };
+  }
+
+  /** 이메일 로그인 — 없는 계정과 틀린 비밀번호를 같은 401 메시지로 응답해요. */
+  async login({ email, password }) {
+    const user = await this.#userRepository.findByEmail(normalizeEmail(email));
+
+    if (!user?.passwordHash) {
+      throw new UnauthorizedException(ERROR_MESSAGE.INVALID_CREDENTIALS);
+    }
+
+    const matched = await this.#passwordProvider.compare(password, user.passwordHash);
+    if (!matched) {
+      throw new UnauthorizedException(ERROR_MESSAGE.INVALID_CREDENTIALS);
+    }
+
+    // 로그인 시점에 등급을 다시 판정해요 (참여·추천은 다른 도메인에서 늘어나므로).
+    const { grade } = await this.#gradeService.evaluate(user.id);
+    const userWithGrade = { ...user, grade };
+    const tokens = this.#tokenProvider.generateTokens(userWithGrade);
+
+    return { user: toPublicUser(userWithGrade), tokens };
+  }
+
+  // ── 세션 ──────────────────────────────────────────────────
+  /**
+   * access 토큰의 사용자가 아직 활성인지 확인해요.
+   *   deletedAt 이 있거나 tokenVersion 이 토큰의 ver 와 다르면 null → 401/쿠키 정리.
+   */
+  async resolveAccessUser(payload) {
+    if (!payload?.userId) return null;
+
+    const user = await this.#userRepository.findActiveAuthUserById(payload.userId);
+    if (!user) return null;
+
+    if (Number(user.tokenVersion ?? 0) !== Number(payload.ver ?? 0)) return null;
+
+    return { id: user.id, role: user.role };
+  }
+
   /**
    * refresh 토큰으로 새 토큰 한 쌍을 발급해요 — 강사님 정본(auth-service.js)의 refreshTokens 이식.
    *
@@ -74,8 +167,13 @@ export class AuthService {
       throw new UnauthorizedException(ERROR_MESSAGE.INVALID_TOKEN);
     }
 
-    const user = await this.#userRepository.findById(payload.userId);
+    const user = await this.#userRepository.findActiveAuthUserById(payload.userId);
     if (!user) {
+      throw new UnauthorizedException(ERROR_MESSAGE.INVALID_TOKEN);
+    }
+
+    // 비밀번호 변경·탈퇴로 tokenVersion 이 올라갔으면 기존 refresh 토큰도 거부해요.
+    if (Number(user.tokenVersion ?? 0) !== Number(payload.ver ?? 0)) {
       throw new UnauthorizedException(ERROR_MESSAGE.INVALID_TOKEN);
     }
 
@@ -84,18 +182,112 @@ export class AuthService {
     return { user, tokens };
   }
 
-  // ── 작성 (담당자가 구현) ──────────────────────────────────
-  //   signUp({ email, nickname, password })
-  //     → findByEmail / findByNickname 로 중복 확인
-  //     → passwordProvider.hash(password) 로 해시 생성 후 저장
-  //     → tokenProvider.generateTokens(user) 로 토큰 발급
-  //
-  //   login({ email, password })
-  //     → findByEmail 로 조회
-  //     → passwordProvider.compare(...) 로 검증
-  //     → tokenProvider.generateTokens(user) 로 토큰 발급
-  //
-  //   ⚠️ bcrypt 는 72바이트 제한이 있다. 超長 비밀번호는 잘려서 해시된다.
-  //      검증 시 Buffer.byteLength(password) 로 길이를 재고 초과하면 걸러야 한다.
-  //      (bcrypt 문서 참고)
+  // ── 내 정보 수정·탈퇴 ─────────────────────────────────────
+  /**
+   * PATCH /auth/me — 닉네임·비밀번호 중 받은 것만 수정해요.
+   *   비밀번호를 바꾸면 tokenVersion 이 올라가 기존 토큰이 모두 무효가 되므로,
+   *   새 토큰을 함께 발급해 현재 기기만 이어서 로그인 상태를 유지합니다.
+   */
+  async updateMe(userId, { nickname, password }) {
+    const current = await this.#userRepository.findActiveAuthUserById(userId);
+    if (!current) {
+      throw new NotFoundException(ERROR_MESSAGE.RESOURCE_NOT_FOUND, null, 'USER_NOT_FOUND');
+    }
+
+    const normalizedNickname = nickname === undefined ? undefined : normalizeNickname(nickname);
+
+    if (normalizedNickname !== undefined && normalizedNickname !== current.nickname) {
+      const taken = await this.#userRepository.findByNickname(normalizedNickname);
+      if (taken && taken.id !== Number(userId)) {
+        throw new ConflictException(ERROR_MESSAGE.NICKNAME_TAKEN);
+      }
+    }
+
+    const passwordHash =
+      password === undefined ? undefined : await this.#passwordProvider.hash(password);
+
+    const updated = await this.#userRepository.updateProfile({
+      userId,
+      nickname: normalizedNickname,
+      passwordHash,
+      bumpTokenVersion: password !== undefined,
+    });
+
+    if (!updated) {
+      throw new NotFoundException(ERROR_MESSAGE.RESOURCE_NOT_FOUND, null, 'USER_NOT_FOUND');
+    }
+
+    const me = await this.me(userId);
+    const tokens = password !== undefined ? this.#tokenProvider.generateTokens(updated) : null;
+
+    return { me, tokens };
+  }
+
+  /** DELETE /auth/me — 소프트 삭제 + 익명화. 챌린지·작업물·피드백은 보존해요. */
+  async deleteMe(userId) {
+    const deleted = await this.#userRepository.softDeleteUser(userId);
+    if (!deleted) {
+      throw new NotFoundException(ERROR_MESSAGE.RESOURCE_NOT_FOUND, null, 'USER_NOT_FOUND');
+    }
+    return deleted;
+  }
+
+  // ── 비밀번호 재설정 ───────────────────────────────────────
+  /**
+   * 재설정 요청 — 계정 존재 여부를 노출하지 않도록 항상 같은 안내를 돌려줘요.
+   *   계정이 있으면 기존 미사용 토큰을 닫고 새 토큰을 만들어 메일로 보냅니다.
+   */
+  async requestPasswordReset(email) {
+    const user = await this.#userRepository.findByEmail(normalizeEmail(email));
+
+    if (user) {
+      const { token, tokenHash } = this.#passwordResetTokenProvider.create();
+      const expiresAt = new Date(Date.now() + this.#passwordResetTtlMinutes * 60 * 1000);
+
+      await this.#passwordResetTokenRepository.revokeActiveByUserId(user.id);
+      await this.#passwordResetTokenRepository.create({
+        userId: user.id,
+        tokenHash,
+        expiresAt,
+      });
+
+      const resetUrl = new URL(this.#passwordResetUrl);
+      resetUrl.searchParams.set('token', token);
+
+      try {
+        await this.#mailProvider.sendPasswordReset({
+          to: user.email,
+          resetUrl: resetUrl.toString(),
+          expiresAt,
+        });
+      } catch (error) {
+        // 메일 실패를 그대로 올리면 "계정이 있다"는 사실이 드러날 수 있어요.
+        // 서버 로그에만 남기고 사용자에게는 동일한 안내를 돌려줍니다.
+        console.error('[auth] 비밀번호 재설정 메일 발송 실패:', error);
+      }
+    }
+
+    return { message: ERROR_MESSAGE.PASSWORD_RESET_REQUESTED };
+  }
+
+  /** 재설정 확정 — 해시·만료·1회용을 모두 통과해야 비밀번호가 바뀌어요. */
+  async confirmPasswordReset({ token, newPassword }) {
+    const tokenHash = this.#passwordResetTokenProvider.hash(token);
+    const record = await this.#passwordResetTokenRepository.findValidByHash(tokenHash);
+
+    if (!record) {
+      throw new BadRequestException(ERROR_MESSAGE.INVALID_RESET_TOKEN, null, 'INVALID_RESET_TOKEN');
+    }
+
+    const passwordHash = await this.#passwordProvider.hash(newPassword);
+    const updated = await this.#userRepository.resetPassword({
+      userId: record.userId,
+      passwordHash,
+      tokenId: record.id,
+    });
+
+    if (!updated) {
+      throw new BadRequestException(ERROR_MESSAGE.INVALID_RESET_TOKEN, null, 'INVALID_RESET_TOKEN');
+    }
+  }
 }
