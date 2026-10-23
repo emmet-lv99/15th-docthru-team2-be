@@ -16,11 +16,15 @@
 // ★ 만들었으면 — services/index.js 에 export 한 줄 + common/di/container.js 에 singleton(ApplicationService) 등록.
 //
 export class ApplicationService {
-  // eslint-disable-next-line no-unused-private-class-members -- 골격 스텁이라 주입 필드를 아직 메서드에서 안 써요 (구현하면 지워도 돼요)
   #applicationRepository;
 
   constructor({ applicationRepository }) {
     this.#applicationRepository = applicationRepository;
+  }
+
+  // 로그인한 사용자의 신청 목록 조회
+  async listMyApplications(userId, query) {
+    return this.#applicationRepository.listMyApplications(userId, query);
   }
 
   // ── 골격 (아래는 이 도메인에서 자주 쓰는 메서드 예요 — 필요한 것만 남기고 구현하세요) ──

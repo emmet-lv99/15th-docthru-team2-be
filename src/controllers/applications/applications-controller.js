@@ -55,13 +55,17 @@
 //  바로 알려줍니다. 실사용 중 구현이 계약을 어기는지 쉽게 확인할 수 있어요.
 //
 import { BaseController } from '#controllers/base-controller.js';
+import { needsLogin } from '#middlewares';
+import { HTTP_STATUS } from '#constants';
 
 export class ApplicationsController extends BaseController {
   constructor() {
     super();
+    this.#applicationService = ApplicationService;
   }
 
   routes() {
+    this.router.get('/me', needsLogin, (req, res, next) => this.getMyApplications(req, res, next));
     // TODO: 라우트를 추가한다
     return this.router;
   }
