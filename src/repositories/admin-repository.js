@@ -13,7 +13,7 @@
 //   constructor({ db }) 로만 주입받고 #private 필드에 보관합니다 (DI 가 db 키를 asValue(db) 로 등록해 둠).
 //
 // 🐘 prisma-8 쿼리 모양 — 아래 v7 문법은 쓰지 않아요
-//   · 조회    db.orm.public.ChallengeApplication / Challenge.where({ ... }).select('id', ...).first() / .all()
+//   · 조회    db.orm.public.Challenge.where({ ... }).select('id', ...).first() / .all()
 //   · 카운트  v7 _count.select 금지 → .include('<관계>', (r) => r.count())
 //             또는 .aggregate((a) => ({ total: a.count() }))
 //   · 생성    .select(...).create(data) · 다건은 createAll(rows)

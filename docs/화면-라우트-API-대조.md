@@ -3,8 +3,8 @@
 > **기본 정보 (1줄)** — 요구사항 2.1~3.4가 **화면(라우트)과 API 경로로 빠짐없이 이어지는지** 한 표로 대조한 추적표.
 > 목적: 팀원이 "이 요구는 어느 화면·어느 API로 구현하는가"를 **한눈에** 확인하고, **미커버·과잉·편차**를 바로 찾기 위함.
 
-- **정본 순서**: `docs/BE-요구사항.md`(무엇을) → `docs/API-명세.md`(경로) → Swagger `/api-docs`(필드)
-- **대조 시점**: 2026-10-21 · **33 paths / 44 ops** = OpenAPI 1:1 (계약 테스트로 검증)
+- **정본 순서**: `docs/BE-요구사항.md`(무엇을) → `API-명세.md`(경로) → Swagger `/api-docs`(필드)
+- **대조 시점**: 2026-10-23 · **35 paths / 48 ops** = OpenAPI 1:1 (계약 테스트로 검증)
 - **FE 화면 중심 표**: `docthru-frontend/docs/화면-라우트-API-대조.md`
 
 ## 읽는 법
@@ -32,9 +32,13 @@
 | 회원가입 | `/signup` | `POST /auth/signup` |
 | 로그인 (권한별 접근) | `/login` | `POST /auth/login` |
 | 로그아웃 | GNB · `/mypage` | `POST /auth/logout` |
+| 내 정보 수정 | `/mypage` | `PATCH /auth/me` (닉네임·비밀번호) |
+| 회원 탈퇴 | `/mypage` (확인 모달) | `DELETE /auth/me` (소프트 삭제·익명화) |
+| 비밀번호 재설정 요청 | `/password-reset` | `POST /auth/password-reset/request` |
+| 비밀번호 재설정 확정 | `/password-reset/confirm?token=` | `POST /auth/password-reset/confirm` |
 | 등급(일반/전문가) | `/mypage` | `GET /auth/me` (`grade` · `gradeProgress` 임계값 5/5/10/10) |
 
-> 🕒 현재 signup·login·logout은 ③ 개인 담당이며, 이번 뼈대 기본셋팅에는 포함하지 않아요. `GET /auth/me`는 제공됩니다.
+> ✅ 2026-10-23 기준 signup·login·logout·updateMe·deleteMe·password reset 모두 ③이 구현했고, 계약 48 ops에 포함됩니다.
 
 ### 2.3 번역 챌린지 조회 ✅
 
@@ -127,7 +131,7 @@
 | 점검 | 결과 |
 | --- | --- |
 | **미커버**(요구에 있는데 화면·API 없음) | **0건** — 요구 12개 절 전부 연결됨 |
-| **과잉**(API 있는데 요구에 없음) | **0건** — 44 ops가 전부 위 요구에 귀속 |
+| **과잉**(API 있는데 요구에 없음) | **0건** — 48 ops가 전부 위 요구에 귀속 |
 | **기록된 편차** | **1건** (2.4 임시저장 — 아래) |
 
 ---
@@ -142,5 +146,5 @@
 
 ## 6. 갱신 규칙
 
-- 요구사항·경로·화면이 바뀌면 이 표를 **같이 갱신**한다 (계약 변경 시 `docs/API-명세.md` 와 한 묶음으로).
-- 계약 경로 검증은 `pnpm test:contract`(문서 44 ops ↔ 코드)가 자동으로 잡는다.
+- 요구사항·경로·화면이 바뀌면 이 표를 **같이 갱신**한다 (계약 변경 시 `API-명세.md` 와 한 묶음으로).
+- 계약 경로 검증은 `pnpm test:contract`(문서 48 ops ↔ 코드)가 자동으로 잡는다.

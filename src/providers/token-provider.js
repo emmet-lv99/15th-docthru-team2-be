@@ -17,14 +17,19 @@ export class TokenProvider {
     this.#refreshSecret = jwtRefreshSecret;
   }
 
+  // ver = users.tokenVersion. 비밀번호 변경·탈퇴 때 값이 올라가면 기존 토큰은 거부돼요.
   generateAccessToken(user) {
-    return jwt.sign({ userId: user.id, role: user.role }, this.#accessSecret, {
-      expiresIn: ACCESS_TTL_SECONDS,
-    });
+    return jwt.sign(
+      { userId: user.id, role: user.role, ver: Number(user.tokenVersion ?? 0) },
+      this.#accessSecret,
+      { expiresIn: ACCESS_TTL_SECONDS },
+    );
   }
 
   generateRefreshToken(user) {
-    return jwt.sign({ userId: user.id }, this.#refreshSecret, { expiresIn: REFRESH_TTL_SECONDS });
+    return jwt.sign({ userId: user.id, ver: Number(user.tokenVersion ?? 0) }, this.#refreshSecret, {
+      expiresIn: REFRESH_TTL_SECONDS,
+    });
   }
 
   generateTokens(user) {

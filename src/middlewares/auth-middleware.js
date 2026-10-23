@@ -39,7 +39,14 @@ export class AuthMiddleware {
       }
 
       const accessPayload = accessToken ? this.#tokenProvider.verifyAccessToken(accessToken) : null;
-      const isValidAccess = Boolean(accessPayload?.userId);
+
+      // 토큰 서명만 믿지 않고 DB 에서 탈퇴·tokenVersion 을 확인해요.
+      //   비밀번호 변경·탈퇴 직후에도 기존 access 토큰이 15분 동안 살아 있는 것을 막습니다.
+      const activeUser = accessPayload?.userId
+        ? await this.#authService.resolveAccessUser(accessPayload)
+        : null;
+
+      const isValidAccess = Boolean(activeUser);
       const needsRenewal =
         !isValidAccess || this.#tokenProvider.shouldRefreshAccessToken(accessPayload);
 
@@ -52,9 +59,9 @@ export class AuthMiddleware {
         return next();
       }
 
-      // ① access 가 (아직) 유효하면 복구 실패여도 로그인 유지
+      // ① access 가 (아직) 유효하고 활성 사용자면 복구 실패여도 로그인 유지
       if (isValidAccess) {
-        req.user = { id: accessPayload.userId, role: accessPayload.role };
+        req.user = activeUser;
         return next();
       }
 
