@@ -90,7 +90,7 @@
 ### 🔑 3.1. OAuth 인증
 
 > ℹ️ **BE 계약에는 포함** — 심화 요구사항(3.1)이고, BE 2경로(`GET /auth/google` · `GET /auth/google/callback`)가
-> 구현돼 계약에 들어갔어요(42→44건). 구글 자격 증명(GOOGLE_CLIENT_ID·SECRET)이 아직 없어서,
+> 계약에 들어가 있어요(현재 48건). 구글 자격 증명(GOOGLE_CLIENT_ID·SECRET)이 아직 없어서,
 > 증명 없이는 시작 라우트가 400으로 응답하고 **FE 버튼 추가**가 남은 일이에요.
 
 - [ ] 구글 아이디(Google OAuth) 회원가입 및 로그인 지원
