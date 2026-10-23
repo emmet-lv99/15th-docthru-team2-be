@@ -1,10 +1,18 @@
 // use prisma-8
 //
-// 독스루 계약 (Prisma 8 native) — prisma/schema.prisma(v7 원본)의 1:1 전환 초안
-// 스칼라: timestamp(3) 컬럼 → TimestamptzString (강사님 prisma-8 starter 방식)
-//   → dry-run 결과에 따라 컬럼 타입 변환(ALTER) 여부가 결정된 (게이트 값)
+// 8테이블 계약 — Google OAuth + 이메일 인증을 함께 쓰는 팀 결정을 반영했습니다.
+//
+//   1. oauth_accounts → users 병합 (provider · providerAccountId)
+//   2. challenge_applications → challenges 병합 (status)
+//   3. drafts → challenge_participants 병합 (draft*)
+//   4. users 에 deletedAt(소프트 삭제) · tokenVersion(세션 무효화) 추가
+//   5. password_reset_tokens 추가 (30분·1회용·SHA-256 해시)
+//
+// 공개 챌린지 목록은 status IN (IN_PROGRESS, CLOSED) + deletedAt IS NULL,
+// 어드민 신청 목록은 status IN (PENDING, REJECTED, CANCELLED) + deletedAt IS NULL 로 조회해 주세요.
+// 사용자 조회도 기본으로 deletedAt IS NULL 을 붙여요 — 탈퇴 계정은 인증·목록에서 제외합니다.
 native_enum UserRole {
-  USER  = "USER"
+  USER = "USER"
   ADMIN = "ADMIN"
 }
 
@@ -18,192 +26,185 @@ native_enum OAuthProvider {
 }
 
 native_enum Category {
-  NEXT_JS   = "NEXT_JS"
+  NEXT_JS = "NEXT_JS"
   MODERN_JS = "MODERN_JS"
-  API       = "API"
-  WEB       = "WEB"
-  CAREER    = "CAREER"
+  API = "API"
+  WEB = "WEB"
+  CAREER = "CAREER"
 }
 
 native_enum DocumentType {
   OFFICIAL = "OFFICIAL"
-  BLOG     = "BLOG"
-  BOOK     = "BOOK"
-  OTHER    = "OTHER"
+  BLOG = "BLOG"
+  BOOK = "BOOK"
+  OTHER = "OTHER"
 }
 
+// 신청과 챌린지를 한 테이블에서 표현하는 통합 상태예요.
+//   PENDING → IN_PROGRESS → CLOSED
+//   PENDING → REJECTED
+//   PENDING → CANCELLED
+//
+// ⚠️ 기존 DB의 ChallengeStatus(IN_PROGRESS, CLOSED)에 값을 append하는 순서예요.
+//    Postgres enum은 append-only라서, 기존 값을 앞에 다시 쓰면 enum 재생성이 필요합니다.
 native_enum ChallengeStatus {
   IN_PROGRESS = "IN_PROGRESS"
-  CLOSED      = "CLOSED"
-}
-
-native_enum ApplicationStatus {
-  PENDING   = "PENDING"
-  APPROVED  = "APPROVED"
-  REJECTED  = "REJECTED"
+  CLOSED = "CLOSED"
+  PENDING = "PENDING"
+  REJECTED = "REJECTED"
   CANCELLED = "CANCELLED"
 }
 
-// ⚠️ 멤버 순서 = DB enum sortorder (Postgres enum 은 append-only — 2026-10-11 마이그레이션 순서)
+// ⚠️ 멤버 순서 = DB enum sortorder (Postgres enum은 append-only)
 native_enum NotificationType {
   CHALLENGE_APPROVED = "CHALLENGE_APPROVED"
   CHALLENGE_REJECTED = "CHALLENGE_REJECTED"
-  CHALLENGE_UPDATED  = "CHALLENGE_UPDATED"
-  CHALLENGE_DELETED  = "CHALLENGE_DELETED"
-  WORK_ADDED         = "WORK_ADDED"
-  FEEDBACK_ADDED     = "FEEDBACK_ADDED"
-  FEEDBACK_UPDATED   = "FEEDBACK_UPDATED"
+  CHALLENGE_UPDATED = "CHALLENGE_UPDATED"
+  CHALLENGE_DELETED = "CHALLENGE_DELETED"
+  WORK_ADDED = "WORK_ADDED"
+  FEEDBACK_ADDED = "FEEDBACK_ADDED"
+  FEEDBACK_UPDATED = "FEEDBACK_UPDATED"
   CHALLENGE_DEADLINE = "CHALLENGE_DEADLINE"
-  FEEDBACK_DELETED   = "FEEDBACK_DELETED"
+  FEEDBACK_DELETED = "FEEDBACK_DELETED"
 }
 
 model User {
-  id           Int  @id @default(autoincrement())
-  email        String @unique
-  nickname     String @unique
-  passwordHash String?
-  role         pg.enum(UserRole)  @default("USER")
-  grade        pg.enum(UserGrade) @default("NORMAL")
+  id                Int                        @id @default(autoincrement())
+  email             String                     @unique
+  nickname          String                     @unique
+  passwordHash      String?
 
-  oauthAccounts       OAuthAccount[]
-  applications        ChallengeApplication[] @relation("Applicant")
-  decidedApplications ChallengeApplication[] @relation("Decider")
-  createdChallenges   Challenge[]            @relation("ChallengeCreator")
-  deletedChallenges   Challenge[]            @relation("ChallengeDeleter")
-  participations      ChallengeParticipant[]
-  feedbacks           Feedback[]
-  workLikes           WorkLike[]
-  notifications       Notification[]         @relation("NotificationReceiver")
-  actedNotifications  Notification[]         @relation("NotificationActor")
+  // Google 소셜 로그인 — 로컬 계정은 두 값이 모두 null 이에요.
+  // 같은 구글 계정이 두 사용자에게 연결되지 않도록 복합 unique 를 둡니다.
+  provider          pg.enum(OAuthProvider)?
+  providerAccountId String?
 
-  createdAt TimestamptzString @default(now())
-  updatedAt temporal.updatedAtString()
+  role              pg.enum(UserRole)          @default("USER")
+  grade             pg.enum(UserGrade)         @default("NORMAL")
 
+  // 세션 무효화 버전 — JWT 의 ver 클레임과 비교해, 값이 달라지면 기존 토큰을 거부해요.
+  // 로그아웃(전 기기)·비밀번호 변경·탈퇴 때 1씩 올립니다.
+  tokenVersion      Int                        @default(0)
+  // 탈퇴는 소프트 삭제 — 챌린지·작업물·피드백 FK 는 보존하고 개인정보만 익명화해요.
+  deletedAt         TimestamptzString?
+
+  passwordResetTokens PasswordResetToken[]
+
+  createdChallenges Challenge[]                @relation("ChallengeCreator")
+  decidedChallenges Challenge[]                @relation("ChallengeDecider")
+  deletedChallenges Challenge[]                @relation("ChallengeDeleter")
+  participations    ChallengeParticipant[]
+  feedbacks         Feedback[]
+  workLikes         WorkLike[]
+  notifications     Notification[]             @relation("NotificationReceiver")
+  actedNotifications Notification[]            @relation("NotificationActor")
+
+  createdAt         TimestamptzString          @default(now())
+  updatedAt         temporal.updatedAtString()
+
+  @@unique([provider, providerAccountId])
   @@index([grade])
   @@map("users")
 }
 
-model OAuthAccount {
-  id                Int  @id @default(autoincrement())
-  userId            Int
-  user              User @relation(fields: [userId], references: [id], onDelete: Cascade)
-  provider          pg.enum(OAuthProvider)
-  providerAccountId String
+// 비밀번호 재설정 토큰 — 원문은 메일 링크에만 두고 DB 에는 SHA-256 해시만 저장해요.
+// expiresAt(30분) 이 지나거나 usedAt 이 채워지면 다시 쓸 수 없습니다.
+model PasswordResetToken {
+  id        Int               @id @default(autoincrement())
+  userId    Int
+  user      User              @relation(fields: [userId], references: [id], onDelete: Cascade)
 
+  tokenHash String            @unique
+  expiresAt TimestamptzString
+  usedAt    TimestamptzString?
   createdAt TimestamptzString @default(now())
 
-  @@unique([provider, providerAccountId])
   @@index([userId])
-  @@map("oauth_accounts")
+  @@index([expiresAt])
+  @@map("password_reset_tokens")
 }
 
-model ChallengeApplication {
-  id     Int  @id @default(autoincrement())
-  userId Int
-  user   User @relation("Applicant", fields: [userId], references: [id], onDelete: Cascade)
-
+model Challenge {
+  id              Int                        @id @default(autoincrement())
   title           String
   category        pg.enum(Category)
   documentType    pg.enum(DocumentType)
   sourceUrl       String
   content         String?
-  desiredDeadline TimestamptzString
+  deadline        TimestamptzString
   maxParticipants Int
+  status          pg.enum(ChallengeStatus)   @default("PENDING")
 
-  status          pg.enum(ApplicationStatus) @default("PENDING")
+  // 신청자 = 챌린지 개설자예요. 승인 후에도 같은 행을 이어서 사용합니다.
+  createdById     Int
+  createdBy       User                       @relation("ChallengeCreator", fields: [createdById], references: [id], onDelete: Restrict)
+
+  // 승인·거절 판단 기록이에요. 거절 사유는 rejectionReason에 남깁니다.
   rejectionReason String?
   decidedAt       TimestamptzString?
   decidedById     Int?
-  decidedBy       User?             @relation("Decider", fields: [decidedById], references: [id], onDelete: SetNull)
+  decidedBy       User?                      @relation("ChallengeDecider", fields: [decidedById], references: [id], onDelete: SetNull)
   cancelledAt     TimestamptzString?
 
-  createdAt  TimestamptzString @default(now())
-  updatedAt  temporal.updatedAtString()
-  challenges Challenge[]
+  // 챌린지 삭제는 소프트 삭제로 남겨요. 삭제한 관리자도 함께 기록합니다.
+  deletedAt       TimestamptzString?
+  deleteReason    String?
+  deletedById     Int?
+  deletedBy       User?                      @relation("ChallengeDeleter", fields: [deletedById], references: [id], onDelete: SetNull)
 
-  @@index([status, createdAt])
-  @@index([userId])
-  @@map("challenge_applications")
-}
+  participants    ChallengeParticipant[]
+  notifications   Notification[]
 
-model Challenge {
-  id        Int @id @default(autoincrement())
-  title     String
-  category  pg.enum(Category)
-  documentType pg.enum(DocumentType)
-  sourceUrl String
-  content   String?
-  deadline  TimestamptzString
-  maxParticipants Int
-  status    pg.enum(ChallengeStatus) @default("IN_PROGRESS")
-  createdById Int
-  createdBy User @relation("ChallengeCreator", fields: [createdById], references: [id], onDelete: Restrict)
-
-  sourceApplicationId Int?
-  sourceApplication    ChallengeApplication? @relation(fields: [sourceApplicationId], references: [id], onDelete: SetNull)
-
-  deletedAt    TimestamptzString?
-  deleteReason String?
-  deletedById  Int?
-  deletedBy    User?    @relation("ChallengeDeleter", fields: [deletedById], references: [id], onDelete: SetNull)
-
-  participants  ChallengeParticipant[]
-  notifications Notification[]
-
-  createdAt TimestamptzString @default(now())
-  updatedAt temporal.updatedAtString()
+  createdAt       TimestamptzString          @default(now())
+  updatedAt       temporal.updatedAtString()
 
   @@index([status, deadline])
+  @@index([status, createdAt])
   @@index([category, documentType])
   @@index([createdById])
+  @@index([decidedById])
   @@map("challenges")
 }
 
 model ChallengeParticipant {
-  id          Int       @id @default(autoincrement())
-  challengeId Int
-  challenge   Challenge @relation(fields: [challengeId], references: [id], onDelete: Cascade)
-  userId      Int
-  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  joinedAt    TimestamptzString @default(now())
-  abandonedAt TimestamptzString?
+  id             Int                        @id @default(autoincrement())
+  challengeId    Int
+  challenge      Challenge                  @relation(fields: [challengeId], references: [id], onDelete: Cascade)
+  userId         Int
+  user           User                       @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  work  Work[]
-  draft Draft?
+  joinedAt       TimestamptzString          @default(now())
+  abandonedAt    TimestamptzString?
 
-  createdAt TimestamptzString @default(now())
-  updatedAt temporal.updatedAtString()
+  // 임시저장은 참여 1건당 1개예요. 별도 drafts 테이블 대신 이 행에 함께 보관합니다.
+  // 삭제는 draftContent를 null로 되돌리는 방식이라 조인·INSERT/DELETE가 필요 없어요.
+  draftContent   String?
+  draftCreatedAt TimestamptzString?
+  draftUpdatedAt TimestamptzString?
+
+  work           Work[]
+
+  createdAt      TimestamptzString          @default(now())
+  updatedAt      temporal.updatedAtString()
 
   @@unique([challengeId, userId])
   @@index([userId, abandonedAt])
   @@map("challenge_participants")
 }
 
-model Draft {
-  id Int @id @default(autoincrement())
-  participantId Int @unique
-  participant   ChallengeParticipant @relation(fields: [participantId], references: [id], onDelete: Cascade)
-  content String
-
-  createdAt TimestamptzString @default(now())
-  updatedAt temporal.updatedAtString()
-
-  @@map("drafts")
-}
-
 model Work {
-  id Int @id @default(autoincrement())
+  id            Int                        @id @default(autoincrement())
   participantId Int
-  participant   ChallengeParticipant @relation(fields: [participantId], references: [id], onDelete: Cascade)
+  participant   ChallengeParticipant       @relation(fields: [participantId], references: [id], onDelete: Cascade)
   content       String
-  submittedAt   TimestamptzString @default(now())
+  submittedAt   TimestamptzString          @default(now())
 
   feedbacks     Feedback[]
   likes         WorkLike[]
   notifications Notification[]
 
-  createdAt TimestamptzString @default(now())
-  updatedAt temporal.updatedAtString()
+  createdAt     TimestamptzString          @default(now())
+  updatedAt     temporal.updatedAtString()
 
   @@index([participantId])
   @@index([submittedAt])
@@ -211,14 +212,14 @@ model Work {
 }
 
 model Feedback {
-  id      Int @id @default(autoincrement())
-  workId  Int
-  work    Work @relation(fields: [workId], references: [id], onDelete: Cascade)
-  userId  Int
-  user    User @relation(fields: [userId], references: [id], onDelete: Cascade)
-  content String
+  id        Int                        @id @default(autoincrement())
+  workId    Int
+  work      Work                       @relation(fields: [workId], references: [id], onDelete: Cascade)
+  userId    Int
+  user      User                       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  content   String
 
-  createdAt TimestamptzString @default(now())
+  createdAt TimestamptzString          @default(now())
   updatedAt temporal.updatedAtString()
 
   @@index([workId, createdAt])
@@ -227,11 +228,11 @@ model Feedback {
 }
 
 model WorkLike {
-  id     Int @id @default(autoincrement())
-  workId Int
-  work   Work @relation(fields: [workId], references: [id], onDelete: Cascade)
-  userId Int
-  user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id        Int               @id @default(autoincrement())
+  workId    Int
+  work      Work              @relation(fields: [workId], references: [id], onDelete: Cascade)
+  userId    Int
+  user      User              @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   createdAt TimestamptzString @default(now())
 
@@ -241,24 +242,24 @@ model WorkLike {
 }
 
 model Notification {
-  id     Int @id @default(autoincrement())
-  userId Int
-  user   User @relation("NotificationReceiver", fields: [userId], references: [id], onDelete: Cascade)
-  type   pg.enum(NotificationType)
+  id                 Int                       @id @default(autoincrement())
+  userId             Int
+  user               User                      @relation("NotificationReceiver", fields: [userId], references: [id], onDelete: Cascade)
+  type               pg.enum(NotificationType)
 
-  reason String?
+  reason             String?
 
   relatedChallengeId Int?
-  relatedChallenge   Challenge? @relation(fields: [relatedChallengeId], references: [id], onDelete: Cascade)
+  relatedChallenge   Challenge?                @relation(fields: [relatedChallengeId], references: [id], onDelete: Cascade)
   relatedWorkId      Int?
-  relatedWork        Work?      @relation(fields: [relatedWorkId], references: [id], onDelete: Cascade)
+  relatedWork        Work?                     @relation(fields: [relatedWorkId], references: [id], onDelete: Cascade)
   actorId            Int?
-  actor              User?      @relation("NotificationActor", fields: [actorId], references: [id], onDelete: SetNull)
+  actor              User?                     @relation("NotificationActor", fields: [actorId], references: [id], onDelete: SetNull)
 
-  dedupeKey String? @unique
-  readAt    TimestamptzString?
+  dedupeKey          String?                   @unique
+  readAt             TimestamptzString?
 
-  createdAt TimestamptzString @default(now())
+  createdAt          TimestamptzString         @default(now())
 
   @@index([userId, readAt, createdAt])
   @@index([relatedChallengeId])

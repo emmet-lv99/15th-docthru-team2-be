@@ -1,0 +1,830 @@
+[
+  {
+    "id": "dropConstraint.challenges.challenges_sourceApplicationId_fkey",
+    "label": "Drop constraint \"challenges_sourceApplicationId_fkey\" on \"challenges\"",
+    "operationClass": "widening",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "challenges_sourceApplicationId_fkey",
+        "table": "challenges"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"challenges_sourceApplicationId_fkey\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "challenges_sourceApplicationId_fkey",
+          "public",
+          "\"public\".\"challenges\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "drop constraint \"challenges_sourceApplicationId_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"challenges\" DROP CONSTRAINT \"challenges_sourceApplicationId_fkey\""
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify constraint \"challenges_sourceApplicationId_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "challenges_sourceApplicationId_fkey",
+          "public",
+          "\"public\".\"challenges\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "dropTable.challenge_applications",
+    "label": "Drop table \"challenge_applications\"",
+    "operationClass": "destructive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "challenge_applications"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"challenge_applications\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"challenge_applications\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "drop table \"challenge_applications\"",
+        "sql": "DROP TABLE \"public\".\"challenge_applications\""
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"challenge_applications\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"challenge_applications\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "dropIndex.challenges.challenges_sourceApplicationId_idx_d900dada",
+    "label": "Drop index \"challenges_sourceApplicationId_idx_d900dada\"",
+    "operationClass": "widening",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "challenges_sourceApplicationId_idx_d900dada",
+        "table": "challenges"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"challenges_sourceApplicationId_idx_d900dada\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"challenges_sourceApplicationId_idx_d900dada\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "drop index \"challenges_sourceApplicationId_idx_d900dada\"",
+        "sql": "DROP INDEX \"public\".\"challenges_sourceApplicationId_idx_d900dada\"",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"challenges_sourceApplicationId_idx_d900dada\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"challenges_sourceApplicationId_idx_d900dada\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "dropColumn.challenges.sourceApplicationId",
+    "label": "Drop column \"sourceApplicationId\" from \"challenges\"",
+    "operationClass": "destructive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "column",
+        "name": "sourceApplicationId",
+        "table": "challenges"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure column \"sourceApplicationId\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "challenges",
+          "sourceApplicationId"
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "drop column \"sourceApplicationId\"",
+        "sql": "ALTER TABLE \"public\".\"challenges\" DROP COLUMN \"sourceApplicationId\""
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"sourceApplicationId\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "challenges",
+          "sourceApplicationId"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "dropTable.drafts",
+    "label": "Drop table \"drafts\"",
+    "operationClass": "destructive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "drafts"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"drafts\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"drafts\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "drop table \"drafts\"",
+        "sql": "DROP TABLE \"public\".\"drafts\""
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"drafts\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"drafts\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "dropTable.oauth_accounts",
+    "label": "Drop table \"oauth_accounts\"",
+    "operationClass": "destructive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "oauth_accounts"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"oauth_accounts\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"oauth_accounts\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "drop table \"oauth_accounts\"",
+        "sql": "DROP TABLE \"public\".\"oauth_accounts\""
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"oauth_accounts\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"oauth_accounts\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "dropNativeEnumType.ApplicationStatus",
+    "label": "Drop enum type \"ApplicationStatus\"",
+    "operationClass": "widening",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "type",
+        "name": "ApplicationStatus"
+      }
+    },
+    "precheck": [],
+    "execute": [
+      {
+        "description": "drop enum type \"ApplicationStatus\"",
+        "sql": "DROP TYPE \"public\".\"ApplicationStatus\"",
+        "params": []
+      }
+    ],
+    "postcheck": []
+  },
+  {
+    "id": "column.public.challenge_participants.draftContent",
+    "label": "Add column \"draftContent\" to \"challenge_participants\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "column",
+        "name": "draftContent",
+        "table": "challenge_participants"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure column \"draftContent\" is missing",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "challenge_participants",
+          "draftContent"
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add column \"draftContent\"",
+        "sql": "ALTER TABLE \"public\".\"challenge_participants\" ADD COLUMN \"draftContent\" text"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"draftContent\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "challenge_participants",
+          "draftContent"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "column.public.challenge_participants.draftCreatedAt",
+    "label": "Add column \"draftCreatedAt\" to \"challenge_participants\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "column",
+        "name": "draftCreatedAt",
+        "table": "challenge_participants"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure column \"draftCreatedAt\" is missing",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "challenge_participants",
+          "draftCreatedAt"
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add column \"draftCreatedAt\"",
+        "sql": "ALTER TABLE \"public\".\"challenge_participants\" ADD COLUMN \"draftCreatedAt\" timestamptz"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"draftCreatedAt\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "challenge_participants",
+          "draftCreatedAt"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "column.public.challenge_participants.draftUpdatedAt",
+    "label": "Add column \"draftUpdatedAt\" to \"challenge_participants\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "column",
+        "name": "draftUpdatedAt",
+        "table": "challenge_participants"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure column \"draftUpdatedAt\" is missing",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "challenge_participants",
+          "draftUpdatedAt"
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add column \"draftUpdatedAt\"",
+        "sql": "ALTER TABLE \"public\".\"challenge_participants\" ADD COLUMN \"draftUpdatedAt\" timestamptz"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"draftUpdatedAt\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "challenge_participants",
+          "draftUpdatedAt"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "column.public.challenges.cancelledAt",
+    "label": "Add column \"cancelledAt\" to \"challenges\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "column",
+        "name": "cancelledAt",
+        "table": "challenges"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure column \"cancelledAt\" is missing",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "challenges",
+          "cancelledAt"
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add column \"cancelledAt\"",
+        "sql": "ALTER TABLE \"public\".\"challenges\" ADD COLUMN \"cancelledAt\" timestamptz"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"cancelledAt\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "challenges",
+          "cancelledAt"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "column.public.challenges.decidedAt",
+    "label": "Add column \"decidedAt\" to \"challenges\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "column",
+        "name": "decidedAt",
+        "table": "challenges"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure column \"decidedAt\" is missing",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "challenges",
+          "decidedAt"
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add column \"decidedAt\"",
+        "sql": "ALTER TABLE \"public\".\"challenges\" ADD COLUMN \"decidedAt\" timestamptz"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"decidedAt\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "challenges",
+          "decidedAt"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "column.public.challenges.decidedById",
+    "label": "Add column \"decidedById\" to \"challenges\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "column",
+        "name": "decidedById",
+        "table": "challenges"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure column \"decidedById\" is missing",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "challenges",
+          "decidedById"
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add column \"decidedById\"",
+        "sql": "ALTER TABLE \"public\".\"challenges\" ADD COLUMN \"decidedById\" int4"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"decidedById\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "challenges",
+          "decidedById"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "column.public.challenges.rejectionReason",
+    "label": "Add column \"rejectionReason\" to \"challenges\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "column",
+        "name": "rejectionReason",
+        "table": "challenges"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure column \"rejectionReason\" is missing",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "challenges",
+          "rejectionReason"
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add column \"rejectionReason\"",
+        "sql": "ALTER TABLE \"public\".\"challenges\" ADD COLUMN \"rejectionReason\" text"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"rejectionReason\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "challenges",
+          "rejectionReason"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "column.public.users.provider",
+    "label": "Add column \"provider\" to \"users\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "column",
+        "name": "provider",
+        "table": "users"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure column \"provider\" is missing",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "users",
+          "provider"
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add column \"provider\"",
+        "sql": "ALTER TABLE \"public\".\"users\" ADD COLUMN \"provider\" \"OAuthProvider\""
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"provider\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "users",
+          "provider"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "column.public.users.providerAccountId",
+    "label": "Add column \"providerAccountId\" to \"users\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "column",
+        "name": "providerAccountId",
+        "table": "users"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure column \"providerAccountId\" is missing",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "users",
+          "providerAccountId"
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add column \"providerAccountId\"",
+        "sql": "ALTER TABLE \"public\".\"users\" ADD COLUMN \"providerAccountId\" text"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"providerAccountId\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "users",
+          "providerAccountId"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "setDefault.challenges.status",
+    "label": "Set default on \"challenges\".\"status\"",
+    "operationClass": "widening",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "column",
+        "name": "status",
+        "table": "challenges"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure column \"status\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "challenges",
+          "status"
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "set default on \"status\"",
+        "sql": "ALTER TABLE \"public\".\"challenges\" ALTER COLUMN \"status\" SET DEFAULT 'PENDING'::\"ChallengeStatus\""
+      }
+    ],
+    "postcheck": []
+  },
+  {
+    "id": "unique.users.users_provider_providerAccountId_key",
+    "label": "Add unique constraint on \"users\" (provider, providerAccountId)",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "unique",
+        "name": "users_provider_providerAccountId_key",
+        "table": "users"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"users_provider_providerAccountId_key\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "users_provider_providerAccountId_key",
+          "public",
+          "\"public\".\"users\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add unique constraint \"users_provider_providerAccountId_key\"",
+        "sql": "ALTER TABLE \"public\".\"users\" ADD CONSTRAINT \"users_provider_providerAccountId_key\" UNIQUE (\"provider\", \"providerAccountId\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify constraint \"users_provider_providerAccountId_key\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "users_provider_providerAccountId_key",
+          "public",
+          "\"public\".\"users\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.challenges.challenges_decidedById_idx_8194d55f",
+    "label": "Create index \"challenges_decidedById_idx_8194d55f\" on \"challenges\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "challenges_decidedById_idx_8194d55f",
+        "table": "challenges"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"challenges_decidedById_idx_8194d55f\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"challenges_decidedById_idx_8194d55f\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"challenges_decidedById_idx_8194d55f\"",
+        "sql": "CREATE INDEX \"challenges_decidedById_idx_8194d55f\" ON \"public\".\"challenges\" (\"decidedById\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"challenges_decidedById_idx_8194d55f\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"challenges_decidedById_idx_8194d55f\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.challenges.challenges_status_createdAt_idx_58610442",
+    "label": "Create index \"challenges_status_createdAt_idx_58610442\" on \"challenges\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "challenges_status_createdAt_idx_58610442",
+        "table": "challenges"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"challenges_status_createdAt_idx_58610442\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"challenges_status_createdAt_idx_58610442\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"challenges_status_createdAt_idx_58610442\"",
+        "sql": "CREATE INDEX \"challenges_status_createdAt_idx_58610442\" ON \"public\".\"challenges\" (\"status\", \"createdAt\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"challenges_status_createdAt_idx_58610442\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"challenges_status_createdAt_idx_58610442\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.challenges.challenges_decidedById_fkey",
+    "label": "Add foreign key \"challenges_decidedById_fkey\" on \"challenges\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "challenges_decidedById_fkey",
+        "table": "challenges"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"challenges_decidedById_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "challenges_decidedById_fkey",
+          "public",
+          "\"public\".\"challenges\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"challenges_decidedById_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"challenges\"\nADD CONSTRAINT \"challenges_decidedById_fkey\"\nFOREIGN KEY (\"decidedById\")\nREFERENCES \"public\".\"users\" (\"id\")\nON DELETE SET NULL"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"challenges_decidedById_fkey\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "challenges_decidedById_fkey",
+          "public",
+          "\"public\".\"challenges\""
+        ]
+      }
+    ]
+  }
+]

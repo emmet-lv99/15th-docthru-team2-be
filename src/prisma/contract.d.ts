@@ -18,9 +18,9 @@ import type {
 } from '@prisma/orm-postgres/contract/types';
 
 export type StorageHash =
-  StorageHashBase<'1a13e7b2ab30eb8f0c32612e43d6a51e90701cf6f7fe14946540136959c6ab4f'>;
+  StorageHashBase<'92cc2af080fac652a9f3efe4bdd08dcd1e3eb12b44b5ecc896f41563148c2815'>;
 export type ExecutionHash =
-  ExecutionHashBase<'611b633d43db9bd2bf7a35d033531725d767dd23cdbf1cec947b0afd2f65e48e'>;
+  ExecutionHashBase<'80a8f0d6284e5181cf58f89374848da383d7f9d12eb21482e877735fe1d0b1f9'>;
 export type ProfileHash =
   ProfileHashBase<'3916f444a8a17ad749191acf9e08dad97d1a327b88c2f1d45d12f240296aa8b2'>;
 
@@ -235,56 +235,37 @@ type DefaultLiteralValue<CodecId extends string, Encoded> = CodecId extends keyo
 export type FieldOutputTypes = {
   readonly public: {
     readonly Challenge: {
+      readonly cancelledAt: CodecTypes['pg/timestamptz-string@1']['output'] | null;
       readonly category: 'NEXT_JS' | 'MODERN_JS' | 'API' | 'WEB' | 'CAREER';
       readonly content: CodecTypes['pg/text@1']['output'] | null;
       readonly createdAt: CodecTypes['pg/timestamptz-string@1']['output'];
       readonly createdById: CodecTypes['pg/int4@1']['output'];
       readonly deadline: CodecTypes['pg/timestamptz-string@1']['output'];
+      readonly decidedAt: CodecTypes['pg/timestamptz-string@1']['output'] | null;
+      readonly decidedById: CodecTypes['pg/int4@1']['output'] | null;
       readonly deleteReason: CodecTypes['pg/text@1']['output'] | null;
       readonly deletedAt: CodecTypes['pg/timestamptz-string@1']['output'] | null;
       readonly deletedById: CodecTypes['pg/int4@1']['output'] | null;
       readonly documentType: 'OFFICIAL' | 'BLOG' | 'BOOK' | 'OTHER';
       readonly id: CodecTypes['pg/int4@1']['output'];
       readonly maxParticipants: CodecTypes['pg/int4@1']['output'];
-      readonly sourceApplicationId: CodecTypes['pg/int4@1']['output'] | null;
-      readonly sourceUrl: CodecTypes['pg/text@1']['output'];
-      readonly status: 'IN_PROGRESS' | 'CLOSED';
-      readonly title: CodecTypes['pg/text@1']['output'];
-      readonly updatedAt: CodecTypes['pg/timestamptz-string@1']['output'];
-    };
-    readonly ChallengeApplication: {
-      readonly cancelledAt: CodecTypes['pg/timestamptz-string@1']['output'] | null;
-      readonly category: 'NEXT_JS' | 'MODERN_JS' | 'API' | 'WEB' | 'CAREER';
-      readonly content: CodecTypes['pg/text@1']['output'] | null;
-      readonly createdAt: CodecTypes['pg/timestamptz-string@1']['output'];
-      readonly decidedAt: CodecTypes['pg/timestamptz-string@1']['output'] | null;
-      readonly decidedById: CodecTypes['pg/int4@1']['output'] | null;
-      readonly desiredDeadline: CodecTypes['pg/timestamptz-string@1']['output'];
-      readonly documentType: 'OFFICIAL' | 'BLOG' | 'BOOK' | 'OTHER';
-      readonly id: CodecTypes['pg/int4@1']['output'];
-      readonly maxParticipants: CodecTypes['pg/int4@1']['output'];
       readonly rejectionReason: CodecTypes['pg/text@1']['output'] | null;
       readonly sourceUrl: CodecTypes['pg/text@1']['output'];
-      readonly status: 'PENDING' | 'APPROVED' | 'REJECTED' | 'CANCELLED';
+      readonly status: 'IN_PROGRESS' | 'CLOSED' | 'PENDING' | 'REJECTED' | 'CANCELLED';
       readonly title: CodecTypes['pg/text@1']['output'];
       readonly updatedAt: CodecTypes['pg/timestamptz-string@1']['output'];
-      readonly userId: CodecTypes['pg/int4@1']['output'];
     };
     readonly ChallengeParticipant: {
       readonly abandonedAt: CodecTypes['pg/timestamptz-string@1']['output'] | null;
       readonly challengeId: CodecTypes['pg/int4@1']['output'];
       readonly createdAt: CodecTypes['pg/timestamptz-string@1']['output'];
+      readonly draftContent: CodecTypes['pg/text@1']['output'] | null;
+      readonly draftCreatedAt: CodecTypes['pg/timestamptz-string@1']['output'] | null;
+      readonly draftUpdatedAt: CodecTypes['pg/timestamptz-string@1']['output'] | null;
       readonly id: CodecTypes['pg/int4@1']['output'];
       readonly joinedAt: CodecTypes['pg/timestamptz-string@1']['output'];
       readonly updatedAt: CodecTypes['pg/timestamptz-string@1']['output'];
       readonly userId: CodecTypes['pg/int4@1']['output'];
-    };
-    readonly Draft: {
-      readonly content: CodecTypes['pg/text@1']['output'];
-      readonly createdAt: CodecTypes['pg/timestamptz-string@1']['output'];
-      readonly id: CodecTypes['pg/int4@1']['output'];
-      readonly participantId: CodecTypes['pg/int4@1']['output'];
-      readonly updatedAt: CodecTypes['pg/timestamptz-string@1']['output'];
     };
     readonly Feedback: {
       readonly content: CodecTypes['pg/text@1']['output'];
@@ -315,21 +296,26 @@ export type FieldOutputTypes = {
         | 'FEEDBACK_DELETED';
       readonly userId: CodecTypes['pg/int4@1']['output'];
     };
-    readonly OAuthAccount: {
+    readonly PasswordResetToken: {
       readonly createdAt: CodecTypes['pg/timestamptz-string@1']['output'];
+      readonly expiresAt: CodecTypes['pg/timestamptz-string@1']['output'];
       readonly id: CodecTypes['pg/int4@1']['output'];
-      readonly provider: 'GOOGLE';
-      readonly providerAccountId: CodecTypes['pg/text@1']['output'];
+      readonly tokenHash: CodecTypes['pg/text@1']['output'];
+      readonly usedAt: CodecTypes['pg/timestamptz-string@1']['output'] | null;
       readonly userId: CodecTypes['pg/int4@1']['output'];
     };
     readonly User: {
       readonly createdAt: CodecTypes['pg/timestamptz-string@1']['output'];
+      readonly deletedAt: CodecTypes['pg/timestamptz-string@1']['output'] | null;
       readonly email: CodecTypes['pg/text@1']['output'];
       readonly grade: 'NORMAL' | 'EXPERT';
       readonly id: CodecTypes['pg/int4@1']['output'];
       readonly nickname: CodecTypes['pg/text@1']['output'];
       readonly passwordHash: CodecTypes['pg/text@1']['output'] | null;
+      readonly provider: 'GOOGLE' | null;
+      readonly providerAccountId: CodecTypes['pg/text@1']['output'] | null;
       readonly role: 'USER' | 'ADMIN';
+      readonly tokenVersion: CodecTypes['pg/int4@1']['output'];
       readonly updatedAt: CodecTypes['pg/timestamptz-string@1']['output'];
     };
     readonly Work: {
@@ -351,56 +337,37 @@ export type FieldOutputTypes = {
 export type FieldInputTypes = {
   readonly public: {
     readonly Challenge: {
+      readonly cancelledAt: CodecTypes['pg/timestamptz-string@1']['input'] | null;
       readonly category: 'NEXT_JS' | 'MODERN_JS' | 'API' | 'WEB' | 'CAREER';
       readonly content: CodecTypes['pg/text@1']['input'] | null;
       readonly createdAt: CodecTypes['pg/timestamptz-string@1']['input'];
       readonly createdById: CodecTypes['pg/int4@1']['input'];
       readonly deadline: CodecTypes['pg/timestamptz-string@1']['input'];
+      readonly decidedAt: CodecTypes['pg/timestamptz-string@1']['input'] | null;
+      readonly decidedById: CodecTypes['pg/int4@1']['input'] | null;
       readonly deleteReason: CodecTypes['pg/text@1']['input'] | null;
       readonly deletedAt: CodecTypes['pg/timestamptz-string@1']['input'] | null;
       readonly deletedById: CodecTypes['pg/int4@1']['input'] | null;
       readonly documentType: 'OFFICIAL' | 'BLOG' | 'BOOK' | 'OTHER';
       readonly id: CodecTypes['pg/int4@1']['input'];
       readonly maxParticipants: CodecTypes['pg/int4@1']['input'];
-      readonly sourceApplicationId: CodecTypes['pg/int4@1']['input'] | null;
-      readonly sourceUrl: CodecTypes['pg/text@1']['input'];
-      readonly status: 'IN_PROGRESS' | 'CLOSED';
-      readonly title: CodecTypes['pg/text@1']['input'];
-      readonly updatedAt: CodecTypes['pg/timestamptz-string@1']['input'];
-    };
-    readonly ChallengeApplication: {
-      readonly cancelledAt: CodecTypes['pg/timestamptz-string@1']['input'] | null;
-      readonly category: 'NEXT_JS' | 'MODERN_JS' | 'API' | 'WEB' | 'CAREER';
-      readonly content: CodecTypes['pg/text@1']['input'] | null;
-      readonly createdAt: CodecTypes['pg/timestamptz-string@1']['input'];
-      readonly decidedAt: CodecTypes['pg/timestamptz-string@1']['input'] | null;
-      readonly decidedById: CodecTypes['pg/int4@1']['input'] | null;
-      readonly desiredDeadline: CodecTypes['pg/timestamptz-string@1']['input'];
-      readonly documentType: 'OFFICIAL' | 'BLOG' | 'BOOK' | 'OTHER';
-      readonly id: CodecTypes['pg/int4@1']['input'];
-      readonly maxParticipants: CodecTypes['pg/int4@1']['input'];
       readonly rejectionReason: CodecTypes['pg/text@1']['input'] | null;
       readonly sourceUrl: CodecTypes['pg/text@1']['input'];
-      readonly status: 'PENDING' | 'APPROVED' | 'REJECTED' | 'CANCELLED';
+      readonly status: 'IN_PROGRESS' | 'CLOSED' | 'PENDING' | 'REJECTED' | 'CANCELLED';
       readonly title: CodecTypes['pg/text@1']['input'];
       readonly updatedAt: CodecTypes['pg/timestamptz-string@1']['input'];
-      readonly userId: CodecTypes['pg/int4@1']['input'];
     };
     readonly ChallengeParticipant: {
       readonly abandonedAt: CodecTypes['pg/timestamptz-string@1']['input'] | null;
       readonly challengeId: CodecTypes['pg/int4@1']['input'];
       readonly createdAt: CodecTypes['pg/timestamptz-string@1']['input'];
+      readonly draftContent: CodecTypes['pg/text@1']['input'] | null;
+      readonly draftCreatedAt: CodecTypes['pg/timestamptz-string@1']['input'] | null;
+      readonly draftUpdatedAt: CodecTypes['pg/timestamptz-string@1']['input'] | null;
       readonly id: CodecTypes['pg/int4@1']['input'];
       readonly joinedAt: CodecTypes['pg/timestamptz-string@1']['input'];
       readonly updatedAt: CodecTypes['pg/timestamptz-string@1']['input'];
       readonly userId: CodecTypes['pg/int4@1']['input'];
-    };
-    readonly Draft: {
-      readonly content: CodecTypes['pg/text@1']['input'];
-      readonly createdAt: CodecTypes['pg/timestamptz-string@1']['input'];
-      readonly id: CodecTypes['pg/int4@1']['input'];
-      readonly participantId: CodecTypes['pg/int4@1']['input'];
-      readonly updatedAt: CodecTypes['pg/timestamptz-string@1']['input'];
     };
     readonly Feedback: {
       readonly content: CodecTypes['pg/text@1']['input'];
@@ -431,21 +398,26 @@ export type FieldInputTypes = {
         | 'FEEDBACK_DELETED';
       readonly userId: CodecTypes['pg/int4@1']['input'];
     };
-    readonly OAuthAccount: {
+    readonly PasswordResetToken: {
       readonly createdAt: CodecTypes['pg/timestamptz-string@1']['input'];
+      readonly expiresAt: CodecTypes['pg/timestamptz-string@1']['input'];
       readonly id: CodecTypes['pg/int4@1']['input'];
-      readonly provider: 'GOOGLE';
-      readonly providerAccountId: CodecTypes['pg/text@1']['input'];
+      readonly tokenHash: CodecTypes['pg/text@1']['input'];
+      readonly usedAt: CodecTypes['pg/timestamptz-string@1']['input'] | null;
       readonly userId: CodecTypes['pg/int4@1']['input'];
     };
     readonly User: {
       readonly createdAt: CodecTypes['pg/timestamptz-string@1']['input'];
+      readonly deletedAt: CodecTypes['pg/timestamptz-string@1']['input'] | null;
       readonly email: CodecTypes['pg/text@1']['input'];
       readonly grade: 'NORMAL' | 'EXPERT';
       readonly id: CodecTypes['pg/int4@1']['input'];
       readonly nickname: CodecTypes['pg/text@1']['input'];
       readonly passwordHash: CodecTypes['pg/text@1']['input'] | null;
+      readonly provider: 'GOOGLE' | null;
+      readonly providerAccountId: CodecTypes['pg/text@1']['input'] | null;
       readonly role: 'USER' | 'ADMIN';
+      readonly tokenVersion: CodecTypes['pg/int4@1']['input'];
       readonly updatedAt: CodecTypes['pg/timestamptz-string@1']['input'];
     };
     readonly Work: {
@@ -466,56 +438,37 @@ export type FieldInputTypes = {
 };
 export type StorageColumnTypes = {
   readonly public: {
-    readonly challenge_applications: {
-      readonly cancelledAt: CodecTypes['pg/timestamptz-string@1']['output'] | null;
-      readonly category: 'NEXT_JS' | 'MODERN_JS' | 'API' | 'WEB' | 'CAREER';
-      readonly content: CodecTypes['pg/text@1']['output'] | null;
-      readonly createdAt: CodecTypes['pg/timestamptz-string@1']['output'];
-      readonly decidedAt: CodecTypes['pg/timestamptz-string@1']['output'] | null;
-      readonly decidedById: CodecTypes['pg/int4@1']['output'] | null;
-      readonly desiredDeadline: CodecTypes['pg/timestamptz-string@1']['output'];
-      readonly documentType: 'OFFICIAL' | 'BLOG' | 'BOOK' | 'OTHER';
-      readonly id: CodecTypes['pg/int4@1']['output'];
-      readonly maxParticipants: CodecTypes['pg/int4@1']['output'];
-      readonly rejectionReason: CodecTypes['pg/text@1']['output'] | null;
-      readonly sourceUrl: CodecTypes['pg/text@1']['output'];
-      readonly status: 'PENDING' | 'APPROVED' | 'REJECTED' | 'CANCELLED';
-      readonly title: CodecTypes['pg/text@1']['output'];
-      readonly updatedAt: CodecTypes['pg/timestamptz-string@1']['output'];
-      readonly userId: CodecTypes['pg/int4@1']['output'];
-    };
     readonly challenge_participants: {
       readonly abandonedAt: CodecTypes['pg/timestamptz-string@1']['output'] | null;
       readonly challengeId: CodecTypes['pg/int4@1']['output'];
       readonly createdAt: CodecTypes['pg/timestamptz-string@1']['output'];
+      readonly draftContent: CodecTypes['pg/text@1']['output'] | null;
+      readonly draftCreatedAt: CodecTypes['pg/timestamptz-string@1']['output'] | null;
+      readonly draftUpdatedAt: CodecTypes['pg/timestamptz-string@1']['output'] | null;
       readonly id: CodecTypes['pg/int4@1']['output'];
       readonly joinedAt: CodecTypes['pg/timestamptz-string@1']['output'];
       readonly updatedAt: CodecTypes['pg/timestamptz-string@1']['output'];
       readonly userId: CodecTypes['pg/int4@1']['output'];
     };
     readonly challenges: {
+      readonly cancelledAt: CodecTypes['pg/timestamptz-string@1']['output'] | null;
       readonly category: 'NEXT_JS' | 'MODERN_JS' | 'API' | 'WEB' | 'CAREER';
       readonly content: CodecTypes['pg/text@1']['output'] | null;
       readonly createdAt: CodecTypes['pg/timestamptz-string@1']['output'];
       readonly createdById: CodecTypes['pg/int4@1']['output'];
       readonly deadline: CodecTypes['pg/timestamptz-string@1']['output'];
+      readonly decidedAt: CodecTypes['pg/timestamptz-string@1']['output'] | null;
+      readonly decidedById: CodecTypes['pg/int4@1']['output'] | null;
       readonly deletedAt: CodecTypes['pg/timestamptz-string@1']['output'] | null;
       readonly deletedById: CodecTypes['pg/int4@1']['output'] | null;
       readonly deleteReason: CodecTypes['pg/text@1']['output'] | null;
       readonly documentType: 'OFFICIAL' | 'BLOG' | 'BOOK' | 'OTHER';
       readonly id: CodecTypes['pg/int4@1']['output'];
       readonly maxParticipants: CodecTypes['pg/int4@1']['output'];
-      readonly sourceApplicationId: CodecTypes['pg/int4@1']['output'] | null;
+      readonly rejectionReason: CodecTypes['pg/text@1']['output'] | null;
       readonly sourceUrl: CodecTypes['pg/text@1']['output'];
-      readonly status: 'IN_PROGRESS' | 'CLOSED';
+      readonly status: 'IN_PROGRESS' | 'CLOSED' | 'PENDING' | 'REJECTED' | 'CANCELLED';
       readonly title: CodecTypes['pg/text@1']['output'];
-      readonly updatedAt: CodecTypes['pg/timestamptz-string@1']['output'];
-    };
-    readonly drafts: {
-      readonly content: CodecTypes['pg/text@1']['output'];
-      readonly createdAt: CodecTypes['pg/timestamptz-string@1']['output'];
-      readonly id: CodecTypes['pg/int4@1']['output'];
-      readonly participantId: CodecTypes['pg/int4@1']['output'];
       readonly updatedAt: CodecTypes['pg/timestamptz-string@1']['output'];
     };
     readonly feedbacks: {
@@ -547,21 +500,26 @@ export type StorageColumnTypes = {
         | 'FEEDBACK_DELETED';
       readonly userId: CodecTypes['pg/int4@1']['output'];
     };
-    readonly oauth_accounts: {
+    readonly password_reset_tokens: {
       readonly createdAt: CodecTypes['pg/timestamptz-string@1']['output'];
+      readonly expiresAt: CodecTypes['pg/timestamptz-string@1']['output'];
       readonly id: CodecTypes['pg/int4@1']['output'];
-      readonly provider: 'GOOGLE';
-      readonly providerAccountId: CodecTypes['pg/text@1']['output'];
+      readonly tokenHash: CodecTypes['pg/text@1']['output'];
+      readonly usedAt: CodecTypes['pg/timestamptz-string@1']['output'] | null;
       readonly userId: CodecTypes['pg/int4@1']['output'];
     };
     readonly users: {
       readonly createdAt: CodecTypes['pg/timestamptz-string@1']['output'];
+      readonly deletedAt: CodecTypes['pg/timestamptz-string@1']['output'] | null;
       readonly email: CodecTypes['pg/text@1']['output'];
       readonly grade: 'NORMAL' | 'EXPERT';
       readonly id: CodecTypes['pg/int4@1']['output'];
       readonly nickname: CodecTypes['pg/text@1']['output'];
       readonly passwordHash: CodecTypes['pg/text@1']['output'] | null;
+      readonly provider: 'GOOGLE' | null;
+      readonly providerAccountId: CodecTypes['pg/text@1']['output'] | null;
       readonly role: 'USER' | 'ADMIN';
+      readonly tokenVersion: CodecTypes['pg/int4@1']['output'];
       readonly updatedAt: CodecTypes['pg/timestamptz-string@1']['output'];
     };
     readonly work_likes: {
@@ -582,56 +540,37 @@ export type StorageColumnTypes = {
 };
 export type StorageColumnInputTypes = {
   readonly public: {
-    readonly challenge_applications: {
-      readonly cancelledAt: CodecTypes['pg/timestamptz-string@1']['input'] | null;
-      readonly category: 'NEXT_JS' | 'MODERN_JS' | 'API' | 'WEB' | 'CAREER';
-      readonly content: CodecTypes['pg/text@1']['input'] | null;
-      readonly createdAt: CodecTypes['pg/timestamptz-string@1']['input'];
-      readonly decidedAt: CodecTypes['pg/timestamptz-string@1']['input'] | null;
-      readonly decidedById: CodecTypes['pg/int4@1']['input'] | null;
-      readonly desiredDeadline: CodecTypes['pg/timestamptz-string@1']['input'];
-      readonly documentType: 'OFFICIAL' | 'BLOG' | 'BOOK' | 'OTHER';
-      readonly id: CodecTypes['pg/int4@1']['input'];
-      readonly maxParticipants: CodecTypes['pg/int4@1']['input'];
-      readonly rejectionReason: CodecTypes['pg/text@1']['input'] | null;
-      readonly sourceUrl: CodecTypes['pg/text@1']['input'];
-      readonly status: 'PENDING' | 'APPROVED' | 'REJECTED' | 'CANCELLED';
-      readonly title: CodecTypes['pg/text@1']['input'];
-      readonly updatedAt: CodecTypes['pg/timestamptz-string@1']['input'];
-      readonly userId: CodecTypes['pg/int4@1']['input'];
-    };
     readonly challenge_participants: {
       readonly abandonedAt: CodecTypes['pg/timestamptz-string@1']['input'] | null;
       readonly challengeId: CodecTypes['pg/int4@1']['input'];
       readonly createdAt: CodecTypes['pg/timestamptz-string@1']['input'];
+      readonly draftContent: CodecTypes['pg/text@1']['input'] | null;
+      readonly draftCreatedAt: CodecTypes['pg/timestamptz-string@1']['input'] | null;
+      readonly draftUpdatedAt: CodecTypes['pg/timestamptz-string@1']['input'] | null;
       readonly id: CodecTypes['pg/int4@1']['input'];
       readonly joinedAt: CodecTypes['pg/timestamptz-string@1']['input'];
       readonly updatedAt: CodecTypes['pg/timestamptz-string@1']['input'];
       readonly userId: CodecTypes['pg/int4@1']['input'];
     };
     readonly challenges: {
+      readonly cancelledAt: CodecTypes['pg/timestamptz-string@1']['input'] | null;
       readonly category: 'NEXT_JS' | 'MODERN_JS' | 'API' | 'WEB' | 'CAREER';
       readonly content: CodecTypes['pg/text@1']['input'] | null;
       readonly createdAt: CodecTypes['pg/timestamptz-string@1']['input'];
       readonly createdById: CodecTypes['pg/int4@1']['input'];
       readonly deadline: CodecTypes['pg/timestamptz-string@1']['input'];
+      readonly decidedAt: CodecTypes['pg/timestamptz-string@1']['input'] | null;
+      readonly decidedById: CodecTypes['pg/int4@1']['input'] | null;
       readonly deletedAt: CodecTypes['pg/timestamptz-string@1']['input'] | null;
       readonly deletedById: CodecTypes['pg/int4@1']['input'] | null;
       readonly deleteReason: CodecTypes['pg/text@1']['input'] | null;
       readonly documentType: 'OFFICIAL' | 'BLOG' | 'BOOK' | 'OTHER';
       readonly id: CodecTypes['pg/int4@1']['input'];
       readonly maxParticipants: CodecTypes['pg/int4@1']['input'];
-      readonly sourceApplicationId: CodecTypes['pg/int4@1']['input'] | null;
+      readonly rejectionReason: CodecTypes['pg/text@1']['input'] | null;
       readonly sourceUrl: CodecTypes['pg/text@1']['input'];
-      readonly status: 'IN_PROGRESS' | 'CLOSED';
+      readonly status: 'IN_PROGRESS' | 'CLOSED' | 'PENDING' | 'REJECTED' | 'CANCELLED';
       readonly title: CodecTypes['pg/text@1']['input'];
-      readonly updatedAt: CodecTypes['pg/timestamptz-string@1']['input'];
-    };
-    readonly drafts: {
-      readonly content: CodecTypes['pg/text@1']['input'];
-      readonly createdAt: CodecTypes['pg/timestamptz-string@1']['input'];
-      readonly id: CodecTypes['pg/int4@1']['input'];
-      readonly participantId: CodecTypes['pg/int4@1']['input'];
       readonly updatedAt: CodecTypes['pg/timestamptz-string@1']['input'];
     };
     readonly feedbacks: {
@@ -663,21 +602,26 @@ export type StorageColumnInputTypes = {
         | 'FEEDBACK_DELETED';
       readonly userId: CodecTypes['pg/int4@1']['input'];
     };
-    readonly oauth_accounts: {
+    readonly password_reset_tokens: {
       readonly createdAt: CodecTypes['pg/timestamptz-string@1']['input'];
+      readonly expiresAt: CodecTypes['pg/timestamptz-string@1']['input'];
       readonly id: CodecTypes['pg/int4@1']['input'];
-      readonly provider: 'GOOGLE';
-      readonly providerAccountId: CodecTypes['pg/text@1']['input'];
+      readonly tokenHash: CodecTypes['pg/text@1']['input'];
+      readonly usedAt: CodecTypes['pg/timestamptz-string@1']['input'] | null;
       readonly userId: CodecTypes['pg/int4@1']['input'];
     };
     readonly users: {
       readonly createdAt: CodecTypes['pg/timestamptz-string@1']['input'];
+      readonly deletedAt: CodecTypes['pg/timestamptz-string@1']['input'] | null;
       readonly email: CodecTypes['pg/text@1']['input'];
       readonly grade: 'NORMAL' | 'EXPERT';
       readonly id: CodecTypes['pg/int4@1']['input'];
       readonly nickname: CodecTypes['pg/text@1']['input'];
       readonly passwordHash: CodecTypes['pg/text@1']['input'] | null;
+      readonly provider: 'GOOGLE' | null;
+      readonly providerAccountId: CodecTypes['pg/text@1']['input'] | null;
       readonly role: 'USER' | 'ADMIN';
+      readonly tokenVersion: CodecTypes['pg/int4@1']['input'];
       readonly updatedAt: CodecTypes['pg/timestamptz-string@1']['input'];
     };
     readonly work_likes: {
@@ -699,74 +643,48 @@ export type StorageColumnInputTypes = {
 
 export namespace Models {
   export type public_Challenge = {
+    cancelledAt: CodecTypes['pg/timestamptz-string@1']['output'] | null;
     category: 'NEXT_JS' | 'MODERN_JS' | 'API' | 'WEB' | 'CAREER';
     content: CodecTypes['pg/text@1']['output'] | null;
     createdAt: CodecTypes['pg/timestamptz-string@1']['output'];
     createdById: CodecTypes['pg/int4@1']['output'];
     deadline: CodecTypes['pg/timestamptz-string@1']['output'];
+    decidedAt: CodecTypes['pg/timestamptz-string@1']['output'] | null;
+    decidedById: CodecTypes['pg/int4@1']['output'] | null;
     deleteReason: CodecTypes['pg/text@1']['output'] | null;
     deletedAt: CodecTypes['pg/timestamptz-string@1']['output'] | null;
     deletedById: CodecTypes['pg/int4@1']['output'] | null;
     documentType: 'OFFICIAL' | 'BLOG' | 'BOOK' | 'OTHER';
     id: CodecTypes['pg/int4@1']['output'];
     maxParticipants: CodecTypes['pg/int4@1']['output'];
-    sourceApplicationId: CodecTypes['pg/int4@1']['output'] | null;
+    rejectionReason: CodecTypes['pg/text@1']['output'] | null;
     sourceUrl: CodecTypes['pg/text@1']['output'];
-    status: 'IN_PROGRESS' | 'CLOSED';
+    status: 'IN_PROGRESS' | 'CLOSED' | 'PENDING' | 'REJECTED' | 'CANCELLED';
     title: CodecTypes['pg/text@1']['output'];
     updatedAt: CodecTypes['pg/timestamptz-string@1']['output'];
     createdBy: public_User;
+    decidedBy: public_User | null;
     deletedBy: public_User | null;
     notifications: public_Notification[];
     participants: public_ChallengeParticipant[];
-    sourceApplication: public_ChallengeApplication | null;
     readonly [RelationKeys]?:
-      'createdBy' | 'deletedBy' | 'notifications' | 'participants' | 'sourceApplication';
-  };
-  export type public_ChallengeApplication = {
-    cancelledAt: CodecTypes['pg/timestamptz-string@1']['output'] | null;
-    category: 'NEXT_JS' | 'MODERN_JS' | 'API' | 'WEB' | 'CAREER';
-    content: CodecTypes['pg/text@1']['output'] | null;
-    createdAt: CodecTypes['pg/timestamptz-string@1']['output'];
-    decidedAt: CodecTypes['pg/timestamptz-string@1']['output'] | null;
-    decidedById: CodecTypes['pg/int4@1']['output'] | null;
-    desiredDeadline: CodecTypes['pg/timestamptz-string@1']['output'];
-    documentType: 'OFFICIAL' | 'BLOG' | 'BOOK' | 'OTHER';
-    id: CodecTypes['pg/int4@1']['output'];
-    maxParticipants: CodecTypes['pg/int4@1']['output'];
-    rejectionReason: CodecTypes['pg/text@1']['output'] | null;
-    sourceUrl: CodecTypes['pg/text@1']['output'];
-    status: 'PENDING' | 'APPROVED' | 'REJECTED' | 'CANCELLED';
-    title: CodecTypes['pg/text@1']['output'];
-    updatedAt: CodecTypes['pg/timestamptz-string@1']['output'];
-    userId: CodecTypes['pg/int4@1']['output'];
-    challenges: public_Challenge[];
-    decidedBy: public_User | null;
-    user: public_User;
-    readonly [RelationKeys]?: 'challenges' | 'decidedBy' | 'user';
+      'createdBy' | 'decidedBy' | 'deletedBy' | 'notifications' | 'participants';
   };
   export type public_ChallengeParticipant = {
     abandonedAt: CodecTypes['pg/timestamptz-string@1']['output'] | null;
     challengeId: CodecTypes['pg/int4@1']['output'];
     createdAt: CodecTypes['pg/timestamptz-string@1']['output'];
+    draftContent: CodecTypes['pg/text@1']['output'] | null;
+    draftCreatedAt: CodecTypes['pg/timestamptz-string@1']['output'] | null;
+    draftUpdatedAt: CodecTypes['pg/timestamptz-string@1']['output'] | null;
     id: CodecTypes['pg/int4@1']['output'];
     joinedAt: CodecTypes['pg/timestamptz-string@1']['output'];
     updatedAt: CodecTypes['pg/timestamptz-string@1']['output'];
     userId: CodecTypes['pg/int4@1']['output'];
     challenge: public_Challenge;
-    draft: public_Draft | null;
     user: public_User;
     work: public_Work[];
-    readonly [RelationKeys]?: 'challenge' | 'draft' | 'user' | 'work';
-  };
-  export type public_Draft = {
-    content: CodecTypes['pg/text@1']['output'];
-    createdAt: CodecTypes['pg/timestamptz-string@1']['output'];
-    id: CodecTypes['pg/int4@1']['output'];
-    participantId: CodecTypes['pg/int4@1']['output'];
-    updatedAt: CodecTypes['pg/timestamptz-string@1']['output'];
-    participant: public_ChallengeParticipant;
-    readonly [RelationKeys]?: 'participant';
+    readonly [RelationKeys]?: 'challenge' | 'user' | 'work';
   };
   export type public_Feedback = {
     content: CodecTypes['pg/text@1']['output'];
@@ -805,44 +723,47 @@ export namespace Models {
     user: public_User;
     readonly [RelationKeys]?: 'actor' | 'relatedChallenge' | 'relatedWork' | 'user';
   };
-  export type public_OAuthAccount = {
+  export type public_PasswordResetToken = {
     createdAt: CodecTypes['pg/timestamptz-string@1']['output'];
+    expiresAt: CodecTypes['pg/timestamptz-string@1']['output'];
     id: CodecTypes['pg/int4@1']['output'];
-    provider: 'GOOGLE';
-    providerAccountId: CodecTypes['pg/text@1']['output'];
+    tokenHash: CodecTypes['pg/text@1']['output'];
+    usedAt: CodecTypes['pg/timestamptz-string@1']['output'] | null;
     userId: CodecTypes['pg/int4@1']['output'];
     user: public_User;
     readonly [RelationKeys]?: 'user';
   };
   export type public_User = {
     createdAt: CodecTypes['pg/timestamptz-string@1']['output'];
+    deletedAt: CodecTypes['pg/timestamptz-string@1']['output'] | null;
     email: CodecTypes['pg/text@1']['output'];
     grade: 'NORMAL' | 'EXPERT';
     id: CodecTypes['pg/int4@1']['output'];
     nickname: CodecTypes['pg/text@1']['output'];
     passwordHash: CodecTypes['pg/text@1']['output'] | null;
+    provider: 'GOOGLE' | null;
+    providerAccountId: CodecTypes['pg/text@1']['output'] | null;
     role: 'USER' | 'ADMIN';
+    tokenVersion: CodecTypes['pg/int4@1']['output'];
     updatedAt: CodecTypes['pg/timestamptz-string@1']['output'];
     actedNotifications: public_Notification[];
-    applications: public_ChallengeApplication[];
     createdChallenges: public_Challenge[];
-    decidedApplications: public_ChallengeApplication[];
+    decidedChallenges: public_Challenge[];
     deletedChallenges: public_Challenge[];
     feedbacks: public_Feedback[];
     notifications: public_Notification[];
-    oauthAccounts: public_OAuthAccount[];
     participations: public_ChallengeParticipant[];
+    passwordResetTokens: public_PasswordResetToken[];
     workLikes: public_WorkLike[];
     readonly [RelationKeys]?:
       | 'actedNotifications'
-      | 'applications'
       | 'createdChallenges'
-      | 'decidedApplications'
+      | 'decidedChallenges'
       | 'deletedChallenges'
       | 'feedbacks'
       | 'notifications'
-      | 'oauthAccounts'
       | 'participations'
+      | 'passwordResetTokens'
       | 'workLikes';
   };
   export type public_Work = {
@@ -872,12 +793,10 @@ export namespace Models {
 export declare const models: {
   public: {
     Challenge: Models.public_Challenge;
-    ChallengeApplication: Models.public_ChallengeApplication;
     ChallengeParticipant: Models.public_ChallengeParticipant;
-    Draft: Models.public_Draft;
     Feedback: Models.public_Feedback;
     Notification: Models.public_Notification;
-    OAuthAccount: Models.public_OAuthAccount;
+    PasswordResetToken: Models.public_PasswordResetToken;
     User: Models.public_User;
     Work: Models.public_Work;
     WorkLike: Models.public_WorkLike;
@@ -902,166 +821,6 @@ type ContractBase = Omit<
         readonly kind: 'postgres-schema';
         readonly entries: {
           readonly table: {
-            readonly challenge_applications: {
-              columns: {
-                readonly cancelledAt: {
-                  readonly dataType: 'pg/timestamptz';
-                  readonly codecId: 'pg/timestamptz-string@1';
-                  readonly nullable: true;
-                  readonly many: false;
-                };
-                readonly category: {
-                  readonly dataType: 'pg/enum';
-                  readonly codecId: 'pg/enum@1';
-                  readonly nullable: false;
-                  readonly typeParams: { readonly typeName: 'Category' };
-                  readonly many: false;
-                };
-                readonly content: {
-                  readonly dataType: 'pg/text';
-                  readonly codecId: 'pg/text@1';
-                  readonly nullable: true;
-                  readonly many: false;
-                };
-                readonly createdAt: {
-                  readonly dataType: 'pg/timestamptz';
-                  readonly codecId: 'pg/timestamptz-string@1';
-                  readonly nullable: false;
-                  readonly default: { readonly kind: 'function'; readonly expression: 'now()' };
-                  readonly many: false;
-                };
-                readonly decidedAt: {
-                  readonly dataType: 'pg/timestamptz';
-                  readonly codecId: 'pg/timestamptz-string@1';
-                  readonly nullable: true;
-                  readonly many: false;
-                };
-                readonly decidedById: {
-                  readonly dataType: 'pg/int4';
-                  readonly codecId: 'pg/int4@1';
-                  readonly nullable: true;
-                  readonly many: false;
-                };
-                readonly desiredDeadline: {
-                  readonly dataType: 'pg/timestamptz';
-                  readonly codecId: 'pg/timestamptz-string@1';
-                  readonly nullable: false;
-                  readonly many: false;
-                };
-                readonly documentType: {
-                  readonly dataType: 'pg/enum';
-                  readonly codecId: 'pg/enum@1';
-                  readonly nullable: false;
-                  readonly typeParams: { readonly typeName: 'DocumentType' };
-                  readonly many: false;
-                };
-                readonly id: {
-                  readonly dataType: 'pg/int4';
-                  readonly codecId: 'pg/int4@1';
-                  readonly nullable: false;
-                  readonly default: {
-                    readonly kind: 'function';
-                    readonly expression: 'autoincrement()';
-                  };
-                  readonly many: false;
-                };
-                readonly maxParticipants: {
-                  readonly dataType: 'pg/int4';
-                  readonly codecId: 'pg/int4@1';
-                  readonly nullable: false;
-                  readonly many: false;
-                };
-                readonly rejectionReason: {
-                  readonly dataType: 'pg/text';
-                  readonly codecId: 'pg/text@1';
-                  readonly nullable: true;
-                  readonly many: false;
-                };
-                readonly sourceUrl: {
-                  readonly dataType: 'pg/text';
-                  readonly codecId: 'pg/text@1';
-                  readonly nullable: false;
-                  readonly many: false;
-                };
-                readonly status: {
-                  readonly dataType: 'pg/enum';
-                  readonly codecId: 'pg/enum@1';
-                  readonly nullable: false;
-                  readonly default: {
-                    readonly kind: 'literal';
-                    readonly value: DefaultLiteralValue<'pg/enum@1', 'PENDING'>;
-                  };
-                  readonly typeParams: { readonly typeName: 'ApplicationStatus' };
-                  readonly many: false;
-                };
-                readonly title: {
-                  readonly dataType: 'pg/text';
-                  readonly codecId: 'pg/text@1';
-                  readonly nullable: false;
-                  readonly many: false;
-                };
-                readonly updatedAt: {
-                  readonly dataType: 'pg/timestamptz';
-                  readonly codecId: 'pg/timestamptz-string@1';
-                  readonly nullable: false;
-                  readonly many: false;
-                };
-                readonly userId: {
-                  readonly dataType: 'pg/int4';
-                  readonly codecId: 'pg/int4@1';
-                  readonly nullable: false;
-                  readonly many: false;
-                };
-              };
-              primaryKey: { readonly columns: readonly ['id'] };
-              uniques: readonly [];
-              indexes: readonly [
-                {
-                  readonly name: 'challenge_applications_decidedById_idx_8194d55f';
-                  readonly prefix: 'challenge_applications_decidedById_idx';
-                  readonly columns: readonly ['decidedById'];
-                  readonly unique: false;
-                },
-                {
-                  readonly name: 'challenge_applications_status_createdAt_idx_58610442';
-                  readonly prefix: 'challenge_applications_status_createdAt_idx';
-                  readonly columns: readonly ['status', 'createdAt'];
-                  readonly unique: false;
-                },
-                {
-                  readonly name: 'challenge_applications_userId_idx_a489d58a';
-                  readonly prefix: 'challenge_applications_userId_idx';
-                  readonly columns: readonly ['userId'];
-                  readonly unique: false;
-                },
-              ];
-              foreignKeys: readonly [
-                {
-                  readonly source: {
-                    readonly namespaceId: 'public' & NamespaceId;
-                    readonly tableName: 'challenge_applications';
-                    readonly columns: readonly ['userId'];
-                  };
-                  readonly target: {
-                    readonly namespaceId: 'public' & NamespaceId;
-                    readonly tableName: 'users';
-                    readonly columns: readonly ['id'];
-                  };
-                },
-                {
-                  readonly source: {
-                    readonly namespaceId: 'public' & NamespaceId;
-                    readonly tableName: 'challenge_applications';
-                    readonly columns: readonly ['decidedById'];
-                  };
-                  readonly target: {
-                    readonly namespaceId: 'public' & NamespaceId;
-                    readonly tableName: 'users';
-                    readonly columns: readonly ['id'];
-                  };
-                },
-              ];
-            };
             readonly challenge_participants: {
               columns: {
                 readonly abandonedAt: {
@@ -1081,6 +840,24 @@ type ContractBase = Omit<
                   readonly codecId: 'pg/timestamptz-string@1';
                   readonly nullable: false;
                   readonly default: { readonly kind: 'function'; readonly expression: 'now()' };
+                  readonly many: false;
+                };
+                readonly draftContent: {
+                  readonly dataType: 'pg/text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: true;
+                  readonly many: false;
+                };
+                readonly draftCreatedAt: {
+                  readonly dataType: 'pg/timestamptz';
+                  readonly codecId: 'pg/timestamptz-string@1';
+                  readonly nullable: true;
+                  readonly many: false;
+                };
+                readonly draftUpdatedAt: {
+                  readonly dataType: 'pg/timestamptz';
+                  readonly codecId: 'pg/timestamptz-string@1';
+                  readonly nullable: true;
                   readonly many: false;
                 };
                 readonly id: {
@@ -1164,6 +941,12 @@ type ContractBase = Omit<
             };
             readonly challenges: {
               columns: {
+                readonly cancelledAt: {
+                  readonly dataType: 'pg/timestamptz';
+                  readonly codecId: 'pg/timestamptz-string@1';
+                  readonly nullable: true;
+                  readonly many: false;
+                };
                 readonly category: {
                   readonly dataType: 'pg/enum';
                   readonly codecId: 'pg/enum@1';
@@ -1194,6 +977,18 @@ type ContractBase = Omit<
                   readonly dataType: 'pg/timestamptz';
                   readonly codecId: 'pg/timestamptz-string@1';
                   readonly nullable: false;
+                  readonly many: false;
+                };
+                readonly decidedAt: {
+                  readonly dataType: 'pg/timestamptz';
+                  readonly codecId: 'pg/timestamptz-string@1';
+                  readonly nullable: true;
+                  readonly many: false;
+                };
+                readonly decidedById: {
+                  readonly dataType: 'pg/int4';
+                  readonly codecId: 'pg/int4@1';
+                  readonly nullable: true;
                   readonly many: false;
                 };
                 readonly deleteReason: {
@@ -1237,9 +1032,9 @@ type ContractBase = Omit<
                   readonly nullable: false;
                   readonly many: false;
                 };
-                readonly sourceApplicationId: {
-                  readonly dataType: 'pg/int4';
-                  readonly codecId: 'pg/int4@1';
+                readonly rejectionReason: {
+                  readonly dataType: 'pg/text';
+                  readonly codecId: 'pg/text@1';
                   readonly nullable: true;
                   readonly many: false;
                 };
@@ -1255,7 +1050,7 @@ type ContractBase = Omit<
                   readonly nullable: false;
                   readonly default: {
                     readonly kind: 'literal';
-                    readonly value: DefaultLiteralValue<'pg/enum@1', 'IN_PROGRESS'>;
+                    readonly value: DefaultLiteralValue<'pg/enum@1', 'PENDING'>;
                   };
                   readonly typeParams: { readonly typeName: 'ChallengeStatus' };
                   readonly many: false;
@@ -1289,15 +1084,21 @@ type ContractBase = Omit<
                   readonly unique: false;
                 },
                 {
+                  readonly name: 'challenges_decidedById_idx_8194d55f';
+                  readonly prefix: 'challenges_decidedById_idx';
+                  readonly columns: readonly ['decidedById'];
+                  readonly unique: false;
+                },
+                {
                   readonly name: 'challenges_deletedById_idx_6409fd1e';
                   readonly prefix: 'challenges_deletedById_idx';
                   readonly columns: readonly ['deletedById'];
                   readonly unique: false;
                 },
                 {
-                  readonly name: 'challenges_sourceApplicationId_idx_d900dada';
-                  readonly prefix: 'challenges_sourceApplicationId_idx';
-                  readonly columns: readonly ['sourceApplicationId'];
+                  readonly name: 'challenges_status_createdAt_idx_58610442';
+                  readonly prefix: 'challenges_status_createdAt_idx';
+                  readonly columns: readonly ['status', 'createdAt'];
                   readonly unique: false;
                 },
                 {
@@ -1324,11 +1125,11 @@ type ContractBase = Omit<
                   readonly source: {
                     readonly namespaceId: 'public' & NamespaceId;
                     readonly tableName: 'challenges';
-                    readonly columns: readonly ['sourceApplicationId'];
+                    readonly columns: readonly ['decidedById'];
                   };
                   readonly target: {
                     readonly namespaceId: 'public' & NamespaceId;
-                    readonly tableName: 'challenge_applications';
+                    readonly tableName: 'users';
                     readonly columns: readonly ['id'];
                   };
                 },
@@ -1341,62 +1142,6 @@ type ContractBase = Omit<
                   readonly target: {
                     readonly namespaceId: 'public' & NamespaceId;
                     readonly tableName: 'users';
-                    readonly columns: readonly ['id'];
-                  };
-                },
-              ];
-            };
-            readonly drafts: {
-              columns: {
-                readonly content: {
-                  readonly dataType: 'pg/text';
-                  readonly codecId: 'pg/text@1';
-                  readonly nullable: false;
-                  readonly many: false;
-                };
-                readonly createdAt: {
-                  readonly dataType: 'pg/timestamptz';
-                  readonly codecId: 'pg/timestamptz-string@1';
-                  readonly nullable: false;
-                  readonly default: { readonly kind: 'function'; readonly expression: 'now()' };
-                  readonly many: false;
-                };
-                readonly id: {
-                  readonly dataType: 'pg/int4';
-                  readonly codecId: 'pg/int4@1';
-                  readonly nullable: false;
-                  readonly default: {
-                    readonly kind: 'function';
-                    readonly expression: 'autoincrement()';
-                  };
-                  readonly many: false;
-                };
-                readonly participantId: {
-                  readonly dataType: 'pg/int4';
-                  readonly codecId: 'pg/int4@1';
-                  readonly nullable: false;
-                  readonly many: false;
-                };
-                readonly updatedAt: {
-                  readonly dataType: 'pg/timestamptz';
-                  readonly codecId: 'pg/timestamptz-string@1';
-                  readonly nullable: false;
-                  readonly many: false;
-                };
-              };
-              primaryKey: { readonly columns: readonly ['id'] };
-              uniques: readonly [{ readonly columns: readonly ['participantId'] }];
-              indexes: readonly [];
-              foreignKeys: readonly [
-                {
-                  readonly source: {
-                    readonly namespaceId: 'public' & NamespaceId;
-                    readonly tableName: 'drafts';
-                    readonly columns: readonly ['participantId'];
-                  };
-                  readonly target: {
-                    readonly namespaceId: 'public' & NamespaceId;
-                    readonly tableName: 'challenge_participants';
                     readonly columns: readonly ['id'];
                   };
                 },
@@ -1649,13 +1394,19 @@ type ContractBase = Omit<
                 },
               ];
             };
-            readonly oauth_accounts: {
+            readonly password_reset_tokens: {
               columns: {
                 readonly createdAt: {
                   readonly dataType: 'pg/timestamptz';
                   readonly codecId: 'pg/timestamptz-string@1';
                   readonly nullable: false;
                   readonly default: { readonly kind: 'function'; readonly expression: 'now()' };
+                  readonly many: false;
+                };
+                readonly expiresAt: {
+                  readonly dataType: 'pg/timestamptz';
+                  readonly codecId: 'pg/timestamptz-string@1';
+                  readonly nullable: false;
                   readonly many: false;
                 };
                 readonly id: {
@@ -1668,17 +1419,16 @@ type ContractBase = Omit<
                   };
                   readonly many: false;
                 };
-                readonly provider: {
-                  readonly dataType: 'pg/enum';
-                  readonly codecId: 'pg/enum@1';
-                  readonly nullable: false;
-                  readonly typeParams: { readonly typeName: 'OAuthProvider' };
-                  readonly many: false;
-                };
-                readonly providerAccountId: {
+                readonly tokenHash: {
                   readonly dataType: 'pg/text';
                   readonly codecId: 'pg/text@1';
                   readonly nullable: false;
+                  readonly many: false;
+                };
+                readonly usedAt: {
+                  readonly dataType: 'pg/timestamptz';
+                  readonly codecId: 'pg/timestamptz-string@1';
+                  readonly nullable: true;
                   readonly many: false;
                 };
                 readonly userId: {
@@ -1689,11 +1439,17 @@ type ContractBase = Omit<
                 };
               };
               primaryKey: { readonly columns: readonly ['id'] };
-              uniques: readonly [{ readonly columns: readonly ['provider', 'providerAccountId'] }];
+              uniques: readonly [{ readonly columns: readonly ['tokenHash'] }];
               indexes: readonly [
                 {
-                  readonly name: 'oauth_accounts_userId_idx_a489d58a';
-                  readonly prefix: 'oauth_accounts_userId_idx';
+                  readonly name: 'password_reset_tokens_expiresAt_idx_6b6b8c10';
+                  readonly prefix: 'password_reset_tokens_expiresAt_idx';
+                  readonly columns: readonly ['expiresAt'];
+                  readonly unique: false;
+                },
+                {
+                  readonly name: 'password_reset_tokens_userId_idx_a489d58a';
+                  readonly prefix: 'password_reset_tokens_userId_idx';
                   readonly columns: readonly ['userId'];
                   readonly unique: false;
                 },
@@ -1702,7 +1458,7 @@ type ContractBase = Omit<
                 {
                   readonly source: {
                     readonly namespaceId: 'public' & NamespaceId;
-                    readonly tableName: 'oauth_accounts';
+                    readonly tableName: 'password_reset_tokens';
                     readonly columns: readonly ['userId'];
                   };
                   readonly target: {
@@ -1720,6 +1476,12 @@ type ContractBase = Omit<
                   readonly codecId: 'pg/timestamptz-string@1';
                   readonly nullable: false;
                   readonly default: { readonly kind: 'function'; readonly expression: 'now()' };
+                  readonly many: false;
+                };
+                readonly deletedAt: {
+                  readonly dataType: 'pg/timestamptz';
+                  readonly codecId: 'pg/timestamptz-string@1';
+                  readonly nullable: true;
                   readonly many: false;
                 };
                 readonly email: {
@@ -1761,6 +1523,19 @@ type ContractBase = Omit<
                   readonly nullable: true;
                   readonly many: false;
                 };
+                readonly provider: {
+                  readonly dataType: 'pg/enum';
+                  readonly codecId: 'pg/enum@1';
+                  readonly nullable: true;
+                  readonly typeParams: { readonly typeName: 'OAuthProvider' };
+                  readonly many: false;
+                };
+                readonly providerAccountId: {
+                  readonly dataType: 'pg/text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: true;
+                  readonly many: false;
+                };
                 readonly role: {
                   readonly dataType: 'pg/enum';
                   readonly codecId: 'pg/enum@1';
@@ -1770,6 +1545,16 @@ type ContractBase = Omit<
                     readonly value: DefaultLiteralValue<'pg/enum@1', 'USER'>;
                   };
                   readonly typeParams: { readonly typeName: 'UserRole' };
+                  readonly many: false;
+                };
+                readonly tokenVersion: {
+                  readonly dataType: 'pg/int4';
+                  readonly codecId: 'pg/int4@1';
+                  readonly nullable: false;
+                  readonly default: {
+                    readonly kind: 'literal';
+                    readonly value: DefaultLiteralValue<'pg/int4@1', 0>;
+                  };
                   readonly many: false;
                 };
                 readonly updatedAt: {
@@ -1783,6 +1568,7 @@ type ContractBase = Omit<
               uniques: readonly [
                 { readonly columns: readonly ['email'] },
                 { readonly columns: readonly ['nickname'] },
+                { readonly columns: readonly ['provider', 'providerAccountId'] },
               ];
               indexes: readonly [
                 {
@@ -1947,17 +1733,19 @@ type ContractBase = Omit<
             };
           };
           readonly valueSet: {
-            readonly ApplicationStatus: {
-              readonly kind: 'valueSet';
-              readonly values: readonly ['PENDING', 'APPROVED', 'REJECTED', 'CANCELLED'];
-            };
             readonly Category: {
               readonly kind: 'valueSet';
               readonly values: readonly ['NEXT_JS', 'MODERN_JS', 'API', 'WEB', 'CAREER'];
             };
             readonly ChallengeStatus: {
               readonly kind: 'valueSet';
-              readonly values: readonly ['IN_PROGRESS', 'CLOSED'];
+              readonly values: readonly [
+                'IN_PROGRESS',
+                'CLOSED',
+                'PENDING',
+                'REJECTED',
+                'CANCELLED',
+              ];
             };
             readonly DocumentType: {
               readonly kind: 'valueSet';
@@ -2000,10 +1788,6 @@ type ContractBase = Omit<
   readonly target: 'postgres';
   readonly targetFamily: 'sql';
   readonly roots: {
-    readonly challenge_applications: {
-      readonly namespace: 'public' & NamespaceId;
-      readonly model: 'ChallengeApplication';
-    };
     readonly challenge_participants: {
       readonly namespace: 'public' & NamespaceId;
       readonly model: 'ChallengeParticipant';
@@ -2012,15 +1796,14 @@ type ContractBase = Omit<
       readonly namespace: 'public' & NamespaceId;
       readonly model: 'Challenge';
     };
-    readonly drafts: { readonly namespace: 'public' & NamespaceId; readonly model: 'Draft' };
     readonly feedbacks: { readonly namespace: 'public' & NamespaceId; readonly model: 'Feedback' };
     readonly notifications: {
       readonly namespace: 'public' & NamespaceId;
       readonly model: 'Notification';
     };
-    readonly oauth_accounts: {
+    readonly password_reset_tokens: {
       readonly namespace: 'public' & NamespaceId;
-      readonly model: 'OAuthAccount';
+      readonly model: 'PasswordResetToken';
     };
     readonly users: { readonly namespace: 'public' & NamespaceId; readonly model: 'User' };
     readonly work_likes: { readonly namespace: 'public' & NamespaceId; readonly model: 'WorkLike' };
@@ -2032,6 +1815,13 @@ type ContractBase = Omit<
         readonly models: {
           readonly Challenge: {
             readonly fields: {
+              readonly cancelledAt: {
+                readonly nullable: true;
+                readonly type: {
+                  readonly kind: 'scalar';
+                  readonly codecId: 'pg/timestamptz-string@1';
+                };
+              };
               readonly category: {
                 readonly nullable: false;
                 readonly type: {
@@ -2061,6 +1851,17 @@ type ContractBase = Omit<
                   readonly kind: 'scalar';
                   readonly codecId: 'pg/timestamptz-string@1';
                 };
+              };
+              readonly decidedAt: {
+                readonly nullable: true;
+                readonly type: {
+                  readonly kind: 'scalar';
+                  readonly codecId: 'pg/timestamptz-string@1';
+                };
+              };
+              readonly decidedById: {
+                readonly nullable: true;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/int4@1' };
               };
               readonly deleteReason: {
                 readonly nullable: true;
@@ -2093,9 +1894,9 @@ type ContractBase = Omit<
                 readonly nullable: false;
                 readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/int4@1' };
               };
-              readonly sourceApplicationId: {
+              readonly rejectionReason: {
                 readonly nullable: true;
-                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/int4@1' };
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
               };
               readonly sourceUrl: {
                 readonly nullable: false;
@@ -2131,6 +1932,15 @@ type ContractBase = Omit<
                   readonly targetFields: readonly ['id'];
                 };
               };
+              readonly decidedBy: {
+                readonly to: { readonly namespace: 'public' & NamespaceId; readonly model: 'User' };
+                readonly cardinality: 'N:1';
+                readonly nullable: true;
+                readonly on: {
+                  readonly localFields: readonly ['decidedById'];
+                  readonly targetFields: readonly ['id'];
+                };
+              };
               readonly deletedBy: {
                 readonly to: { readonly namespace: 'public' & NamespaceId; readonly model: 'User' };
                 readonly cardinality: 'N:1';
@@ -2162,178 +1972,22 @@ type ContractBase = Omit<
                   readonly targetFields: readonly ['challengeId'];
                 };
               };
-              readonly sourceApplication: {
-                readonly to: {
-                  readonly namespace: 'public' & NamespaceId;
-                  readonly model: 'ChallengeApplication';
-                };
-                readonly cardinality: 'N:1';
-                readonly nullable: true;
-                readonly on: {
-                  readonly localFields: readonly ['sourceApplicationId'];
-                  readonly targetFields: readonly ['id'];
-                };
-              };
             };
             readonly storage: {
               readonly table: 'challenges';
-              readonly namespaceId: 'public';
-              readonly fields: {
-                readonly category: { readonly column: 'category' };
-                readonly content: { readonly column: 'content' };
-                readonly createdAt: { readonly column: 'createdAt' };
-                readonly createdById: { readonly column: 'createdById' };
-                readonly deadline: { readonly column: 'deadline' };
-                readonly deleteReason: { readonly column: 'deleteReason' };
-                readonly deletedAt: { readonly column: 'deletedAt' };
-                readonly deletedById: { readonly column: 'deletedById' };
-                readonly documentType: { readonly column: 'documentType' };
-                readonly id: { readonly column: 'id' };
-                readonly maxParticipants: { readonly column: 'maxParticipants' };
-                readonly sourceApplicationId: { readonly column: 'sourceApplicationId' };
-                readonly sourceUrl: { readonly column: 'sourceUrl' };
-                readonly status: { readonly column: 'status' };
-                readonly title: { readonly column: 'title' };
-                readonly updatedAt: { readonly column: 'updatedAt' };
-              };
-            };
-          };
-          readonly ChallengeApplication: {
-            readonly fields: {
-              readonly cancelledAt: {
-                readonly nullable: true;
-                readonly type: {
-                  readonly kind: 'scalar';
-                  readonly codecId: 'pg/timestamptz-string@1';
-                };
-              };
-              readonly category: {
-                readonly nullable: false;
-                readonly type: {
-                  readonly kind: 'scalar';
-                  readonly codecId: 'pg/enum@1';
-                  readonly typeParams: { readonly typeName: 'Category' };
-                };
-              };
-              readonly content: {
-                readonly nullable: true;
-                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
-              };
-              readonly createdAt: {
-                readonly nullable: false;
-                readonly type: {
-                  readonly kind: 'scalar';
-                  readonly codecId: 'pg/timestamptz-string@1';
-                };
-              };
-              readonly decidedAt: {
-                readonly nullable: true;
-                readonly type: {
-                  readonly kind: 'scalar';
-                  readonly codecId: 'pg/timestamptz-string@1';
-                };
-              };
-              readonly decidedById: {
-                readonly nullable: true;
-                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/int4@1' };
-              };
-              readonly desiredDeadline: {
-                readonly nullable: false;
-                readonly type: {
-                  readonly kind: 'scalar';
-                  readonly codecId: 'pg/timestamptz-string@1';
-                };
-              };
-              readonly documentType: {
-                readonly nullable: false;
-                readonly type: {
-                  readonly kind: 'scalar';
-                  readonly codecId: 'pg/enum@1';
-                  readonly typeParams: { readonly typeName: 'DocumentType' };
-                };
-              };
-              readonly id: {
-                readonly nullable: false;
-                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/int4@1' };
-              };
-              readonly maxParticipants: {
-                readonly nullable: false;
-                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/int4@1' };
-              };
-              readonly rejectionReason: {
-                readonly nullable: true;
-                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
-              };
-              readonly sourceUrl: {
-                readonly nullable: false;
-                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
-              };
-              readonly status: {
-                readonly nullable: false;
-                readonly type: {
-                  readonly kind: 'scalar';
-                  readonly codecId: 'pg/enum@1';
-                  readonly typeParams: { readonly typeName: 'ApplicationStatus' };
-                };
-              };
-              readonly title: {
-                readonly nullable: false;
-                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
-              };
-              readonly updatedAt: {
-                readonly nullable: false;
-                readonly type: {
-                  readonly kind: 'scalar';
-                  readonly codecId: 'pg/timestamptz-string@1';
-                };
-              };
-              readonly userId: {
-                readonly nullable: false;
-                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/int4@1' };
-              };
-            };
-            readonly relations: {
-              readonly challenges: {
-                readonly to: {
-                  readonly namespace: 'public' & NamespaceId;
-                  readonly model: 'Challenge';
-                };
-                readonly cardinality: '1:N';
-                readonly on: {
-                  readonly localFields: readonly ['id'];
-                  readonly targetFields: readonly ['sourceApplicationId'];
-                };
-              };
-              readonly decidedBy: {
-                readonly to: { readonly namespace: 'public' & NamespaceId; readonly model: 'User' };
-                readonly cardinality: 'N:1';
-                readonly nullable: true;
-                readonly on: {
-                  readonly localFields: readonly ['decidedById'];
-                  readonly targetFields: readonly ['id'];
-                };
-              };
-              readonly user: {
-                readonly to: { readonly namespace: 'public' & NamespaceId; readonly model: 'User' };
-                readonly cardinality: 'N:1';
-                readonly nullable: false;
-                readonly on: {
-                  readonly localFields: readonly ['userId'];
-                  readonly targetFields: readonly ['id'];
-                };
-              };
-            };
-            readonly storage: {
-              readonly table: 'challenge_applications';
               readonly namespaceId: 'public';
               readonly fields: {
                 readonly cancelledAt: { readonly column: 'cancelledAt' };
                 readonly category: { readonly column: 'category' };
                 readonly content: { readonly column: 'content' };
                 readonly createdAt: { readonly column: 'createdAt' };
+                readonly createdById: { readonly column: 'createdById' };
+                readonly deadline: { readonly column: 'deadline' };
                 readonly decidedAt: { readonly column: 'decidedAt' };
                 readonly decidedById: { readonly column: 'decidedById' };
-                readonly desiredDeadline: { readonly column: 'desiredDeadline' };
+                readonly deleteReason: { readonly column: 'deleteReason' };
+                readonly deletedAt: { readonly column: 'deletedAt' };
+                readonly deletedById: { readonly column: 'deletedById' };
                 readonly documentType: { readonly column: 'documentType' };
                 readonly id: { readonly column: 'id' };
                 readonly maxParticipants: { readonly column: 'maxParticipants' };
@@ -2342,7 +1996,6 @@ type ContractBase = Omit<
                 readonly status: { readonly column: 'status' };
                 readonly title: { readonly column: 'title' };
                 readonly updatedAt: { readonly column: 'updatedAt' };
-                readonly userId: { readonly column: 'userId' };
               };
             };
           };
@@ -2361,6 +2014,24 @@ type ContractBase = Omit<
               };
               readonly createdAt: {
                 readonly nullable: false;
+                readonly type: {
+                  readonly kind: 'scalar';
+                  readonly codecId: 'pg/timestamptz-string@1';
+                };
+              };
+              readonly draftContent: {
+                readonly nullable: true;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly draftCreatedAt: {
+                readonly nullable: true;
+                readonly type: {
+                  readonly kind: 'scalar';
+                  readonly codecId: 'pg/timestamptz-string@1';
+                };
+              };
+              readonly draftUpdatedAt: {
+                readonly nullable: true;
                 readonly type: {
                   readonly kind: 'scalar';
                   readonly codecId: 'pg/timestamptz-string@1';
@@ -2402,18 +2073,6 @@ type ContractBase = Omit<
                   readonly targetFields: readonly ['id'];
                 };
               };
-              readonly draft: {
-                readonly to: {
-                  readonly namespace: 'public' & NamespaceId;
-                  readonly model: 'Draft';
-                };
-                readonly cardinality: '1:1';
-                readonly nullable: true;
-                readonly on: {
-                  readonly localFields: readonly ['id'];
-                  readonly targetFields: readonly ['participantId'];
-                };
-              };
               readonly user: {
                 readonly to: { readonly namespace: 'public' & NamespaceId; readonly model: 'User' };
                 readonly cardinality: 'N:1';
@@ -2439,65 +2098,13 @@ type ContractBase = Omit<
                 readonly abandonedAt: { readonly column: 'abandonedAt' };
                 readonly challengeId: { readonly column: 'challengeId' };
                 readonly createdAt: { readonly column: 'createdAt' };
+                readonly draftContent: { readonly column: 'draftContent' };
+                readonly draftCreatedAt: { readonly column: 'draftCreatedAt' };
+                readonly draftUpdatedAt: { readonly column: 'draftUpdatedAt' };
                 readonly id: { readonly column: 'id' };
                 readonly joinedAt: { readonly column: 'joinedAt' };
                 readonly updatedAt: { readonly column: 'updatedAt' };
                 readonly userId: { readonly column: 'userId' };
-              };
-            };
-          };
-          readonly Draft: {
-            readonly fields: {
-              readonly content: {
-                readonly nullable: false;
-                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
-              };
-              readonly createdAt: {
-                readonly nullable: false;
-                readonly type: {
-                  readonly kind: 'scalar';
-                  readonly codecId: 'pg/timestamptz-string@1';
-                };
-              };
-              readonly id: {
-                readonly nullable: false;
-                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/int4@1' };
-              };
-              readonly participantId: {
-                readonly nullable: false;
-                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/int4@1' };
-              };
-              readonly updatedAt: {
-                readonly nullable: false;
-                readonly type: {
-                  readonly kind: 'scalar';
-                  readonly codecId: 'pg/timestamptz-string@1';
-                };
-              };
-            };
-            readonly relations: {
-              readonly participant: {
-                readonly to: {
-                  readonly namespace: 'public' & NamespaceId;
-                  readonly model: 'ChallengeParticipant';
-                };
-                readonly cardinality: 'N:1';
-                readonly nullable: false;
-                readonly on: {
-                  readonly localFields: readonly ['participantId'];
-                  readonly targetFields: readonly ['id'];
-                };
-              };
-            };
-            readonly storage: {
-              readonly table: 'drafts';
-              readonly namespaceId: 'public';
-              readonly fields: {
-                readonly content: { readonly column: 'content' };
-                readonly createdAt: { readonly column: 'createdAt' };
-                readonly id: { readonly column: 'id' };
-                readonly participantId: { readonly column: 'participantId' };
-                readonly updatedAt: { readonly column: 'updatedAt' };
               };
             };
           };
@@ -2678,9 +2285,16 @@ type ContractBase = Omit<
               };
             };
           };
-          readonly OAuthAccount: {
+          readonly PasswordResetToken: {
             readonly fields: {
               readonly createdAt: {
+                readonly nullable: false;
+                readonly type: {
+                  readonly kind: 'scalar';
+                  readonly codecId: 'pg/timestamptz-string@1';
+                };
+              };
+              readonly expiresAt: {
                 readonly nullable: false;
                 readonly type: {
                   readonly kind: 'scalar';
@@ -2691,17 +2305,16 @@ type ContractBase = Omit<
                 readonly nullable: false;
                 readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/int4@1' };
               };
-              readonly provider: {
-                readonly nullable: false;
-                readonly type: {
-                  readonly kind: 'scalar';
-                  readonly codecId: 'pg/enum@1';
-                  readonly typeParams: { readonly typeName: 'OAuthProvider' };
-                };
-              };
-              readonly providerAccountId: {
+              readonly tokenHash: {
                 readonly nullable: false;
                 readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly usedAt: {
+                readonly nullable: true;
+                readonly type: {
+                  readonly kind: 'scalar';
+                  readonly codecId: 'pg/timestamptz-string@1';
+                };
               };
               readonly userId: {
                 readonly nullable: false;
@@ -2720,13 +2333,14 @@ type ContractBase = Omit<
               };
             };
             readonly storage: {
-              readonly table: 'oauth_accounts';
+              readonly table: 'password_reset_tokens';
               readonly namespaceId: 'public';
               readonly fields: {
                 readonly createdAt: { readonly column: 'createdAt' };
+                readonly expiresAt: { readonly column: 'expiresAt' };
                 readonly id: { readonly column: 'id' };
-                readonly provider: { readonly column: 'provider' };
-                readonly providerAccountId: { readonly column: 'providerAccountId' };
+                readonly tokenHash: { readonly column: 'tokenHash' };
+                readonly usedAt: { readonly column: 'usedAt' };
                 readonly userId: { readonly column: 'userId' };
               };
             };
@@ -2735,6 +2349,13 @@ type ContractBase = Omit<
             readonly fields: {
               readonly createdAt: {
                 readonly nullable: false;
+                readonly type: {
+                  readonly kind: 'scalar';
+                  readonly codecId: 'pg/timestamptz-string@1';
+                };
+              };
+              readonly deletedAt: {
+                readonly nullable: true;
                 readonly type: {
                   readonly kind: 'scalar';
                   readonly codecId: 'pg/timestamptz-string@1';
@@ -2764,6 +2385,18 @@ type ContractBase = Omit<
                 readonly nullable: true;
                 readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
               };
+              readonly provider: {
+                readonly nullable: true;
+                readonly type: {
+                  readonly kind: 'scalar';
+                  readonly codecId: 'pg/enum@1';
+                  readonly typeParams: { readonly typeName: 'OAuthProvider' };
+                };
+              };
+              readonly providerAccountId: {
+                readonly nullable: true;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
               readonly role: {
                 readonly nullable: false;
                 readonly type: {
@@ -2771,6 +2404,10 @@ type ContractBase = Omit<
                   readonly codecId: 'pg/enum@1';
                   readonly typeParams: { readonly typeName: 'UserRole' };
                 };
+              };
+              readonly tokenVersion: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/int4@1' };
               };
               readonly updatedAt: {
                 readonly nullable: false;
@@ -2792,17 +2429,6 @@ type ContractBase = Omit<
                   readonly targetFields: readonly ['actorId'];
                 };
               };
-              readonly applications: {
-                readonly to: {
-                  readonly namespace: 'public' & NamespaceId;
-                  readonly model: 'ChallengeApplication';
-                };
-                readonly cardinality: '1:N';
-                readonly on: {
-                  readonly localFields: readonly ['id'];
-                  readonly targetFields: readonly ['userId'];
-                };
-              };
               readonly createdChallenges: {
                 readonly to: {
                   readonly namespace: 'public' & NamespaceId;
@@ -2814,10 +2440,10 @@ type ContractBase = Omit<
                   readonly targetFields: readonly ['createdById'];
                 };
               };
-              readonly decidedApplications: {
+              readonly decidedChallenges: {
                 readonly to: {
                   readonly namespace: 'public' & NamespaceId;
-                  readonly model: 'ChallengeApplication';
+                  readonly model: 'Challenge';
                 };
                 readonly cardinality: '1:N';
                 readonly on: {
@@ -2858,10 +2484,10 @@ type ContractBase = Omit<
                   readonly targetFields: readonly ['userId'];
                 };
               };
-              readonly oauthAccounts: {
+              readonly participations: {
                 readonly to: {
                   readonly namespace: 'public' & NamespaceId;
-                  readonly model: 'OAuthAccount';
+                  readonly model: 'ChallengeParticipant';
                 };
                 readonly cardinality: '1:N';
                 readonly on: {
@@ -2869,10 +2495,10 @@ type ContractBase = Omit<
                   readonly targetFields: readonly ['userId'];
                 };
               };
-              readonly participations: {
+              readonly passwordResetTokens: {
                 readonly to: {
                   readonly namespace: 'public' & NamespaceId;
-                  readonly model: 'ChallengeParticipant';
+                  readonly model: 'PasswordResetToken';
                 };
                 readonly cardinality: '1:N';
                 readonly on: {
@@ -2897,12 +2523,16 @@ type ContractBase = Omit<
               readonly namespaceId: 'public';
               readonly fields: {
                 readonly createdAt: { readonly column: 'createdAt' };
+                readonly deletedAt: { readonly column: 'deletedAt' };
                 readonly email: { readonly column: 'email' };
                 readonly grade: { readonly column: 'grade' };
                 readonly id: { readonly column: 'id' };
                 readonly nickname: { readonly column: 'nickname' };
                 readonly passwordHash: { readonly column: 'passwordHash' };
+                readonly provider: { readonly column: 'provider' };
+                readonly providerAccountId: { readonly column: 'providerAccountId' };
                 readonly role: { readonly column: 'role' };
+                readonly tokenVersion: { readonly column: 'tokenVersion' };
                 readonly updatedAt: { readonly column: 'updatedAt' };
               };
             };
@@ -3096,15 +2726,6 @@ type ContractBase = Omit<
           readonly onCreate: { readonly id: 'timestampNow'; readonly kind: 'generator' };
           readonly onUpdate: { readonly id: 'timestampNow'; readonly kind: 'generator' };
           readonly ref: {
-            readonly entry: 'challenge_applications';
-            readonly field: 'updatedAt';
-            readonly namespace: 'public';
-          };
-        },
-        {
-          readonly onCreate: { readonly id: 'timestampNow'; readonly kind: 'generator' };
-          readonly onUpdate: { readonly id: 'timestampNow'; readonly kind: 'generator' };
-          readonly ref: {
             readonly entry: 'challenge_participants';
             readonly field: 'updatedAt';
             readonly namespace: 'public';
@@ -3115,15 +2736,6 @@ type ContractBase = Omit<
           readonly onUpdate: { readonly id: 'timestampNow'; readonly kind: 'generator' };
           readonly ref: {
             readonly entry: 'challenges';
-            readonly field: 'updatedAt';
-            readonly namespace: 'public';
-          };
-        },
-        {
-          readonly onCreate: { readonly id: 'timestampNow'; readonly kind: 'generator' };
-          readonly onUpdate: { readonly id: 'timestampNow'; readonly kind: 'generator' };
-          readonly ref: {
-            readonly entry: 'drafts';
             readonly field: 'updatedAt';
             readonly namespace: 'public';
           };

@@ -4,20 +4,12 @@
   "target": "postgres",
   "profileHash": "3916f444a8a17ad749191acf9e08dad97d1a327b88c2f1d45d12f240296aa8b2",
   "roots": {
-    "challenge_applications": {
-      "model": "ChallengeApplication",
-      "namespace": "public"
-    },
     "challenge_participants": {
       "model": "ChallengeParticipant",
       "namespace": "public"
     },
     "challenges": {
       "model": "Challenge",
-      "namespace": "public"
-    },
-    "drafts": {
-      "model": "Draft",
       "namespace": "public"
     },
     "feedbacks": {
@@ -28,8 +20,8 @@
       "model": "Notification",
       "namespace": "public"
     },
-    "oauth_accounts": {
-      "model": "OAuthAccount",
+    "password_reset_tokens": {
+      "model": "PasswordResetToken",
       "namespace": "public"
     },
     "users": {
@@ -51,6 +43,13 @@
         "models": {
           "Challenge": {
             "fields": {
+              "cancelledAt": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "kind": "scalar"
+                }
+              },
               "category": {
                 "nullable": false,
                 "type": {
@@ -86,6 +85,20 @@
                 "nullable": false,
                 "type": {
                   "codecId": "pg/timestamptz-string@1",
+                  "kind": "scalar"
+                }
+              },
+              "decidedAt": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "kind": "scalar"
+                }
+              },
+              "decidedById": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/int4@1",
                   "kind": "scalar"
                 }
               },
@@ -134,10 +147,10 @@
                   "kind": "scalar"
                 }
               },
-              "sourceApplicationId": {
+              "rejectionReason": {
                 "nullable": true,
                 "type": {
-                  "codecId": "pg/int4@1",
+                  "codecId": "pg/text@1",
                   "kind": "scalar"
                 }
               },
@@ -180,6 +193,22 @@
                 "on": {
                   "localFields": [
                     "createdById"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
+                },
+                "to": {
+                  "model": "User",
+                  "namespace": "public"
+                }
+              },
+              "decidedBy": {
+                "cardinality": "N:1",
+                "nullable": true,
+                "on": {
+                  "localFields": [
+                    "decidedById"
                   ],
                   "targetFields": [
                     "id"
@@ -235,250 +264,6 @@
                   "model": "ChallengeParticipant",
                   "namespace": "public"
                 }
-              },
-              "sourceApplication": {
-                "cardinality": "N:1",
-                "nullable": true,
-                "on": {
-                  "localFields": [
-                    "sourceApplicationId"
-                  ],
-                  "targetFields": [
-                    "id"
-                  ]
-                },
-                "to": {
-                  "model": "ChallengeApplication",
-                  "namespace": "public"
-                }
-              }
-            },
-            "storage": {
-              "fields": {
-                "category": {
-                  "column": "category"
-                },
-                "content": {
-                  "column": "content"
-                },
-                "createdAt": {
-                  "column": "createdAt"
-                },
-                "createdById": {
-                  "column": "createdById"
-                },
-                "deadline": {
-                  "column": "deadline"
-                },
-                "deleteReason": {
-                  "column": "deleteReason"
-                },
-                "deletedAt": {
-                  "column": "deletedAt"
-                },
-                "deletedById": {
-                  "column": "deletedById"
-                },
-                "documentType": {
-                  "column": "documentType"
-                },
-                "id": {
-                  "column": "id"
-                },
-                "maxParticipants": {
-                  "column": "maxParticipants"
-                },
-                "sourceApplicationId": {
-                  "column": "sourceApplicationId"
-                },
-                "sourceUrl": {
-                  "column": "sourceUrl"
-                },
-                "status": {
-                  "column": "status"
-                },
-                "title": {
-                  "column": "title"
-                },
-                "updatedAt": {
-                  "column": "updatedAt"
-                }
-              },
-              "namespaceId": "public",
-              "table": "challenges"
-            }
-          },
-          "ChallengeApplication": {
-            "fields": {
-              "cancelledAt": {
-                "nullable": true,
-                "type": {
-                  "codecId": "pg/timestamptz-string@1",
-                  "kind": "scalar"
-                }
-              },
-              "category": {
-                "nullable": false,
-                "type": {
-                  "codecId": "pg/enum@1",
-                  "kind": "scalar",
-                  "typeParams": {
-                    "typeName": "Category"
-                  }
-                }
-              },
-              "content": {
-                "nullable": true,
-                "type": {
-                  "codecId": "pg/text@1",
-                  "kind": "scalar"
-                }
-              },
-              "createdAt": {
-                "nullable": false,
-                "type": {
-                  "codecId": "pg/timestamptz-string@1",
-                  "kind": "scalar"
-                }
-              },
-              "decidedAt": {
-                "nullable": true,
-                "type": {
-                  "codecId": "pg/timestamptz-string@1",
-                  "kind": "scalar"
-                }
-              },
-              "decidedById": {
-                "nullable": true,
-                "type": {
-                  "codecId": "pg/int4@1",
-                  "kind": "scalar"
-                }
-              },
-              "desiredDeadline": {
-                "nullable": false,
-                "type": {
-                  "codecId": "pg/timestamptz-string@1",
-                  "kind": "scalar"
-                }
-              },
-              "documentType": {
-                "nullable": false,
-                "type": {
-                  "codecId": "pg/enum@1",
-                  "kind": "scalar",
-                  "typeParams": {
-                    "typeName": "DocumentType"
-                  }
-                }
-              },
-              "id": {
-                "nullable": false,
-                "type": {
-                  "codecId": "pg/int4@1",
-                  "kind": "scalar"
-                }
-              },
-              "maxParticipants": {
-                "nullable": false,
-                "type": {
-                  "codecId": "pg/int4@1",
-                  "kind": "scalar"
-                }
-              },
-              "rejectionReason": {
-                "nullable": true,
-                "type": {
-                  "codecId": "pg/text@1",
-                  "kind": "scalar"
-                }
-              },
-              "sourceUrl": {
-                "nullable": false,
-                "type": {
-                  "codecId": "pg/text@1",
-                  "kind": "scalar"
-                }
-              },
-              "status": {
-                "nullable": false,
-                "type": {
-                  "codecId": "pg/enum@1",
-                  "kind": "scalar",
-                  "typeParams": {
-                    "typeName": "ApplicationStatus"
-                  }
-                }
-              },
-              "title": {
-                "nullable": false,
-                "type": {
-                  "codecId": "pg/text@1",
-                  "kind": "scalar"
-                }
-              },
-              "updatedAt": {
-                "nullable": false,
-                "type": {
-                  "codecId": "pg/timestamptz-string@1",
-                  "kind": "scalar"
-                }
-              },
-              "userId": {
-                "nullable": false,
-                "type": {
-                  "codecId": "pg/int4@1",
-                  "kind": "scalar"
-                }
-              }
-            },
-            "relations": {
-              "challenges": {
-                "cardinality": "1:N",
-                "on": {
-                  "localFields": [
-                    "id"
-                  ],
-                  "targetFields": [
-                    "sourceApplicationId"
-                  ]
-                },
-                "to": {
-                  "model": "Challenge",
-                  "namespace": "public"
-                }
-              },
-              "decidedBy": {
-                "cardinality": "N:1",
-                "nullable": true,
-                "on": {
-                  "localFields": [
-                    "decidedById"
-                  ],
-                  "targetFields": [
-                    "id"
-                  ]
-                },
-                "to": {
-                  "model": "User",
-                  "namespace": "public"
-                }
-              },
-              "user": {
-                "cardinality": "N:1",
-                "nullable": false,
-                "on": {
-                  "localFields": [
-                    "userId"
-                  ],
-                  "targetFields": [
-                    "id"
-                  ]
-                },
-                "to": {
-                  "model": "User",
-                  "namespace": "public"
-                }
               }
             },
             "storage": {
@@ -495,14 +280,26 @@
                 "createdAt": {
                   "column": "createdAt"
                 },
+                "createdById": {
+                  "column": "createdById"
+                },
+                "deadline": {
+                  "column": "deadline"
+                },
                 "decidedAt": {
                   "column": "decidedAt"
                 },
                 "decidedById": {
                   "column": "decidedById"
                 },
-                "desiredDeadline": {
-                  "column": "desiredDeadline"
+                "deleteReason": {
+                  "column": "deleteReason"
+                },
+                "deletedAt": {
+                  "column": "deletedAt"
+                },
+                "deletedById": {
+                  "column": "deletedById"
                 },
                 "documentType": {
                   "column": "documentType"
@@ -527,13 +324,10 @@
                 },
                 "updatedAt": {
                   "column": "updatedAt"
-                },
-                "userId": {
-                  "column": "userId"
                 }
               },
               "namespaceId": "public",
-              "table": "challenge_applications"
+              "table": "challenges"
             }
           },
           "ChallengeParticipant": {
@@ -554,6 +348,27 @@
               },
               "createdAt": {
                 "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "kind": "scalar"
+                }
+              },
+              "draftContent": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "draftCreatedAt": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "kind": "scalar"
+                }
+              },
+              "draftUpdatedAt": {
+                "nullable": true,
                 "type": {
                   "codecId": "pg/timestamptz-string@1",
                   "kind": "scalar"
@@ -605,22 +420,6 @@
                   "namespace": "public"
                 }
               },
-              "draft": {
-                "cardinality": "1:1",
-                "nullable": true,
-                "on": {
-                  "localFields": [
-                    "id"
-                  ],
-                  "targetFields": [
-                    "participantId"
-                  ]
-                },
-                "to": {
-                  "model": "Draft",
-                  "namespace": "public"
-                }
-              },
               "user": {
                 "cardinality": "N:1",
                 "nullable": false,
@@ -664,6 +463,15 @@
                 "createdAt": {
                   "column": "createdAt"
                 },
+                "draftContent": {
+                  "column": "draftContent"
+                },
+                "draftCreatedAt": {
+                  "column": "draftCreatedAt"
+                },
+                "draftUpdatedAt": {
+                  "column": "draftUpdatedAt"
+                },
                 "id": {
                   "column": "id"
                 },
@@ -679,84 +487,6 @@
               },
               "namespaceId": "public",
               "table": "challenge_participants"
-            }
-          },
-          "Draft": {
-            "fields": {
-              "content": {
-                "nullable": false,
-                "type": {
-                  "codecId": "pg/text@1",
-                  "kind": "scalar"
-                }
-              },
-              "createdAt": {
-                "nullable": false,
-                "type": {
-                  "codecId": "pg/timestamptz-string@1",
-                  "kind": "scalar"
-                }
-              },
-              "id": {
-                "nullable": false,
-                "type": {
-                  "codecId": "pg/int4@1",
-                  "kind": "scalar"
-                }
-              },
-              "participantId": {
-                "nullable": false,
-                "type": {
-                  "codecId": "pg/int4@1",
-                  "kind": "scalar"
-                }
-              },
-              "updatedAt": {
-                "nullable": false,
-                "type": {
-                  "codecId": "pg/timestamptz-string@1",
-                  "kind": "scalar"
-                }
-              }
-            },
-            "relations": {
-              "participant": {
-                "cardinality": "N:1",
-                "nullable": false,
-                "on": {
-                  "localFields": [
-                    "participantId"
-                  ],
-                  "targetFields": [
-                    "id"
-                  ]
-                },
-                "to": {
-                  "model": "ChallengeParticipant",
-                  "namespace": "public"
-                }
-              }
-            },
-            "storage": {
-              "fields": {
-                "content": {
-                  "column": "content"
-                },
-                "createdAt": {
-                  "column": "createdAt"
-                },
-                "id": {
-                  "column": "id"
-                },
-                "participantId": {
-                  "column": "participantId"
-                },
-                "updatedAt": {
-                  "column": "updatedAt"
-                }
-              },
-              "namespaceId": "public",
-              "table": "drafts"
             }
           },
           "Feedback": {
@@ -1042,9 +772,16 @@
               "table": "notifications"
             }
           },
-          "OAuthAccount": {
+          "PasswordResetToken": {
             "fields": {
               "createdAt": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "kind": "scalar"
+                }
+              },
+              "expiresAt": {
                 "nullable": false,
                 "type": {
                   "codecId": "pg/timestamptz-string@1",
@@ -1058,20 +795,17 @@
                   "kind": "scalar"
                 }
               },
-              "provider": {
-                "nullable": false,
-                "type": {
-                  "codecId": "pg/enum@1",
-                  "kind": "scalar",
-                  "typeParams": {
-                    "typeName": "OAuthProvider"
-                  }
-                }
-              },
-              "providerAccountId": {
+              "tokenHash": {
                 "nullable": false,
                 "type": {
                   "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "usedAt": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/timestamptz-string@1",
                   "kind": "scalar"
                 }
               },
@@ -1106,27 +840,37 @@
                 "createdAt": {
                   "column": "createdAt"
                 },
+                "expiresAt": {
+                  "column": "expiresAt"
+                },
                 "id": {
                   "column": "id"
                 },
-                "provider": {
-                  "column": "provider"
+                "tokenHash": {
+                  "column": "tokenHash"
                 },
-                "providerAccountId": {
-                  "column": "providerAccountId"
+                "usedAt": {
+                  "column": "usedAt"
                 },
                 "userId": {
                   "column": "userId"
                 }
               },
               "namespaceId": "public",
-              "table": "oauth_accounts"
+              "table": "password_reset_tokens"
             }
           },
           "User": {
             "fields": {
               "createdAt": {
                 "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "kind": "scalar"
+                }
+              },
+              "deletedAt": {
+                "nullable": true,
                 "type": {
                   "codecId": "pg/timestamptz-string@1",
                   "kind": "scalar"
@@ -1170,6 +914,23 @@
                   "kind": "scalar"
                 }
               },
+              "provider": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/enum@1",
+                  "kind": "scalar",
+                  "typeParams": {
+                    "typeName": "OAuthProvider"
+                  }
+                }
+              },
+              "providerAccountId": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
               "role": {
                 "nullable": false,
                 "type": {
@@ -1178,6 +939,13 @@
                   "typeParams": {
                     "typeName": "UserRole"
                   }
+                }
+              },
+              "tokenVersion": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
                 }
               },
               "updatedAt": {
@@ -1204,21 +972,6 @@
                   "namespace": "public"
                 }
               },
-              "applications": {
-                "cardinality": "1:N",
-                "on": {
-                  "localFields": [
-                    "id"
-                  ],
-                  "targetFields": [
-                    "userId"
-                  ]
-                },
-                "to": {
-                  "model": "ChallengeApplication",
-                  "namespace": "public"
-                }
-              },
               "createdChallenges": {
                 "cardinality": "1:N",
                 "on": {
@@ -1234,7 +987,7 @@
                   "namespace": "public"
                 }
               },
-              "decidedApplications": {
+              "decidedChallenges": {
                 "cardinality": "1:N",
                 "on": {
                   "localFields": [
@@ -1245,7 +998,7 @@
                   ]
                 },
                 "to": {
-                  "model": "ChallengeApplication",
+                  "model": "Challenge",
                   "namespace": "public"
                 }
               },
@@ -1294,21 +1047,6 @@
                   "namespace": "public"
                 }
               },
-              "oauthAccounts": {
-                "cardinality": "1:N",
-                "on": {
-                  "localFields": [
-                    "id"
-                  ],
-                  "targetFields": [
-                    "userId"
-                  ]
-                },
-                "to": {
-                  "model": "OAuthAccount",
-                  "namespace": "public"
-                }
-              },
               "participations": {
                 "cardinality": "1:N",
                 "on": {
@@ -1321,6 +1059,21 @@
                 },
                 "to": {
                   "model": "ChallengeParticipant",
+                  "namespace": "public"
+                }
+              },
+              "passwordResetTokens": {
+                "cardinality": "1:N",
+                "on": {
+                  "localFields": [
+                    "id"
+                  ],
+                  "targetFields": [
+                    "userId"
+                  ]
+                },
+                "to": {
+                  "model": "PasswordResetToken",
                   "namespace": "public"
                 }
               },
@@ -1345,6 +1098,9 @@
                 "createdAt": {
                   "column": "createdAt"
                 },
+                "deletedAt": {
+                  "column": "deletedAt"
+                },
                 "email": {
                   "column": "email"
                 },
@@ -1360,8 +1116,17 @@
                 "passwordHash": {
                   "column": "passwordHash"
                 },
+                "provider": {
+                  "column": "provider"
+                },
+                "providerAccountId": {
+                  "column": "providerAccountId"
+                },
                 "role": {
                   "column": "role"
+                },
+                "tokenVersion": {
+                  "column": "tokenVersion"
                 },
                 "updatedAt": {
                   "column": "updatedAt"
@@ -1597,16 +1362,6 @@
       "public": {
         "entries": {
           "native_enum": {
-            "ApplicationStatus": {
-              "kind": "postgres-enum",
-              "members": [
-                "PENDING",
-                "APPROVED",
-                "REJECTED",
-                "CANCELLED"
-              ],
-              "typeName": "ApplicationStatus"
-            },
             "Category": {
               "kind": "postgres-enum",
               "members": [
@@ -1622,7 +1377,10 @@
               "kind": "postgres-enum",
               "members": [
                 "IN_PROGRESS",
-                "CLOSED"
+                "CLOSED",
+                "PENDING",
+                "REJECTED",
+                "CANCELLED"
               ],
               "typeName": "ChallengeStatus"
             },
@@ -1676,204 +1434,6 @@
             }
           },
           "table": {
-            "challenge_applications": {
-              "columns": {
-                "cancelledAt": {
-                  "codecId": "pg/timestamptz-string@1",
-                  "dataType": "pg/timestamptz",
-                  "nullable": true
-                },
-                "category": {
-                  "codecId": "pg/enum@1",
-                  "dataType": "pg/enum",
-                  "nullable": false,
-                  "typeParams": {
-                    "typeName": "Category"
-                  },
-                  "valueSet": {
-                    "entityKind": "valueSet",
-                    "entityName": "Category",
-                    "namespaceId": "public",
-                    "plane": "storage"
-                  }
-                },
-                "content": {
-                  "codecId": "pg/text@1",
-                  "dataType": "pg/text",
-                  "nullable": true
-                },
-                "createdAt": {
-                  "codecId": "pg/timestamptz-string@1",
-                  "dataType": "pg/timestamptz",
-                  "default": {
-                    "expression": "now()",
-                    "kind": "function"
-                  },
-                  "nullable": false
-                },
-                "decidedAt": {
-                  "codecId": "pg/timestamptz-string@1",
-                  "dataType": "pg/timestamptz",
-                  "nullable": true
-                },
-                "decidedById": {
-                  "codecId": "pg/int4@1",
-                  "dataType": "pg/int4",
-                  "nullable": true
-                },
-                "desiredDeadline": {
-                  "codecId": "pg/timestamptz-string@1",
-                  "dataType": "pg/timestamptz",
-                  "nullable": false
-                },
-                "documentType": {
-                  "codecId": "pg/enum@1",
-                  "dataType": "pg/enum",
-                  "nullable": false,
-                  "typeParams": {
-                    "typeName": "DocumentType"
-                  },
-                  "valueSet": {
-                    "entityKind": "valueSet",
-                    "entityName": "DocumentType",
-                    "namespaceId": "public",
-                    "plane": "storage"
-                  }
-                },
-                "id": {
-                  "codecId": "pg/int4@1",
-                  "dataType": "pg/int4",
-                  "default": {
-                    "expression": "autoincrement()",
-                    "kind": "function"
-                  },
-                  "nullable": false
-                },
-                "maxParticipants": {
-                  "codecId": "pg/int4@1",
-                  "dataType": "pg/int4",
-                  "nullable": false
-                },
-                "rejectionReason": {
-                  "codecId": "pg/text@1",
-                  "dataType": "pg/text",
-                  "nullable": true
-                },
-                "sourceUrl": {
-                  "codecId": "pg/text@1",
-                  "dataType": "pg/text",
-                  "nullable": false
-                },
-                "status": {
-                  "codecId": "pg/enum@1",
-                  "dataType": "pg/enum",
-                  "default": {
-                    "kind": "literal",
-                    "value": "PENDING"
-                  },
-                  "nullable": false,
-                  "typeParams": {
-                    "typeName": "ApplicationStatus"
-                  },
-                  "valueSet": {
-                    "entityKind": "valueSet",
-                    "entityName": "ApplicationStatus",
-                    "namespaceId": "public",
-                    "plane": "storage"
-                  }
-                },
-                "title": {
-                  "codecId": "pg/text@1",
-                  "dataType": "pg/text",
-                  "nullable": false
-                },
-                "updatedAt": {
-                  "codecId": "pg/timestamptz-string@1",
-                  "dataType": "pg/timestamptz",
-                  "nullable": false
-                },
-                "userId": {
-                  "codecId": "pg/int4@1",
-                  "dataType": "pg/int4",
-                  "nullable": false
-                }
-              },
-              "foreignKeys": [
-                {
-                  "index": {
-                    "name": "challenge_applications_userId_idx_a489d58a"
-                  },
-                  "onDelete": "cascade",
-                  "source": {
-                    "columns": [
-                      "userId"
-                    ],
-                    "namespaceId": "public",
-                    "tableName": "challenge_applications"
-                  },
-                  "target": {
-                    "columns": [
-                      "id"
-                    ],
-                    "namespaceId": "public",
-                    "tableName": "users"
-                  }
-                },
-                {
-                  "index": {
-                    "name": "challenge_applications_decidedById_idx_8194d55f"
-                  },
-                  "onDelete": "setNull",
-                  "source": {
-                    "columns": [
-                      "decidedById"
-                    ],
-                    "namespaceId": "public",
-                    "tableName": "challenge_applications"
-                  },
-                  "target": {
-                    "columns": [
-                      "id"
-                    ],
-                    "namespaceId": "public",
-                    "tableName": "users"
-                  }
-                }
-              ],
-              "indexes": [
-                {
-                  "columns": [
-                    "decidedById"
-                  ],
-                  "name": "challenge_applications_decidedById_idx_8194d55f",
-                  "prefix": "challenge_applications_decidedById_idx",
-                  "unique": false
-                },
-                {
-                  "columns": [
-                    "status",
-                    "createdAt"
-                  ],
-                  "name": "challenge_applications_status_createdAt_idx_58610442",
-                  "prefix": "challenge_applications_status_createdAt_idx",
-                  "unique": false
-                },
-                {
-                  "columns": [
-                    "userId"
-                  ],
-                  "name": "challenge_applications_userId_idx_a489d58a",
-                  "prefix": "challenge_applications_userId_idx",
-                  "unique": false
-                }
-              ],
-              "primaryKey": {
-                "columns": [
-                  "id"
-                ]
-              },
-              "uniques": []
-            },
             "challenge_participants": {
               "columns": {
                 "abandonedAt": {
@@ -1894,6 +1454,21 @@
                     "kind": "function"
                   },
                   "nullable": false
+                },
+                "draftContent": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": true
+                },
+                "draftCreatedAt": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "dataType": "pg/timestamptz",
+                  "nullable": true
+                },
+                "draftUpdatedAt": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "dataType": "pg/timestamptz",
+                  "nullable": true
                 },
                 "id": {
                   "codecId": "pg/int4@1",
@@ -2009,6 +1584,11 @@
             },
             "challenges": {
               "columns": {
+                "cancelledAt": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "dataType": "pg/timestamptz",
+                  "nullable": true
+                },
                 "category": {
                   "codecId": "pg/enum@1",
                   "dataType": "pg/enum",
@@ -2046,6 +1626,16 @@
                   "codecId": "pg/timestamptz-string@1",
                   "dataType": "pg/timestamptz",
                   "nullable": false
+                },
+                "decidedAt": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "dataType": "pg/timestamptz",
+                  "nullable": true
+                },
+                "decidedById": {
+                  "codecId": "pg/int4@1",
+                  "dataType": "pg/int4",
+                  "nullable": true
                 },
                 "deleteReason": {
                   "codecId": "pg/text@1",
@@ -2090,9 +1680,9 @@
                   "dataType": "pg/int4",
                   "nullable": false
                 },
-                "sourceApplicationId": {
-                  "codecId": "pg/int4@1",
-                  "dataType": "pg/int4",
+                "rejectionReason": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
                   "nullable": true
                 },
                 "sourceUrl": {
@@ -2105,7 +1695,7 @@
                   "dataType": "pg/enum",
                   "default": {
                     "kind": "literal",
-                    "value": "IN_PROGRESS"
+                    "value": "PENDING"
                   },
                   "nullable": false,
                   "typeParams": {
@@ -2152,12 +1742,12 @@
                 },
                 {
                   "index": {
-                    "name": "challenges_sourceApplicationId_idx_d900dada"
+                    "name": "challenges_decidedById_idx_8194d55f"
                   },
                   "onDelete": "setNull",
                   "source": {
                     "columns": [
-                      "sourceApplicationId"
+                      "decidedById"
                     ],
                     "namespaceId": "public",
                     "tableName": "challenges"
@@ -2167,7 +1757,7 @@
                       "id"
                     ],
                     "namespaceId": "public",
-                    "tableName": "challenge_applications"
+                    "tableName": "users"
                   }
                 },
                 {
@@ -2211,6 +1801,14 @@
                 },
                 {
                   "columns": [
+                    "decidedById"
+                  ],
+                  "name": "challenges_decidedById_idx_8194d55f",
+                  "prefix": "challenges_decidedById_idx",
+                  "unique": false
+                },
+                {
+                  "columns": [
                     "deletedById"
                   ],
                   "name": "challenges_deletedById_idx_6409fd1e",
@@ -2219,10 +1817,11 @@
                 },
                 {
                   "columns": [
-                    "sourceApplicationId"
+                    "status",
+                    "createdAt"
                   ],
-                  "name": "challenges_sourceApplicationId_idx_d900dada",
-                  "prefix": "challenges_sourceApplicationId_idx",
+                  "name": "challenges_status_createdAt_idx_58610442",
+                  "prefix": "challenges_status_createdAt_idx",
                   "unique": false
                 },
                 {
@@ -2241,80 +1840,6 @@
                 ]
               },
               "uniques": []
-            },
-            "drafts": {
-              "columns": {
-                "content": {
-                  "codecId": "pg/text@1",
-                  "dataType": "pg/text",
-                  "nullable": false
-                },
-                "createdAt": {
-                  "codecId": "pg/timestamptz-string@1",
-                  "dataType": "pg/timestamptz",
-                  "default": {
-                    "expression": "now()",
-                    "kind": "function"
-                  },
-                  "nullable": false
-                },
-                "id": {
-                  "codecId": "pg/int4@1",
-                  "dataType": "pg/int4",
-                  "default": {
-                    "expression": "autoincrement()",
-                    "kind": "function"
-                  },
-                  "nullable": false
-                },
-                "participantId": {
-                  "codecId": "pg/int4@1",
-                  "dataType": "pg/int4",
-                  "nullable": false
-                },
-                "updatedAt": {
-                  "codecId": "pg/timestamptz-string@1",
-                  "dataType": "pg/timestamptz",
-                  "nullable": false
-                }
-              },
-              "foreignKeys": [
-                {
-                  "index": {
-                    "unique": [
-                      "participantId"
-                    ]
-                  },
-                  "onDelete": "cascade",
-                  "source": {
-                    "columns": [
-                      "participantId"
-                    ],
-                    "namespaceId": "public",
-                    "tableName": "drafts"
-                  },
-                  "target": {
-                    "columns": [
-                      "id"
-                    ],
-                    "namespaceId": "public",
-                    "tableName": "challenge_participants"
-                  }
-                }
-              ],
-              "indexes": [],
-              "primaryKey": {
-                "columns": [
-                  "id"
-                ]
-              },
-              "uniques": [
-                {
-                  "columns": [
-                    "participantId"
-                  ]
-                }
-              ]
             },
             "feedbacks": {
               "columns": {
@@ -2642,7 +2167,7 @@
                 }
               ]
             },
-            "oauth_accounts": {
+            "password_reset_tokens": {
               "columns": {
                 "createdAt": {
                   "codecId": "pg/timestamptz-string@1",
@@ -2651,6 +2176,11 @@
                     "expression": "now()",
                     "kind": "function"
                   },
+                  "nullable": false
+                },
+                "expiresAt": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "dataType": "pg/timestamptz",
                   "nullable": false
                 },
                 "id": {
@@ -2662,24 +2192,15 @@
                   },
                   "nullable": false
                 },
-                "provider": {
-                  "codecId": "pg/enum@1",
-                  "dataType": "pg/enum",
-                  "nullable": false,
-                  "typeParams": {
-                    "typeName": "OAuthProvider"
-                  },
-                  "valueSet": {
-                    "entityKind": "valueSet",
-                    "entityName": "OAuthProvider",
-                    "namespaceId": "public",
-                    "plane": "storage"
-                  }
-                },
-                "providerAccountId": {
+                "tokenHash": {
                   "codecId": "pg/text@1",
                   "dataType": "pg/text",
                   "nullable": false
+                },
+                "usedAt": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "dataType": "pg/timestamptz",
+                  "nullable": true
                 },
                 "userId": {
                   "codecId": "pg/int4@1",
@@ -2690,7 +2211,7 @@
               "foreignKeys": [
                 {
                   "index": {
-                    "name": "oauth_accounts_userId_idx_a489d58a"
+                    "name": "password_reset_tokens_userId_idx_a489d58a"
                   },
                   "onDelete": "cascade",
                   "source": {
@@ -2698,7 +2219,7 @@
                       "userId"
                     ],
                     "namespaceId": "public",
-                    "tableName": "oauth_accounts"
+                    "tableName": "password_reset_tokens"
                   },
                   "target": {
                     "columns": [
@@ -2712,10 +2233,18 @@
               "indexes": [
                 {
                   "columns": [
+                    "expiresAt"
+                  ],
+                  "name": "password_reset_tokens_expiresAt_idx_6b6b8c10",
+                  "prefix": "password_reset_tokens_expiresAt_idx",
+                  "unique": false
+                },
+                {
+                  "columns": [
                     "userId"
                   ],
-                  "name": "oauth_accounts_userId_idx_a489d58a",
-                  "prefix": "oauth_accounts_userId_idx",
+                  "name": "password_reset_tokens_userId_idx_a489d58a",
+                  "prefix": "password_reset_tokens_userId_idx",
                   "unique": false
                 }
               ],
@@ -2727,8 +2256,7 @@
               "uniques": [
                 {
                   "columns": [
-                    "provider",
-                    "providerAccountId"
+                    "tokenHash"
                   ]
                 }
               ]
@@ -2743,6 +2271,11 @@
                     "kind": "function"
                   },
                   "nullable": false
+                },
+                "deletedAt": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "dataType": "pg/timestamptz",
+                  "nullable": true
                 },
                 "email": {
                   "codecId": "pg/text@1",
@@ -2786,6 +2319,25 @@
                   "dataType": "pg/text",
                   "nullable": true
                 },
+                "provider": {
+                  "codecId": "pg/enum@1",
+                  "dataType": "pg/enum",
+                  "nullable": true,
+                  "typeParams": {
+                    "typeName": "OAuthProvider"
+                  },
+                  "valueSet": {
+                    "entityKind": "valueSet",
+                    "entityName": "OAuthProvider",
+                    "namespaceId": "public",
+                    "plane": "storage"
+                  }
+                },
+                "providerAccountId": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": true
+                },
                 "role": {
                   "codecId": "pg/enum@1",
                   "dataType": "pg/enum",
@@ -2803,6 +2355,15 @@
                     "namespaceId": "public",
                     "plane": "storage"
                   }
+                },
+                "tokenVersion": {
+                  "codecId": "pg/int4@1",
+                  "dataType": "pg/int4",
+                  "default": {
+                    "kind": "literal",
+                    "value": 0
+                  },
+                  "nullable": false
                 },
                 "updatedAt": {
                   "codecId": "pg/timestamptz-string@1",
@@ -2835,6 +2396,12 @@
                 {
                   "columns": [
                     "nickname"
+                  ]
+                },
+                {
+                  "columns": [
+                    "provider",
+                    "providerAccountId"
                   ]
                 }
               ]
@@ -3038,15 +2605,6 @@
             }
           },
           "valueSet": {
-            "ApplicationStatus": {
-              "kind": "valueSet",
-              "values": [
-                "PENDING",
-                "APPROVED",
-                "REJECTED",
-                "CANCELLED"
-              ]
-            },
             "Category": {
               "kind": "valueSet",
               "values": [
@@ -3061,7 +2619,10 @@
               "kind": "valueSet",
               "values": [
                 "IN_PROGRESS",
-                "CLOSED"
+                "CLOSED",
+                "PENDING",
+                "REJECTED",
+                "CANCELLED"
               ]
             },
             "DocumentType": {
@@ -3113,27 +2674,12 @@
         "kind": "postgres-schema"
       }
     },
-    "storageHash": "1a13e7b2ab30eb8f0c32612e43d6a51e90701cf6f7fe14946540136959c6ab4f"
+    "storageHash": "92cc2af080fac652a9f3efe4bdd08dcd1e3eb12b44b5ecc896f41563148c2815"
   },
   "execution": {
-    "executionHash": "611b633d43db9bd2bf7a35d033531725d767dd23cdbf1cec947b0afd2f65e48e",
+    "executionHash": "80a8f0d6284e5181cf58f89374848da383d7f9d12eb21482e877735fe1d0b1f9",
     "mutations": {
       "defaults": [
-        {
-          "onCreate": {
-            "id": "timestampNow",
-            "kind": "generator"
-          },
-          "onUpdate": {
-            "id": "timestampNow",
-            "kind": "generator"
-          },
-          "ref": {
-            "entry": "challenge_applications",
-            "field": "updatedAt",
-            "namespace": "public"
-          }
-        },
         {
           "onCreate": {
             "id": "timestampNow",
@@ -3160,21 +2706,6 @@
           },
           "ref": {
             "entry": "challenges",
-            "field": "updatedAt",
-            "namespace": "public"
-          }
-        },
-        {
-          "onCreate": {
-            "id": "timestampNow",
-            "kind": "generator"
-          },
-          "onUpdate": {
-            "id": "timestampNow",
-            "kind": "generator"
-          },
-          "ref": {
-            "entry": "drafts",
             "field": "updatedAt",
             "namespace": "public"
           }
