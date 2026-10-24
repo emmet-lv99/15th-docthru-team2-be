@@ -58,6 +58,9 @@
 //  바로 알려줍니다. 실사용 중 구현이 계약을 어기는지 쉽게 확인할 수 있어요.
 //
 import { BaseController } from '#controllers/base-controller.js';
+import { challengeIdParamSchema, workIdParamSchema } from './works.schema.js';
+
+const workDetailParamSchema = challengeIdParamSchema.merge(workIdParamSchema);
 
 export class WorksController extends BaseController {
   constructor() {
