@@ -65,7 +65,10 @@ export class WorksController extends BaseController {
   }
 
   routes() {
-    // TODO: 라우트를 추가한다
+    this.router.get('/work/test', (req, res) => {
+      res.status(200).json({ message: 'work controller is alive!' });
+    });
+
     return this.router;
   }
 }

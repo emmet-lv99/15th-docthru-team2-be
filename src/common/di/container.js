@@ -19,21 +19,14 @@
 //  · 코끼리(private 필드) + 생성자 destructuring 주입: 동일
 //  · DI 는 강의안에 없어요(강의안 37개 파일에서 awilix 0회).
 //    (설정값을 바꾸면 기동 실패 같은 예상 바깥 문제가 생길 수 있어요 — 신중히)
-import {
-  createContainer as createAwilixContainer,
-  asClass,
-  asValue,
-  InjectionMode,
-  Lifetime,
-} from 'awilix';
 import { config } from '#config';
-import { db } from '#prisma/db.js';
 import { Controller } from '#controllers';
 import { AuthController } from '#controllers/auth/auth-controller.js';
 import { GoogleAuthController } from '#controllers/auth/google-controller.js';
 import { DevController } from '#controllers/dev/dev-controller.js';
-import { AuthService, GoogleAuthService, GradeService } from '#services';
-import { GradeRepository, PasswordResetTokenRepository, UserRepository } from '#repositories';
+import { WorksController } from '#controllers/works/works-controller.js';
+import { AuthMiddleware } from '#middlewares/auth-middleware.js';
+import { db } from '#prisma/db.js';
 import {
   CookieProvider,
   MailProvider,
@@ -42,7 +35,15 @@ import {
   PasswordResetTokenProvider,
   TokenProvider,
 } from '#providers';
-import { AuthMiddleware } from '#middlewares/auth-middleware.js';
+import { GradeRepository, PasswordResetTokenRepository, UserRepository } from '#repositories';
+import { AuthService, GoogleAuthService, GradeService } from '#services';
+import {
+  asClass,
+  asValue,
+  createContainer as createAwilixContainer,
+  InjectionMode,
+  Lifetime,
+} from 'awilix';
 
 // asClass(X, { lifetime: SINGLETON }) 의 짧은 별칭
 const singleton = (Klass) => asClass(Klass, { lifetime: Lifetime.SINGLETON });
@@ -114,6 +115,8 @@ export const createContainer = () => {
     authController: singleton(AuthController),
     // Google OAuth 2경로 — /auth/google · /auth/google/callback
     googleAuthController: singleton(GoogleAuthController),
+
+    worksController: singleton(WorksController),
 
     // 개발 전용 로그인 컨트롤러 — 꺼져 있으면 **아예 등록하지 않는다**.
     //   asValue(null) 로 두면 루트 Controller 의 `if (this.#devController)` 가

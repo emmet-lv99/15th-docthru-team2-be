@@ -28,9 +28,11 @@
 //   ① repositories/index.js 에 export 한 줄
 //   ② common/di/container.js 에 singleton(WorkRepository) 등록
 //   ③ 그 리포지토리를 쓰는 service 가 주입받게 연결
+
+import { dbDateTimeToIso } from '#utils';
+
 //
 export class WorkRepository {
-  // eslint-disable-next-line no-unused-private-class-members -- 골격 스텁이라 주입 필드를 아직 메서드에서 안 써요 (구현하면 지워도 돼요)
   #db;
 
   constructor({ db }) {
@@ -39,6 +41,77 @@ export class WorkRepository {
 
   // ── 골격 (아래는 이 도메인에서 자주 쓰는 메서드 예요 — 필요한 것만 남기고 구현하세요) ──
   // getWorkDetail(...) { /* TODO */ }
+  async findWorkDetailById({ challengeId, workId, currentUserId = null }) {
+    const cId = Number(challengeId);
+    const wId = Number(workId);
+
+    // 1. 작업물 조회 (likes 카운트, feedbacks 카운트 포함)
+    const work = await this.#db.orm.public.Work.where({ id: wId })
+      .select('id', 'participantId', 'content', 'submittedAt', 'updatedAt')
+      .include('likes', (r) => r.count())
+      .include('feedbacks', (r) => r.count())
+      .first();
+
+    if (!work) return null;
+
+    // 2. 참여 정보 조회 (해당 챌린지의 작업물이 맞는지 확인)
+    const participant = await this.#db.orm.public.ChallengeParticipant.where({
+      id: work.participantId,
+    })
+      .select('id', 'userId', 'challengeId')
+      .first();
+
+    if (!participant || participant.challengeId !== cId) {
+      return null;
+    }
+
+    // 3. 작성자 및 챌린지 정보 병렬 조회
+    const [author, challenge] = await Promise.all([
+      this.#db.orm.public.User.where({ id: participant.userId })
+        .select('id', 'nickname', 'grade')
+        .first(),
+      this.#db.orm.public.Challenge.where({ id: cId })
+        .select('id', 'title', 'category', 'documentType', 'deadline', 'status')
+        .first(),
+    ]);
+
+    if (!author || !challenge) return null;
+
+    // 4. 내가 누른 하트(좋아요) 여부 확인
+    let likedByMe = false;
+    if (currentUserId) {
+      const myLike = await this.#db.orm.public.WorkLike.where({
+        workId: wId,
+        userId: Number(currentUserId),
+      })
+        .select('id')
+        .first();
+      likedByMe = Boolean(myLike);
+    }
+
+    return {
+      id: work.id,
+      content: work.content,
+      submittedAt: dbDateTimeToIso(work.submittedAt),
+      updatedAt: dbDateTimeToIso(work.updatedAt),
+      likeCount: work.likes ?? 0,
+      feedbackCount: work.feedbacks ?? 0,
+      likedByMe,
+      author: {
+        id: author.id,
+        nickname: author.nickname,
+        grade: author.grade,
+      },
+      challenge: {
+        id: challenge.id,
+        title: challenge.title,
+        category: challenge.category,
+        documentType: challenge.documentType,
+        deadline: dbDateTimeToIso(challenge.deadline),
+        status: challenge.status,
+      },
+    };
+  }
   // getMyWorkDetail(...) { /* TODO */ }
   // submitWork(...) { /* TODO */ }
   // updateWork(...) { /* TODO */ }
