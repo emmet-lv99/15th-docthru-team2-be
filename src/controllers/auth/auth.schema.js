@@ -140,6 +140,20 @@ export const updateMeSchema = z
   .meta({ description: '내 정보 수정 요청 (닉네임·비밀번호 선택)' })
   .meta({ id: 'UpdateMeRequest' });
 
+export const deleteMeSchema = z
+  .object({
+    password: z
+      .string()
+      .trim()
+      .min(1, '비밀번호를 입력해 주세요.')
+      .meta({ example: 'password1234' }),
+    withdrawalConsent: z.literal(true, {
+      error: '탈퇴 동의가 필요합니다.',
+    }),
+  })
+  .meta({ description: '회원 탈퇴 요청 — 동의 여부와 비밀번호를 최종 확인' })
+  .meta({ id: 'DeleteMeRequest' });
+
 /** POST /auth/password-reset/request — 계정 존재 여부와 무관하게 같은 안내를 돌려줘요. */
 export const passwordResetRequestSchema = z
   .object({
