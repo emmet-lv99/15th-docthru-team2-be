@@ -16,16 +16,24 @@
 //
 // 이 도메인이 하는 것 — 작업물(번역 결과물) 관리 · 좋아요 (요구 2.4 · 2.7)
 //
-// 구현 대상 API (9건 — 입력·응답 필드는 /api-docs (Swagger) · works.schema.js 참고)
-//   GET    /challenges/{challengeId}/works/{workId}  비회원 가능 · 상세 (좋아요 수 · 내 하트 여부)
-//   PUT    /challenges/{challengeId}/works/me        참여 USER · 제출 (최초 201 · 갱신 200)
-//   PATCH  /works/{workId}                            작성자·ADMIN · 수정 (마감 후 409 CHALLENGE_CLOSED)
-//   DELETE /works/{workId}                            작성자·ADMIN · 삭제 (어드민은 {reason} 필수)
-//   PUT    /works/{workId}/like                        USER · 하트 추가 (백엔드가 토글 D-83)
-//   DELETE /works/{workId}/like                        USER · 하트 취소 (204)
-//   GET    /challenges/{challengeId}/drafts/me       참여 USER · 내 임시저장 조회 (없으면 draft: null · D-98)
-//   PUT    /challenges/{challengeId}/drafts/me       참여 USER · 임시초안 저장 (신규 201 · 덮어쓰기 200 · D-98)
-//   DELETE /challenges/{challengeId}/drafts/me       참여 USER · 임시저장 삭제/버리기 (204 · D-98)
+// 구현 대상 API (9건 — 진행 순서별 정렬)
+//
+// ── 1. 작업물 조회 및 제출 (완료) ───────────────────────────
+//   [완료] GET    /challenges/{challengeId}/works/{workId}  비회원 가능 · 상세 조회
+//   [완료] PUT    /challenges/{challengeId}/works/me        참여 USER · 제출/갱신 (최초 201 · 갱신 200)
+//
+// ── 2. 작업물 생명주기: 수정 및 삭제 (진행 예정) ──────────────
+//   [대기] PATCH  /works/{workId}                            작성자·ADMIN · 수정 (마감 후 409 CHALLENGE_CLOSED)
+//   [대기] DELETE /works/{workId}                            작성자·ADMIN · 삭제 (어드민은 {reason} 필수)
+//
+// ── 3. 소셜 인터랙션: 좋아요 (하트) ─────────────────────────
+//   [대기] PUT    /works/{workId}/like                        USER · 하트 추가 (백엔드가 토글 D-83)
+//   [대기] DELETE /works/{workId}/like                        USER · 하트 취소 (204)
+//
+// ── 4. 에디터 임시저장 세트 (D-98) ──────────────────────────
+//   [대기] GET    /challenges/{challengeId}/drafts/me       참여 USER · 내 임시저장 조회 (없으면 draft: null)
+//   [대기] PUT    /challenges/{challengeId}/drafts/me       참여 USER · 임시초안 저장 (신규 201 · 덮어쓰기 200)
+//   [대기] DELETE /challenges/{challengeId}/drafts/me       참여 USER · 임시저장 삭제/버리기 (204)
 
 // ─────────────────────────────────────────────────────────
 //  연결 가이드 — 구현 시 아래 3단계를 순서대로 붙이면 돼요
