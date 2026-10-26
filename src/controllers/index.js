@@ -13,8 +13,8 @@
 //  ① controllers/<도메인>/<도메인>-controller.js 작성
 //  ② common/di/container.js 에 singleton(<도메인>Controller) 등록
 //  ③ **이 파일** 의 constructor + routes() 에 라우트 조립
-import { BaseController } from '#controllers/base-controller.js';
 import { HTTP_STATUS } from '#constants';
+import { BaseController } from '#controllers/base-controller.js';
 
 // 강사님 정본처럼 BaseController 를 #controllers barrel 로도 내보내요 —
 // `import { BaseController } from '#controllers'` 가 동작하도록.
@@ -25,13 +25,24 @@ export class Controller extends BaseController {
   #googleAuthController;
   #devController;
   #applicationsController;
+  #worksController;
+  #meController;
 
-  constructor({ authController, googleAuthController, devController, applicationsController }) {
+  constructor({
+    authController,
+    googleAuthController,
+    devController,
+    applicationsController,
+    worksController,
+    meController,
+  }) {
     super();
     this.#authController = authController;
     this.#googleAuthController = googleAuthController;
     this.#devController = devController;
     this.#applicationsController = applicationsController;
+    this.#worksController = worksController;
+    this.#meController = meController;
   }
 
   routes() {
@@ -54,9 +65,12 @@ export class Controller extends BaseController {
     //    엔드포인트(예: GET /challenges)를 별도로 호출해야 한다.
     this.router.get('/ping', (req, res) => this.ping(req, res));
 
+    // ── 마이 ────────────────────────────────────────────────
+    this.router.use('/me', this.#meController.routes());
+
     // ── 각자 구현 ────────────────────────────────────────────
     // this.router.use('/challenges', this.#challengeController.routes());
-    // this.router.use('/', this.#workController.routes());
+    this.router.use('/', this.#worksController.routes());
     // this.router.use('/admin', this.#adminController.routes());
 
     // ── 신규 챌린지 신청 관리 ─────────────────────────

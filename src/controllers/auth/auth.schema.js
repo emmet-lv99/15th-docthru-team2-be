@@ -140,6 +140,20 @@ export const updateMeSchema = z
   .meta({ description: '내 정보 수정 요청 (닉네임·비밀번호 선택)' })
   .meta({ id: 'UpdateMeRequest' });
 
+export const deleteMeSchema = z
+  .object({
+    password: z
+      .string()
+      .trim()
+      .min(1, '비밀번호를 입력해 주세요.')
+      .meta({ example: 'password1234' }),
+    withdrawalConsent: z.literal(true, {
+      error: '탈퇴 동의가 필요합니다.',
+    }),
+  })
+  .meta({ description: '회원 탈퇴 요청 — 동의 여부와 비밀번호를 최종 확인' })
+  .meta({ id: 'DeleteMeRequest' });
+
 /** POST /auth/password-reset/request — 계정 존재 여부와 무관하게 같은 안내를 돌려줘요. */
 export const passwordResetRequestSchema = z
   .object({
@@ -266,8 +280,12 @@ export const authPaths = {
       summary: '회원 탈퇴',
       description:
         '로그인 필요. 소프트 삭제 후 개인정보를 익명화하고 쿠키를 지웁니다. ' +
-        '챌린지·작업물·피드백은 보존되며, 204 를 반환합니다.',
+        '탈퇴 동의와 비밀번호를 본문으로 받습니다.',
       security: secured,
+      requestBody: {
+        required: true,
+        content: { 'application/json': { schema: deleteMeSchema } },
+      },
       responses: {
         204: { description: '탈퇴 완료' },
         ...registerCommonErrorResponses(),

@@ -4,7 +4,7 @@
 // 👤 담당: 팀원 ①(관리자 챌린지 관리 4건) · 팀원 ⑤(관리자 신청 관리 4건) — 한 파일 공동 담당
 // 📍 이 파일: src/controllers/admin/admin-controller.js → 라우트 /admin
 // 🔗 협력: ①(직접 생성·수정·삭제 → 목록 노출) · ⑤(제안 승인/거절) · ④(알림 발송)
-// 🔨 상태: 뼈대(지침서) — routes() 를 이 파일 안 "연결 가이드 ①②③" 순서대로 채워 주세요
+// 🔨 상태: 뼈대(지침서) — routes() 를 이 파일 안 "연결 가이드 STEP 1~3" 순서대로 채워 주세요
 // ══════════════════════════════════════════════════════════════
 //
 // 🧭 공동 담당 경계 — 근거: "챌린지 / 신청" 생명주기 소유자별로 묶어 작업량 균형을 맞췄어요(설명안 §2)
@@ -33,16 +33,16 @@
 // ─────────────────────────────────────────────────────────
 //  연결 가이드 — 구현 시 아래 3단계를 순서대로 붙이면 돼요
 // ─────────────────────────────────────────────────────────
-//  ① 컨트롤러 — 이 파일의 TODO 자리에 routes() 를 채워요
+//  STEP 1 · 컨트롤러 — 이 파일의 TODO 자리에 routes() 를 채워요
 //       구현 예시는 auth-controller.js 의 /auth/me 엔드포인트가 좋아요
-//  ② DI 등록 — src/common/di/container.js 의 "Controllers" 영역에 한 줄:
+//  STEP 2 · DI 등록 — src/common/di/container.js 의 "Controllers" 영역에 한 줄:
 //       adminController: singleton(AdminController),
-//  ③ 라우트 조립 — src/controllers/index.js 에 세 곳:
+//  STEP 3 · 라우트 조립 — src/controllers/index.js 에 세 곳:
 //       #adminController;                       (필드 선언)
 //       constructor 인자에 adminController 추가 → this.#adminController = adminController;
 //       this.router.use('/admin', this.#adminController.routes());
 //
-//  ⚠️ ② 를 빠뜨리면 서버 기동이 실패합니다 —
+//  ⚠️ STEP 2 를 빠뜨리면 서버 기동이 실패합니다 —
 //       AwilixResolutionError: Could not resolve 'adminController'
 //       (컨테이너가 InjectionMode.PROXY + strict 로 돌아가기 때문이에요)
 //

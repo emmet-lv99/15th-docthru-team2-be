@@ -15,6 +15,13 @@
 //
 // ★ 만들었으면 — services/index.js 에 export 한 줄 + common/di/container.js 에 singleton(ApplicationService) 등록.
 //
+function toIsoDate(value) {
+  if (value == null) {
+    return null;
+  }
+  return new Date(value).toISOString();
+}
+
 // 1 db 상대 -> api 상태 변환
 function toApplicationStatus(status) {
   if (status === 'IN_PROGRESS' || status === 'CLOSED') {
@@ -36,9 +43,9 @@ function toApplicationDto(challenge) {
     approvedChallenge = {
       id: challenge.id,
       title: challenge.title,
-      deadline: challenge.deadline,
+      deadline: toIsoDate(challenge.deadline),
       status: challenge.status,
-      deletedAt: challenge.deletedAt,
+      deletedAt: toIsoDate(challenge.deletedAt),
       deleteReason: challenge.deleteReason,
     };
   }
@@ -51,14 +58,14 @@ function toApplicationDto(challenge) {
     documentType: challenge.documentType,
     sourceUrl: challenge.sourceUrl,
     content: challenge.content,
-    desiredDeadline: challenge.deadline,
+    desiredDeadline: toIsoDate(challenge.deadline),
     maxParticipants: challenge.maxParticipants,
     status: toApplicationStatus(challenge.status),
     rejectionReason: challenge.rejectionReason,
-    decidedAt: challenge.decidedAt,
-    cancelledAt: challenge.cancelledAt,
+    decidedAt: toIsoDate(challenge.decidedAt),
+    cancelledAt: toIsoDate(challenge.cancelledAt),
     approvedChallenge,
-    createdAt: challenge.createdAt,
+    createdAt: toIsoDate(challenge.createdAt),
   };
 }
 
