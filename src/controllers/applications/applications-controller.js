@@ -4,7 +4,7 @@
 // 👤 담당: 팀원 ⑤(제안 · 승인)
 // 📍 이 파일: src/controllers/applications/applications-controller.js → 라우트 /challenge-applications
 // 🔗 협력: ③(제안 이력) · ④(상태 알림) · ⑤ 본인(admin 신청 관리와 한 세트)
-// 🔨 상태: 뼈대(지침서) — routes() 를 이 파일 안 "연결 가이드 ①②③" 순서대로 채워 주세요
+// 🔨 상태: 뼈대(지침서) — routes() 를 이 파일 안 "연결 가이드 STEP 1~3" 순서대로 채워 주세요
 // ══════════════════════════════════════════════════════════════
 //
 // 🐘 prisma-8 메모 — DB 는 repositories 에서만 부르고, 아래 v7 문법은 쓰지 않아요
@@ -24,16 +24,16 @@
 // ─────────────────────────────────────────────────────────
 //  연결 가이드 — 구현 시 아래 3단계를 순서대로 붙이면 돼요
 // ─────────────────────────────────────────────────────────
-//  ① 컨트롤러 — 이 파일의 TODO 자리에 routes() 를 채워요
+//  STEP 1 · 컨트롤러 — 이 파일의 TODO 자리에 routes() 를 채워요
 //       구현 예시는 auth-controller.js 의 /auth/me 엔드포인트가 좋아요
-//  ② DI 등록 — src/common/di/container.js 의 "Controllers" 영역에 한 줄:
+//  STEP 2 · DI 등록 — src/common/di/container.js 의 "Controllers" 영역에 한 줄:
 //       applicationsController: singleton(ApplicationsController),
-//  ③ 라우트 조립 — src/controllers/index.js 에 세 곳:
+//  STEP 3 · 라우트 조립 — src/controllers/index.js 에 세 곳:
 //       #applicationsController;                       (필드 선언)
 //       constructor 인자에 applicationsController 추가 → this.#applicationsController = applicationsController;
 //       this.router.use('/', this.#applicationsController.routes());
 //
-//  ⚠️ ② 를 빠뜨리면 서버 기동이 실패합니다 —
+//  ⚠️ STEP 2 를 빠뜨리면 서버 기동이 실패합니다 —
 //       AwilixResolutionError: Could not resolve 'applicationsController'
 //       (컨테이너가 InjectionMode.PROXY + strict 로 돌아가기 때문이에요)
 //
