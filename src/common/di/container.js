@@ -57,8 +57,8 @@ import {
 } from 'awilix';
 
 import { NotificationsController } from '#controllers/notifications/notifications-controller.js';
-import { NotificationService } from '#services/notification-service.js';
-import { NotificationRepository } from '#repositories/notification-repository.js';
+import { NotificationService } from '#services';
+import { NotificationRepository } from '#repositories';
 
 // asClass(X, { lifetime: SINGLETON }) 의 짧은 별칭
 const singleton = (Klass) => asClass(Klass, { lifetime: Lifetime.SINGLETON });
