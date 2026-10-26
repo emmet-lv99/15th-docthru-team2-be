@@ -55,15 +55,96 @@
 //  스키마는 "계약(약속) 파일"이고 — 응답이 이것과 다르면 개발 중 500 RESPONSE_CONTRACT_MISMATCH 로
 //  바로 알려줍니다. 실사용 중 구현이 계약을 어기는지 쉽게 확인할 수 있어요.
 //
+import { HTTP_STATUS } from '#constants';
 import { BaseController } from '#controllers/base-controller.js';
+import { needsLogin, validate } from '#middlewares';
+import { sendData, sendNoContent } from '#utils';
+import {
+  notificationIdParamSchema,
+  notificationListQuerySchema,
+  notificationListSchema,
+  unreadCountSchema,
+} from './notifications.schema.js';
 
 export class NotificationsController extends BaseController {
-  constructor() {
+  #notificationService;
+
+  constructor({ notificationService }) {
     super();
+    this.#notificationService = notificationService;
   }
 
   routes() {
-    // TODO: 라우트를 추가한다
+    // GET /notifications/unread-count
+    this.router.get('/notifications/unread-count', needsLogin, (req, res, next) =>
+      this.getUnreadCount(req, res, next),
+    );
+
+    // GET /notifications
+    this.router.get(
+      '/notifications',
+      needsLogin,
+      validate('query', notificationListQuerySchema),
+      (req, res, next) => this.getNotifications(req, res, next),
+    );
+
+    // PATCH /notifications/{notificationId}/read
+    this.router.patch(
+      '/notifications/:notificationId/read',
+      needsLogin,
+      validate('params', notificationIdParamSchema),
+      (req, res, next) => this.markRead(req, res, next),
+    );
+
+    //   POST  /notifications/read-all
+    this.router.post('/notifications/read-all', needsLogin, (req, res, next) =>
+      this.markAllRead(req, res, next),
+    );
+
     return this.router;
+  }
+
+  // 안 읽은 알림 개수 조회
+  async getUnreadCount(req, res, next) {
+    try {
+      const result = await this.#notificationService.countUnread(req.user.id);
+
+      sendData(res, result, HTTP_STATUS.OK, unreadCountSchema);
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  // 알림 목록 조회
+  async getNotifications(req, res, next) {
+    try {
+      const result = await this.#notificationService.listNotifications(req.user.id, req.query);
+
+      sendData(res, result, HTTP_STATUS.OK, notificationListSchema);
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  // 개별 알림 읽음 처리
+  async markRead(req, res, next) {
+    try {
+      await this.#notificationService.markRead(req.user.id, req.params.notificationId);
+
+      sendNoContent(res);
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  // 전체 알림 읽음 처리
+  async markAllRead(req, res, next) {
+    try {
+      await this.#notificationService.markAllRead(req.user.id);
+
+      sendNoContent(res);
+    } catch (error) {
+      next(error);
+    }
   }
 }
