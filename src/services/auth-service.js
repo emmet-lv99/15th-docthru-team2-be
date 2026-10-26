@@ -224,6 +224,16 @@ export class AuthService {
   }
 
   /** DELETE /auth/me — 소프트 삭제 + 익명화. 챌린지·작업물·피드백은 보존해요. */
+  async validatePassword(userId, password) {
+    const user = await this.#userRepository.findPasswordHashById(userId);
+    if (!user?.passwordHash) {
+      return null;
+    }
+
+    const matched = await this.#passwordProvider.compare(password, user.passwordHash);
+    return matched ? user : null;
+  }
+
   async deleteMe(userId) {
     const deleted = await this.#userRepository.softDeleteUser(userId);
     if (!deleted) {
