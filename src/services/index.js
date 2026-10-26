@@ -5,3 +5,4 @@
 export { AuthService } from './auth-service.js';
 export { GradeService } from './grade-service.js';
 export { GoogleAuthService } from './google-auth-service.js';
+export { MeService } from './me-service.js';

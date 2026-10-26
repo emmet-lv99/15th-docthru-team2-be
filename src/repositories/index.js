@@ -5,3 +5,4 @@
 export { UserRepository } from './user-repository.js';
 export { GradeRepository } from './grade-repository.js';
 export { PasswordResetTokenRepository } from './password-reset-token-repository.js';
+export { MeRepository } from './me-repository.js';
