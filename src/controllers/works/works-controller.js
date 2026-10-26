@@ -98,6 +98,20 @@ export class WorksController extends BaseController {
       (req, res, next) => this.submitMyWork(req, res, next),
     );
 
+    this.router.put(
+      '/works/:workId/like',
+      needsLogin,
+      validate('params', workIdParamSchema),
+      (req, res, next) => this.likeWork(req, res, next),
+    );
+
+    this.router.delete(
+      '/works/:workId/like',
+      needsLogin,
+      validate('params', workIdParamSchema),
+      (req, res, next) => this.unlikeWork(req, res, next),
+    );
+
     return this.router;
   }
 
@@ -133,6 +147,31 @@ export class WorksController extends BaseController {
       const statusCode = isNew ? HTTP_STATUS.CREATED : HTTP_STATUS.OK;
 
       res.status(statusCode).json({ work, isNew });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async likeWork(req, res, next) {
+    try {
+      const { workId } = req.params;
+      const userId = req.user.id;
+
+      const result = await this.#workService.likeWork({ workId, userId });
+
+      res.status(HTTP_STATUS.OK).json(result);
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async unlikeWork(req, res, next) {
+    try {
+      const { workId } = req.params;
+      const userId = req.user.id;
+      await this.#workService.unlikeWork({ workId, userId });
+
+      res.status(HTTP_STATUS.NO_CONTENT).send();
     } catch (error) {
       next(error);
     }

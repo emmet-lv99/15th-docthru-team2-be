@@ -24,6 +24,7 @@
 //   · 에러    중복키 err.sqlState === '23505' → 서비스가 409 · 없음은 null 반환 → 서비스가 404
 //   · 시간    DateTime 은 문자열로 돌아와요 — #utils 의 dbDateTimeToIso 를 재사용하세요
 //
+import { DB_ERROR } from '#constants';
 import { dbDateTimeToIso } from '#utils';
 
 // ★ 만들었으면 아래 3가지를 잊지 마세요 —
@@ -177,12 +178,50 @@ export class WorkRepository {
     };
   }
 
+  /** 작업물 존재 여부 확인 */
+  async existingWork(workId) {
+    const row = await this.#db.orm.public.Work.where({ id: Number(workId) })
+      .select('id')
+      .first();
+    return Boolean(row);
+  }
+
+  /** 하트(좋아요) 누르기 (중복 요청은 멱등하게 200 반환 · D-83) */
+  async likeWork({ workId, userId }) {
+    const wId = Number(workId);
+    const uId = Number(userId);
+
+    try {
+      await this.#db.orm.public.WorkLike.select('id').create({ workId: wId, userId: uId });
+    } catch (error) {
+      if (error?.sqlState !== DB_ERROR.UNIQUE_VIOLATION) {
+        throw error;
+      }
+    }
+
+    const countRow = await this.#db.orm.public.WorkLike.where({ workId: wId }).aggregate((a) => ({
+      total: a.count(),
+    }));
+
+    return {
+      workId: wId,
+      likedByMe: true,
+      likeCount: countRow.total ?? 0,
+    };
+  }
+
+  /** 하트(좋아요) 취소 */
+  async unlikeWork({ workId, userId }) {
+    await this.#db.orm.public.WorkLike.where({
+      workId: Number(workId),
+      userId: Number(userId),
+    }).deleteAll();
+  }
+
   // getMyWorkDetail(...) { /* TODO */ }
   // submitWork(...) { /* TODO */ }
   // updateWork(...) { /* TODO */ }
   // deleteWork(...) { /* TODO */ }
-  // likeWork(...) { /* TODO */ }
-  // unlikeWork(...) { /* TODO */ }
   // saveDraft(...) { /* TODO */ }
   // getDraft(...) { /* TODO */ }
   // deleteDraft(...) { /* TODO */ }
