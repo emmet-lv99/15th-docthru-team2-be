@@ -82,10 +82,30 @@ export class WorkService {
       content,
     });
   }
+
+  /** 하트(좋아요) 누르기 */
+  async likeWork({ workId, userId }) {
+    // 1. 작업물 존재 확인 (없으면 404)
+    const exists = await this.#workRepository.existingWork(workId);
+
+    if (!exists) {
+      throw new NotFoundException(ERROR_MESSAGE.WORK_NOT_FOUND);
+    }
+    return this.#workRepository.likeWork({ workId, userId });
+  }
+
+  /** 하트(좋아요) 취소 */
+  async unlikeWork({ workId, userId }) {
+    const exists = await this.#workRepository.existingWork(workId);
+
+    if (!exists) {
+      throw new NotFoundException(ERROR_MESSAGE.WORK_NOT_FOUND);
+    }
+
+    await this.#workRepository.unlikeWork({ workId, userId });
+  }
   // updateWork(...) { /* TODO */ }
   // deleteWork(...) { /* TODO */ }
-  // likeWork(...) { /* TODO */ }
-  // unlikeWork(...) { /* TODO */ }
   // saveDraft(...) { /* TODO */ }
   // getDraft(...) { /* TODO */ }
   // deleteDraft(...) { /* TODO */ }
