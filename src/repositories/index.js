@@ -4,3 +4,5 @@
 //   DI 컨테이너(common/di/container.js) 에도 등록하는 것을 잊지 마세요.
 export { UserRepository } from './user-repository.js';
 export { GradeRepository } from './grade-repository.js';
+export { PasswordResetTokenRepository } from './password-reset-token-repository.js';
+export { MeRepository } from './me-repository.js';

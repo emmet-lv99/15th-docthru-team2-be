@@ -36,6 +36,7 @@ export class UserRepository {
 
   async findById(userId) {
     const row = await this.#db.orm.public.User.where({ id: Number(userId) })
+      .where((u) => u.deletedAt.isNull())
       .select('id', 'email', 'nickname', 'role', 'grade', 'createdAt')
       .first();
 
@@ -46,7 +47,8 @@ export class UserRepository {
       this.#db.orm.public.ChallengeParticipant.where({ userId }).aggregate((a) => ({
         total: a.count(),
       })),
-      this.#db.orm.public.ChallengeApplication.where({ userId }).aggregate((a) => ({
+      // 신청은 challenges 행으로 합쳐졌어요 — 내가 만든 챌린지(신청 포함)를 셉니다.
+      this.#db.orm.public.Challenge.where({ createdById: userId }).aggregate((a) => ({
         total: a.count(),
       })),
       this.#db.orm.public.Feedback.where({ userId }).aggregate((a) => ({ total: a.count() })),
@@ -70,54 +72,176 @@ export class UserRepository {
 
   findByEmail(email) {
     return this.#db.orm.public.User.where({ email })
-      .select('id', 'email', 'nickname', 'passwordHash', 'role', 'grade')
+      .where((u) => u.deletedAt.isNull())
+      .select('id', 'email', 'nickname', 'passwordHash', 'role', 'grade', 'tokenVersion')
       .first();
   }
 
   findByNickname(nickname) {
-    return this.#db.orm.public.User.where({ nickname }).select('id', 'nickname').first();
-  }
-
-  // ── OAuth 연결 (Google) ────────────────────────────────────
-  /**
-   * (provider, providerAccountId) 로 연결된 계정을 찾아요.
-   *   OAuthAccount → User 를 include 로 한 번에 당겨 옵니다.
-   *   연결이 없으면 null 이에요 (에러 아님) — 그러면 서비스가 이메일로 이어 붙일지 판단해요.
-   */
-  findUserByOAuthAccount(provider, providerAccountId) {
-    return this.#db.orm.public.OAuthAccount.where({ provider, providerAccountId })
-      .select('id', 'userId')
-      .include('user', (user) => user.select('id', 'email', 'nickname', 'role', 'grade'))
+    return this.#db.orm.public.User.where({ nickname })
+      .where((u) => u.deletedAt.isNull())
+      .select('id', 'nickname')
       .first();
   }
 
   /**
-   * 새 사용자 + OAuth 연결을 **한 트랜잭션**으로 만들어요.
-   *   · 비밀번호가 없는 소셜 전용 계정이라 passwordHash 는 비워 둡니다 (nullable).
-   *   · 사용자만 만들어지고 연결이 빠지는 반쪽 상태를 막으려고 트랜잭션을 써요.
+   * 인증 미들웨어·내 정보 수정 전용 — 매 요청마다 필요한 컬럼만 읽어요.
+   *   findById 는 활동 집계 3회를 더 하므로 요청마다 쓰면 비싸요.
+   *   deletedAt 이 채워졌거나 tokenVersion 이 토큰과 다르면 null 이에요.
    */
-  createWithOAuthAccount({ email, nickname, provider, providerAccountId }) {
+  findActiveAuthUserById(userId) {
+    return this.#db.orm.public.User.where({ id: Number(userId) })
+      .where((u) => u.deletedAt.isNull())
+      .select('id', 'nickname', 'role', 'tokenVersion')
+      .first();
+  }
+
+  /** 로컬(이메일) 가입 — passwordHash 가 있는 계정을 만들어요. */
+  createLocal({ email, nickname, passwordHash }) {
+    return this.#db.orm.public.User.select(
+      'id',
+      'email',
+      'nickname',
+      'role',
+      'grade',
+      'tokenVersion',
+    ).create({ email, nickname, passwordHash });
+  }
+
+  /**
+   * 내 정보 수정 — 비밀번호를 바꾸면 tokenVersion 을 1 올려 기존 토큰을 무효화해요.
+   *   같은 트랜잭션에서 현재 버전을 읽어 +1 하므로 동시 수정에도 값이 사라지지 않아요.
+   */
+  updateProfile({ userId, nickname, passwordHash, bumpTokenVersion = false }) {
     return this.#db.transaction(async (tx) => {
-      const user = await tx.orm.public.User.select(
-        'id',
-        'email',
-        'nickname',
-        'role',
-        'grade',
-      ).create({ email, nickname });
+      const current = await tx.orm.public.User.where({ id: Number(userId) })
+        .where((u) => u.deletedAt.isNull())
+        .select('tokenVersion')
+        .first();
 
-      await tx.orm.public.OAuthAccount.create({
-        userId: user.id,
-        provider,
-        providerAccountId,
-      });
+      if (!current) return null;
 
-      return user;
+      const data = {};
+      if (nickname !== undefined) data.nickname = nickname;
+      if (passwordHash !== undefined) data.passwordHash = passwordHash;
+      if (bumpTokenVersion) data.tokenVersion = Number(current.tokenVersion ?? 0) + 1;
+
+      return tx.orm.public.User.where({ id: Number(userId) })
+        .select('id', 'email', 'nickname', 'role', 'grade', 'tokenVersion')
+        .update(data);
     });
   }
 
-  /** 기존 이메일 계정에 Google 연결만 추가해요. */
+  /**
+   * 탈퇴 — 소프트 삭제 + 개인정보 익명화 + 세션·재설정 토큰 무효화.
+   *   email·nickname 은 UNIQUE·NOT NULL 이라 NULL 대신 고유한 익명 값으로 바꿔요.
+   *   챌린지·작업물·피드백 행은 그대로 보존됩니다.
+   */
+  softDeleteUser(userId) {
+    return this.#db.transaction(async (tx) => {
+      const id = Number(userId);
+      const current = await tx.orm.public.User.where({ id })
+        .where((u) => u.deletedAt.isNull())
+        .select('tokenVersion')
+        .first();
+
+      if (!current) return null;
+
+      const now = new Date();
+      const deleted = await tx.orm.public.User.where({ id })
+        .select('id', 'email', 'nickname', 'deletedAt', 'tokenVersion')
+        .update({
+          email: `deleted-${id}@deleted.invalid`,
+          nickname: `탈퇴한 사용자 ${id}`,
+          passwordHash: null,
+          provider: null,
+          providerAccountId: null,
+          deletedAt: now,
+          tokenVersion: Number(current.tokenVersion ?? 0) + 1,
+        });
+
+      await tx.orm.public.PasswordResetToken.where((t) => t.userId.eq(id))
+        .where((t) => t.usedAt.isNull())
+        .updateAll({ usedAt: now });
+
+      return deleted;
+    });
+  }
+
+  /**
+   * 비밀번호 재설정 확정 — 비밀번호 교체 + 토큰 1회 사용 처리 + 나머지 토큰 폐기.
+   *   한 트랜잭션이라 "비밀번호는 바뀌었는데 토큰은 안 닫힘" 같은 중간 상태가 없어요.
+   */
+  resetPassword({ userId, passwordHash, tokenId }) {
+    return this.#db.transaction(async (tx) => {
+      const id = Number(userId);
+      const current = await tx.orm.public.User.where({ id })
+        .where((u) => u.deletedAt.isNull())
+        .select('tokenVersion')
+        .first();
+
+      if (!current) return null;
+
+      const now = new Date();
+      const updated = await tx.orm.public.User.where({ id })
+        .select('id', 'email', 'nickname', 'role', 'grade', 'tokenVersion')
+        .update({
+          passwordHash,
+          tokenVersion: Number(current.tokenVersion ?? 0) + 1,
+        });
+
+      await tx.orm.public.PasswordResetToken.where({ id: Number(tokenId) }).update({
+        usedAt: now,
+      });
+      await tx.orm.public.PasswordResetToken.where((t) => t.userId.eq(id))
+        .where((t) => t.usedAt.isNull())
+        .updateAll({ usedAt: now });
+
+      return updated;
+    });
+  }
+
+  // ── OAuth 연결 (Google) ────────────────────────────────────
+  /**
+   * (provider, providerAccountId) 로 연결된 사용자를 찾아요.
+   *   Google 계정 정보는 users 행에 함께 저장되어 있어 조인이 필요 없습니다.
+   *   연결이 없으면 null 이에요 (에러 아님) — 그러면 서비스가 이메일로 이어 붙일지 판단해요.
+   */
+  findUserByOAuthAccount(provider, providerAccountId) {
+    return this.#db.orm.public.User.where({ provider, providerAccountId })
+      .where((u) => u.deletedAt.isNull())
+      .select('id', 'email', 'nickname', 'role', 'grade', 'tokenVersion')
+      .first();
+  }
+
+  /**
+   * 새 사용자 + Google 연결을 한 번에 만들어요.
+   *   · 비밀번호가 없는 소셜 전용 계정이라 passwordHash 는 비워 둡니다 (nullable).
+   *   · users 한 행에 provider 정보가 함께 들어가므로 트랜잭션이 필요 없어요.
+   */
+  createWithOAuthAccount({ email, nickname, provider, providerAccountId }) {
+    return this.#db.orm.public.User.select(
+      'id',
+      'email',
+      'nickname',
+      'role',
+      'grade',
+      'tokenVersion',
+    ).create({
+      email,
+      nickname,
+      provider,
+      providerAccountId,
+    });
+  }
+
+  /** 기존 이메일 계정에 Google 연결만 추가해요. 탈퇴 계정에는 연결하지 않습니다. */
   linkOAuthAccount({ userId, provider, providerAccountId }) {
-    return this.#db.orm.public.OAuthAccount.create({ userId, provider, providerAccountId });
+    return this.#db.orm.public.User.where({ id: Number(userId) })
+      .where((u) => u.deletedAt.isNull())
+      .update({
+        provider,
+        providerAccountId,
+      });
   }
 }

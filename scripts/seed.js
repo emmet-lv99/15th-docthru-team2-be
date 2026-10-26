@@ -21,7 +21,6 @@ const SEED_DIR = path.resolve(__dirname, '../seed');
 const readJson = async (name) => JSON.parse(await fs.readFile(path.join(SEED_DIR, name), 'utf8'));
 
 // 과거 시드의 상태 값을 현재 enum으로 매핑
-const APPLICATION_STATUS = { Waiting: 'PENDING', Accepted: 'APPROVED', Rejected: 'REJECTED' };
 const GRADE = { basic: 'NORMAL', pro: 'EXPERT' };
 const ROLE = { admin: 'ADMIN', user: 'USER' };
 
@@ -44,8 +43,6 @@ const DEV_ACCOUNT = { email: 'dev@example.com', nickname: '개발계정', role: 
 /** 시퀀스를 다시 맞출 테이블 (id 를 명시해 넣은 뒤 필요) */
 const SEQ_TABLES = [
   'users',
-  'oauth_accounts',
-  'challenge_applications',
   'challenges',
   'challenge_participants',
   'works',
@@ -82,7 +79,6 @@ const main = async () => {
   const likes = await readJson('likes.json');
   const participates = await readJson('participates.json');
   const feedbacks = await readJson('feedbacks.json');
-  const applications = await readJson('applications.json');
 
   console.log(`  대상 DB: ${process.env.DATABASE_URL.replace(/:[^:@/]*@/, ':***@')}`);
 
@@ -94,10 +90,8 @@ const main = async () => {
   await db.orm.public.WorkLike.select('id').deleteAll();
   await db.orm.public.Notification.select('id').deleteAll();
   await db.orm.public.ChallengeParticipant.select('id').deleteAll();
-  await db.orm.public.ChallengeApplication.select('id').deleteAll();
   await db.orm.public.Work.select('id').deleteAll();
   await db.orm.public.Challenge.select('id').deleteAll();
-  await db.orm.public.OAuthAccount.select('id').deleteAll();
   await db.orm.public.User.select('id').deleteAll();
 
   // ── users ──
@@ -180,15 +174,25 @@ const main = async () => {
   //      D-49로 1:N을 허용했으므로 전량(51건) 저장한다.
   //      근거: 시드데이터/시드 데이터.md "1~2개의 번역 작업물" + 실측 17쌍
   const worksData = [];
+  const draftsByParticipant = new Map();
   const orphanWorks = [];
-  let draftIncluded = 0;
   for (const w of works) {
     const participantId = participantByUserChallenge.get(`${w.userId}:${w.challengeId}`);
     if (participantId === undefined) {
       orphanWorks.push(w);
       continue;
     }
-    if (!w.isSubmitted) draftIncluded += 1;
+
+    // 제출 전 작업은 Work 가 아니라 참여자 행의 임시저장 필드에 넣어요.
+    if (!w.isSubmitted) {
+      draftsByParticipant.set(participantId, {
+        draftContent: w.description,
+        draftCreatedAt: w.lastModifiedAt ? new Date(w.lastModifiedAt) : new Date(),
+        draftUpdatedAt: w.lastModifiedAt ? new Date(w.lastModifiedAt) : new Date(),
+      });
+      continue;
+    }
+
     worksData.push({
       id: w.id,
       participantId,
@@ -199,14 +203,18 @@ const main = async () => {
     });
   }
   await db.orm.public.Work.createAll(worksData);
-  console.log(`  works           ${worksData.length}건 (draft ${draftIncluded}건 포함 — D-49 1:N)`);
+  for (const [participantId, draft] of draftsByParticipant) {
+    await db.orm.public.ChallengeParticipant.where({ id: participantId }).update(draft);
+  }
+  console.log(
+    `  works           ${worksData.length}건 (제출) · drafts ${draftsByParticipant.size}건 (참여자 행)`,
+  );
   if (orphanWorks.length) {
     console.log(`    ⚠️ 참가 기록 없는 works 제외: ${orphanWorks.map((w) => w.id).join(', ')}`);
   }
 
   // ── likes ──
-  // D-49로 draft 도 저장되므로 하트/피드백은 전량 저장된다.
-  // (참가 기록이 없는 works 만 제외되므로 FK 가 깨지지 않는다)
+  // draft 는 이제 Work 가 아니라 참여자 행에 있으므로, 제출된 Work 에 달린 것만 저장해요.
   const insertedWorkIds = new Set(worksData.map((w) => w.id));
   const likesData = likes
     .filter((l) => insertedWorkIds.has(l.workId))
@@ -229,38 +237,8 @@ const main = async () => {
   console.log(`  feedbacks       ${feedbacksData.length}건`);
 
   // ── applications ──
-  // ⚠️ 스키마는 신청자가 제안하는 챌린지 정보(title·category·documentType·sourceUrl·
-  //    desiredDeadline·maxParticipants)를 필수로 요구한다. 과거 시드는
-  //    (userId, challengeId, status, reason) 만 갖고 있어 값이 없다.
-  //    아래 값은 시드의 challengeId 로 실제 챌린지를 참조해 채운다 (A7에서 정식 보강 예정).
-  const challengeById = new Map(challenges.map((c) => [c.id, c]));
-  let fallbackUsed = 0;
-
-  const applicationsData = applications.map((a) => {
-    const c = challengeById.get(a.challengeId);
-    if (!c) fallbackUsed += 1;
-    return {
-      id: a.id,
-      userId: a.userId,
-      title: c?.title ?? `신청 ${a.id}`,
-      category: (c && CATEGORY_MAP[c.field]) || 'API',
-      documentType: (c && DOCUMENT_TYPE_MAP[c.docType]) || 'OTHER',
-      sourceUrl: c?.docUrl ?? 'https://example.com',
-      content: null,
-      desiredDeadline: c ? new Date(c.deadLine) : new Date(),
-      maxParticipants: c?.maxParticipants ?? 5,
-      status: APPLICATION_STATUS[a.status] ?? 'PENDING',
-      rejectionReason: a.invalidationComment ?? null,
-      decidedAt: a.invalidatedAt ? new Date(a.invalidatedAt) : null,
-      createdAt: new Date(a.appliedAt),
-      updatedAt: new Date(a.appliedAt),
-    };
-  });
-  await db.orm.public.ChallengeApplication.createAll(applicationsData);
-  console.log(`  applications    ${applicationsData.length}건`);
-  if (fallbackUsed) {
-    console.log(`    ⚠️ 참조 챌린지 없어 기본값 사용 ${fallbackUsed}건`);
-  }
+  // 7테이블에서는 신청이 challenges 행(status=PENDING 등)으로 합쳐져요.
+  // 이 시드는 승인된 챌린지만 넣으므로 PENDING 신청은 별도로 만들지 않습니다.
 
   // ── 검증 ──
   const counts = {
@@ -270,7 +248,6 @@ const main = async () => {
     likes: await countRows(db.orm.public.WorkLike),
     participants: await countRows(db.orm.public.ChallengeParticipant),
     feedbacks: await countRows(db.orm.public.Feedback),
-    applications: await countRows(db.orm.public.ChallengeApplication),
   };
   console.log('\n  DB 반영 확인:', JSON.stringify(counts));
 
@@ -280,7 +257,7 @@ const main = async () => {
   //    "Unique constraint failed on users_pkey" 로 실패한다 (signup 500).
   //    각 테이블의 시퀀스를 max(id) 로 맞춰 준다.
   await resetSequences(SEQ_TABLES);
-  console.log('  ✅ 시퀀스 정렬 완료 (8개 테이블)');
+  console.log('  ✅ 시퀀스 정렬 완료 (6개 테이블)');
 
   // ── 개발 계정 (시퀀스 정렬 후) ───────────────────────
   await db.orm.public.User.create({
