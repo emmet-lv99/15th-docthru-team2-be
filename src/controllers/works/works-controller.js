@@ -4,7 +4,7 @@
 // 👤 담당: 팀원 ②(작업물 · 임시저장) — 제출·수정·삭제·하트 + drafts 3건(D-98)
 // 📍 이 파일: src/controllers/works/works-controller.js → 라우트 /works · /challenges/{challengeId}/works
 // 🔗 협력: ①(도전·포기) · ④(피드백 — 작업물 상세 화면에서 경계 협력)
-// 🔨 상태: 구현 진행 중 — 1·2단계 완료 (4/9건), 다음: 3. 에디터 임시저장 세트 (D-98)
+// 🔨 상태: 구현 진행 중 — 1·2·3단계 완료 (7/9건), 다음: 4. 콘텐츠 관리: 수정 및 어드민 삭제
 // ══════════════════════════════════════════════════════════════
 //
 // 🐘 prisma-8 메모 — DB 는 repositories 에서만 부르고, 아래 v7 문법은 쓰지 않아요
@@ -26,12 +26,12 @@
 //   [완료] PUT    /works/{workId}/like                        USER · 하트 추가 (200 · likeCount 반환)
 //   [완료] DELETE /works/{workId}/like                        USER · 하트 취소 (204 No Content)
 //
-// ── 3. 에디터 임시저장 세트 (D-98) (다음 진행) ───────────────
-//   [대기] GET    /challenges/{challengeId}/drafts/me       참여 USER · 내 임시저장 조회 (없으면 draft: null)
-//   [대기] PUT    /challenges/{challengeId}/drafts/me       참여 USER · 임시초안 저장 (신규 201 · 덮어쓰기 200)
-//   [대기] DELETE /challenges/{challengeId}/drafts/me       참여 USER · 임시저장 삭제/버리기 (204)
+// ── 3. 에디터 임시저장 세트 (D-98) (완료) ───────────────────
+//   [완료] GET    /challenges/{challengeId}/drafts/me       참여 USER · 내 임시저장 조회 (없으면 draft: null)
+//   [완료] PUT    /challenges/{challengeId}/drafts/me       참여 USER · 임시초안 저장 (신규 201 · 덮어쓰기 200)
+//   [완료] DELETE /challenges/{challengeId}/drafts/me       참여 USER · 임시저장 삭제/버리기 (204)
 //
-// ── 4. 콘텐츠 관리: 수정 및 어드민 삭제 ───────────────────────
+// ── 4. 콘텐츠 관리: 수정 및 어드민 삭제 (다음 진행) ───────────
 //   [대기] PATCH  /works/{workId}                            작성자·ADMIN · 수정 (마감 후 409 CHALLENGE_CLOSED)
 //   [대기] DELETE /works/{workId}                            작성자·ADMIN · 삭제 (어드민은 {reason} 필수)
 
