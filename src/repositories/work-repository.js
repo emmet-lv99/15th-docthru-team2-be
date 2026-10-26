@@ -24,14 +24,12 @@
 //   · 에러    중복키 err.sqlState === '23505' → 서비스가 409 · 없음은 null 반환 → 서비스가 404
 //   · 시간    DateTime 은 문자열로 돌아와요 — #utils 의 dbDateTimeToIso 를 재사용하세요
 //
-// ★ 만들었으면 3단계를 잊지 마세요 —
-//   ① repositories/index.js 에 export 한 줄
-//   ② common/di/container.js 에 singleton(WorkRepository) 등록
-//   ③ 그 리포지토리를 쓰는 service 가 주입받게 연결
-
 import { dbDateTimeToIso } from '#utils';
 
-//
+// ★ 만들었으면 아래 3가지를 잊지 마세요 —
+//   STEP 1 · repositories/index.js 에 export 한 줄
+//   STEP 2 · common/di/container.js 에 singleton(WorkRepository) 등록
+//   STEP 3 · 그 리포지토리를 쓰는 service 가 주입받게 연결
 export class WorkRepository {
   #db;
 

@@ -24,6 +24,8 @@ import { Controller } from '#controllers';
 import { AuthController } from '#controllers/auth/auth-controller.js';
 import { GoogleAuthController } from '#controllers/auth/google-controller.js';
 import { DevController } from '#controllers/dev/dev-controller.js';
+
+import { MeController } from '#controllers/me/me-controller.js';
 import { WorksController } from '#controllers/works/works-controller.js';
 import { AuthMiddleware } from '#middlewares/auth-middleware.js';
 import { db } from '#prisma/db.js';
@@ -37,11 +39,15 @@ import {
 } from '#providers';
 import {
   GradeRepository,
+  MeRepository,
   PasswordResetTokenRepository,
   UserRepository,
-  WorkRepository,
 } from '#repositories';
-import { AuthService, GoogleAuthService, GradeService, WorkService } from '#services';
+
+import { AuthService, GoogleAuthService, GradeService, MeService } from '#services';
+
+import { WorkRepository } from '#repositories';
+import { WorkService } from '#services';
 import {
   asClass,
   asValue,
@@ -105,6 +111,7 @@ export const createContainer = () => {
     // 로그인 자동 승급(담당 ③)이 함께 쓴다.
     gradeRepository: singleton(GradeRepository),
     workRepository: singleton(WorkRepository),
+    meRepository: singleton(MeRepository),
 
     // ── Services ─────────────────────────────────────────────
     authService: singleton(AuthService),
@@ -113,6 +120,7 @@ export const createContainer = () => {
     // 등급 진행도 · 자동 승급 — 공용 인프라 (getProgress=뼈대, evaluate=③이 로그인에서 호출)
     gradeService: singleton(GradeService),
     workService: singleton(WorkService),
+    meService: singleton(MeService),
 
     // ── Middlewares ──────────────────────────────────────────
     // 전역 1개. 인증을 "강제"하지 않고 req.user 만 채운다.
@@ -122,6 +130,7 @@ export const createContainer = () => {
     authController: singleton(AuthController),
     // Google OAuth 2경로 — /auth/google · /auth/google/callback
     googleAuthController: singleton(GoogleAuthController),
+    meController: singleton(MeController),
 
     worksController: singleton(WorksController),
 

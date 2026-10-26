@@ -25,13 +25,21 @@ export class Controller extends BaseController {
   #googleAuthController;
   #devController;
   #worksController;
+  #meController;
 
-  constructor({ authController, googleAuthController, devController, worksController }) {
+  constructor({
+    authController,
+    googleAuthController,
+    devController,
+    worksController,
+    meController,
+  }) {
     super();
     this.#authController = authController;
     this.#googleAuthController = googleAuthController;
     this.#devController = devController;
     this.#worksController = worksController;
+    this.#meController = meController;
   }
 
   routes() {
@@ -53,6 +61,9 @@ export class Controller extends BaseController {
     // ⚠️ DB 를 조회하지 않는다. keep-alive 용으로 쓰려면 인증이 필요한
     //    엔드포인트(예: GET /challenges)를 별도로 호출해야 한다.
     this.router.get('/ping', (req, res) => this.ping(req, res));
+
+    // ── 마이 ────────────────────────────────────────────────
+    this.router.use('/me', this.#meController.routes());
 
     // ── 각자 구현 ────────────────────────────────────────────
     // this.router.use('/challenges', this.#challengeController.routes());
