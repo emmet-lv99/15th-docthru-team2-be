@@ -15,6 +15,54 @@
 //
 // ★ 만들었으면 — services/index.js 에 export 한 줄 + common/di/container.js 에 singleton(ApplicationService) 등록.
 //
+// 1 db 상대 -> api 상태 변환
+function toApplicationStatus(status) {
+  if (status === 'IN_PROGRESS' || status === 'CLOSED') {
+    return 'APPROVED';
+  }
+  return status;
+}
+
+// 2. db신성처 -> api 응답 데이터 변환
+
+function toApplicationDto(challenge) {
+  // 승인된 상태인지 확인한다.
+  const isApproved = challenge.status === 'IN_PROGRESS' || challenge.status === 'CLOSED';
+
+  let approvedChallenge = null;
+
+  // 승인된 경우에만 챌린지 정보를 만든다.
+  if (isApproved) {
+    approvedChallenge = {
+      id: challenge.id,
+      title: challenge.title,
+      deadline: challenge.deadline,
+      status: challenge.status,
+      deletedAt: challenge.deletedAt,
+      deleteReason: challenge.deleteReason,
+    };
+  }
+
+  // DB 데이터를 신청서 API 응답 형식으로 변환한다.
+  return {
+    applicationId: challenge.id,
+    title: challenge.title,
+    category: challenge.category,
+    documentType: challenge.documentType,
+    sourceUrl: challenge.sourceUrl,
+    content: challenge.content,
+    desiredDeadline: challenge.deadline,
+    maxParticipants: challenge.maxParticipants,
+    status: toApplicationStatus(challenge.status),
+    rejectionReason: challenge.rejectionReason,
+    decidedAt: challenge.decidedAt,
+    cancelledAt: challenge.cancelledAt,
+    approvedChallenge,
+    createdAt: challenge.createdAt,
+  };
+}
+
+// 3. 기존 서비스 클래스는 그대로 유지
 export class ApplicationService {
   #applicationRepository;
 
@@ -22,9 +70,19 @@ export class ApplicationService {
     this.#applicationRepository = applicationRepository;
   }
 
-  // 로그인한 사용자의 신청 목록 조회
+  // 로그인한 사용자가 신청한 챌린지 목록을 가져와 API 형식으로 변환한다.
   async listMyApplications(userId, query) {
-    return this.#applicationRepository.listMyApplications(userId, query);
+    // Repository가 DB에서 조회한 목록과 페이지 정보를 가져온다.
+    const result = await this.#applicationRepository.listMyApplications(userId, query);
+
+    // DB 데이터 한 건씩 API 응답 형식으로 변환한다.
+    const items = result.items.map((challenge) => toApplicationDto(challenge));
+
+    // 변환한 목록과 페이지 정보를 함께 반환한다.
+    return {
+      ...result,
+      items,
+    };
   }
 
   // ── 골격 (아래는 이 도메인에서 자주 쓰는 메서드 예요 — 필요한 것만 남기고 구현하세요) ──
