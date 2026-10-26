@@ -52,21 +52,46 @@
 //  각 도메인 스키마의 *Paths는 src/docs/openapi.js가 한데 모아 OpenAPI를 만듭니다.
 //  스키마 파일은 수정하지 말고, 컨트롤러만 구현하면 됩니다.
 //  스키마는 "계약(약속) 파일"이고 — 응답이 이것과 다르면 개발 중 500 RESPONSE_CONTRACT_MISMATCH 로
-//  바로 알려줍니다. 실사용 중 구현이 계약을 어기는지 쉽게 확인할 수 있어요.
-//
+//  바로 알려줍import { BaseController } from '#controllers/base-controller.js';
+
 import { BaseController } from '#controllers/base-controller.js';
-import { needsLogin } from '#middlewares';
+import { needsLogin, validate } from '#middlewares';
 import { HTTP_STATUS } from '#constants';
+import { sendData } from '#utils';
+
+import { applicationListQuerySchema, applicationListSchema } from './applications.schema.js';
 
 export class ApplicationsController extends BaseController {
-  constructor() {
+  #applicationService;
+
+  constructor({ applicationService }) {
     super();
-    this.#applicationService = ApplicationService;
+    this.#applicationService = applicationService;
   }
 
+  // 내가 신청한 챌린지 목록 조회 API 등록
   routes() {
-    this.router.get('/me', needsLogin, (req, res, next) => this.getMyApplications(req, res, next));
-    // TODO: 라우트를 추가한다
+    this.router.get(
+      '/me',
+      needsLogin,
+      validate('query', applicationListQuerySchema),
+      (req, res, next) => this.getMyApplications(req, res, next),
+    );
+
     return this.router;
+  }
+
+  // 내가 신청한 챌린지 목록 조회
+  async getMyApplications(req, res, next) {
+    try {
+      const userId = req.user.id;
+      const query = req.query;
+
+      const result = await this.#applicationService.listMyApplications(userId, query);
+
+      sendData(res, result, HTTP_STATUS.OK, applicationListSchema);
+    } catch (error) {
+      next(error);
+    }
   }
 }

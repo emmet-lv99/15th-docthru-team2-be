@@ -72,13 +72,10 @@ export class ApplicationService {
 
   // 로그인한 사용자가 신청한 챌린지 목록을 가져와 API 형식으로 변환한다.
   async listMyApplications(userId, query) {
-    // Repository가 DB에서 조회한 목록과 페이지 정보를 가져온다.
     const result = await this.#applicationRepository.listMyApplications(userId, query);
 
-    // DB 데이터 한 건씩 API 응답 형식으로 변환한다.
     const items = result.items.map((challenge) => toApplicationDto(challenge));
 
-    // 변환한 목록과 페이지 정보를 함께 반환한다.
     return {
       ...result,
       items,

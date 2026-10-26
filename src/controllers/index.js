@@ -24,12 +24,14 @@ export class Controller extends BaseController {
   #authController;
   #googleAuthController;
   #devController;
+  #applicationsController;
 
-  constructor({ authController, googleAuthController, devController }) {
+  constructor({ authController, googleAuthController, devController, applicationsController }) {
     super();
     this.#authController = authController;
     this.#googleAuthController = googleAuthController;
     this.#devController = devController;
+    this.#applicationsController = applicationsController;
   }
 
   routes() {
@@ -56,6 +58,9 @@ export class Controller extends BaseController {
     // this.router.use('/challenges', this.#challengeController.routes());
     // this.router.use('/', this.#workController.routes());
     // this.router.use('/admin', this.#adminController.routes());
+
+    // ── 신규 챌린지 신청 관리 ─────────────────────────
+    this.router.use('/challenge-applications', this.#applicationsController.routes());
 
     return this.router;
   }
