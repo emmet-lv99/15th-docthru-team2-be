@@ -104,9 +104,60 @@ export class WorkService {
 
     await this.#workRepository.unlikeWork({ workId, userId });
   }
+
+  /** 작업물 임시 저장 */
+  async saveDraft({ challengeId, userId, content }) {
+    const info = await this.#workRepository.findParticipantWithChallenge({ challengeId, userId });
+
+    if (!info || info.abandonedAt) {
+      throw new NotFoundException(ERROR_MESSAGE.NOT_PARTICIPANT);
+    }
+
+    const { challenge } = info;
+    if (!challenge) {
+      throw new NotFoundException(ERROR_MESSAGE.CHALLENGE_NOT_FOUND);
+    }
+
+    const isClosed = challenge.status === 'CLOSED' || new Date() >= new Date(challenge.deadline);
+    if (isClosed) {
+      throw new ConflictException(ERROR_MESSAGE.CHALLENGE_CLOSED);
+    }
+
+    const result = await this.#workRepository.saveDraft({ challengeId, userId, content });
+
+    return result;
+  }
+
+  /** 임시 저장된 작업물 호출 */
+  async getDraft({ challengeId, userId }) {
+    const participant = await this.#workRepository.getDraft({ challengeId, userId });
+
+    if (!participant || participant.abandonedAt) {
+      throw new NotFoundException(ERROR_MESSAGE.NOT_PARTICIPANT);
+    }
+
+    if (!participant.draftContent) {
+      return { draft: null };
+    }
+
+    return {
+      draft: {
+        content: participant.draftContent,
+        updatedAt: participant.draftUpdatedAt,
+      },
+    };
+  }
+
+  /** 임시 저장된 작업물 삭제 */
+  async deleteDraft({ challengeId, userId }) {
+    const participant = await this.#workRepository.getDraft({ challengeId, userId });
+
+    if (!participant || participant.abandonedAt) {
+      throw new NotFoundException(ERROR_MESSAGE.NOT_PARTICIPANT);
+    }
+
+    await this.#workRepository.deleteDraft({ challengeId, userId });
+  }
   // updateWork(...) { /* TODO */ }
   // deleteWork(...) { /* TODO */ }
-  // saveDraft(...) { /* TODO */ }
-  // getDraft(...) { /* TODO */ }
-  // deleteDraft(...) { /* TODO */ }
 }
