@@ -84,6 +84,13 @@ export class UserRepository {
       .first();
   }
 
+  findPasswordHashById(userId) {
+    return this.#db.orm.public.User.where({ id: Number(userId) })
+      .where((u) => u.deletedAt.isNull())
+      .select('id', 'passwordHash')
+      .first();
+  }
+
   /**
    * 인증 미들웨어·내 정보 수정 전용 — 매 요청마다 필요한 컬럼만 읽어요.
    *   findById 는 활동 집계 3회를 더 하므로 요청마다 쓰면 비싸요.
