@@ -43,6 +43,9 @@ import {
   TokenProvider,
 } from '#providers';
 import { AuthMiddleware } from '#middlewares/auth-middleware.js';
+import { NotificationsController } from '#controllers/notifications/notifications-controller.js';
+import { NotificationService } from '#services/notification-service.js';
+import { NotificationRepository } from '#repositories/notification-repository.js';
 
 // asClass(X, { lifetime: SINGLETON }) 의 짧은 별칭
 const singleton = (Klass) => asClass(Klass, { lifetime: Lifetime.SINGLETON });
@@ -98,6 +101,8 @@ export const createContainer = () => {
     // 등급 진행도 집계 — 공용 인프라. GET /auth/me(gradeProgress) 와
     // 로그인 자동 승급(담당 ③)이 함께 쓴다.
     gradeRepository: singleton(GradeRepository),
+    // 알림 목록 조회 및 읽음 상태 관리
+    notificationRepository: singleton(NotificationRepository),
 
     // ── Services ─────────────────────────────────────────────
     authService: singleton(AuthService),
@@ -105,6 +110,9 @@ export const createContainer = () => {
     googleAuthService: singleton(GoogleAuthService),
     // 등급 진행도 · 자동 승급 — 공용 인프라 (getProgress=뼈대, evaluate=③이 로그인에서 호출)
     gradeService: singleton(GradeService),
+    // 알림 비즈니스 로직 처리
+    notificationService: singleton(NotificationService),
+
 
     // ── Middlewares ──────────────────────────────────────────
     // 전역 1개. 인증을 "강제"하지 않고 req.user 만 채운다.
@@ -114,6 +122,8 @@ export const createContainer = () => {
     authController: singleton(AuthController),
     // Google OAuth 2경로 — /auth/google · /auth/google/callback
     googleAuthController: singleton(GoogleAuthController),
+    // 알림 조회 및 읽음 처리 API
+    notificationsController: singleton(NotificationsController),
 
     // 개발 전용 로그인 컨트롤러 — 꺼져 있으면 **아예 등록하지 않는다**.
     //   asValue(null) 로 두면 루트 Controller 의 `if (this.#devController)` 가
