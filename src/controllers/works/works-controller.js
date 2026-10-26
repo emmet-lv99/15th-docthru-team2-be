@@ -22,18 +22,18 @@
 //   [완료] GET    /challenges/{challengeId}/works/{workId}  비회원 가능 · 상세 조회
 //   [완료] PUT    /challenges/{challengeId}/works/me        참여 USER · 제출/갱신 (최초 201 · 갱신 200)
 //
-// ── 2. 작업물 생명주기: 수정 및 삭제 (진행 예정) ──────────────
-//   [대기] PATCH  /works/{workId}                            작성자·ADMIN · 수정 (마감 후 409 CHALLENGE_CLOSED)
-//   [대기] DELETE /works/{workId}                            작성자·ADMIN · 삭제 (어드민은 {reason} 필수)
-//
-// ── 3. 소셜 인터랙션: 좋아요 (하트) ─────────────────────────
+// ── 2. 소셜 인터랙션: 좋아요 (하트) (진행 예정) ──────────────
 //   [대기] PUT    /works/{workId}/like                        USER · 하트 추가 (백엔드가 토글 D-83)
 //   [대기] DELETE /works/{workId}/like                        USER · 하트 취소 (204)
 //
-// ── 4. 에디터 임시저장 세트 (D-98) ──────────────────────────
+// ── 3. 에디터 임시저장 세트 (D-98) ──────────────────────────
 //   [대기] GET    /challenges/{challengeId}/drafts/me       참여 USER · 내 임시저장 조회 (없으면 draft: null)
 //   [대기] PUT    /challenges/{challengeId}/drafts/me       참여 USER · 임시초안 저장 (신규 201 · 덮어쓰기 200)
 //   [대기] DELETE /challenges/{challengeId}/drafts/me       참여 USER · 임시저장 삭제/버리기 (204)
+//
+// ── 4. 콘텐츠 관리: 수정 및 어드민 삭제 ───────────────────────
+//   [대기] PATCH  /works/{workId}                            작성자·ADMIN · 수정 (마감 후 409 CHALLENGE_CLOSED)
+//   [대기] DELETE /works/{workId}                            작성자·ADMIN · 삭제 (어드민은 {reason} 필수)
 
 // ─────────────────────────────────────────────────────────
 //  연결 가이드 — 구현 시 아래 3단계를 순서대로 붙이면 돼요
