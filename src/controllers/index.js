@@ -13,8 +13,8 @@
 //  ① controllers/<도메인>/<도메인>-controller.js 작성
 //  ② common/di/container.js 에 singleton(<도메인>Controller) 등록
 //  ③ **이 파일** 의 constructor + routes() 에 라우트 조립
-import { BaseController } from '#controllers/base-controller.js';
 import { HTTP_STATUS } from '#constants';
+import { BaseController } from '#controllers/base-controller.js';
 
 // 강사님 정본처럼 BaseController 를 #controllers barrel 로도 내보내요 —
 // `import { BaseController } from '#controllers'` 가 동작하도록.
@@ -24,13 +24,21 @@ export class Controller extends BaseController {
   #authController;
   #googleAuthController;
   #devController;
+  #worksController;
   #meController;
 
-  constructor({ authController, googleAuthController, devController, meController }) {
+  constructor({
+    authController,
+    googleAuthController,
+    devController,
+    worksController,
+    meController,
+  }) {
     super();
     this.#authController = authController;
     this.#googleAuthController = googleAuthController;
     this.#devController = devController;
+    this.#worksController = worksController;
     this.#meController = meController;
   }
 
@@ -59,7 +67,7 @@ export class Controller extends BaseController {
 
     // ── 각자 구현 ────────────────────────────────────────────
     // this.router.use('/challenges', this.#challengeController.routes());
-    // this.router.use('/', this.#workController.routes());
+    this.router.use('/', this.#worksController.routes());
     // this.router.use('/admin', this.#adminController.routes());
 
     return this.router;

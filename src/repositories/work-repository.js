@@ -24,13 +24,13 @@
 //   · 에러    중복키 err.sqlState === '23505' → 서비스가 409 · 없음은 null 반환 → 서비스가 404
 //   · 시간    DateTime 은 문자열로 돌아와요 — #utils 의 dbDateTimeToIso 를 재사용하세요
 //
+import { dbDateTimeToIso } from '#utils';
+
 // ★ 만들었으면 아래 3가지를 잊지 마세요 —
 //   STEP 1 · repositories/index.js 에 export 한 줄
 //   STEP 2 · common/di/container.js 에 singleton(WorkRepository) 등록
 //   STEP 3 · 그 리포지토리를 쓰는 service 가 주입받게 연결
-//
 export class WorkRepository {
-  // eslint-disable-next-line no-unused-private-class-members -- 골격 스텁이라 주입 필드를 아직 메서드에서 안 써요 (구현하면 지워도 돼요)
   #db;
 
   constructor({ db }) {
@@ -39,6 +39,144 @@ export class WorkRepository {
 
   // ── 골격 (아래는 이 도메인에서 자주 쓰는 메서드 예요 — 필요한 것만 남기고 구현하세요) ──
   // getWorkDetail(...) { /* TODO */ }
+  async findWorkDetailById({ challengeId, workId, currentUserId = null }) {
+    const cId = Number(challengeId);
+    const wId = Number(workId);
+
+    // 1. 작업물 조회 (likes 카운트, feedbacks 카운트 포함)
+    const work = await this.#db.orm.public.Work.where({ id: wId })
+      .select('id', 'participantId', 'content', 'submittedAt', 'updatedAt')
+      .include('likes', (r) => r.count())
+      .include('feedbacks', (r) => r.count())
+      .first();
+
+    if (!work) return null;
+
+    // 2. 참여 정보 조회 (해당 챌린지의 작업물이 맞는지 확인)
+    const participant = await this.#db.orm.public.ChallengeParticipant.where({
+      id: work.participantId,
+    })
+      .select('id', 'userId', 'challengeId')
+      .first();
+
+    if (!participant || participant.challengeId !== cId) {
+      return null;
+    }
+
+    // 3. 작성자 및 챌린지 정보 병렬 조회
+    const [author, challenge] = await Promise.all([
+      this.#db.orm.public.User.where({ id: participant.userId })
+        .select('id', 'nickname', 'grade')
+        .first(),
+      this.#db.orm.public.Challenge.where({ id: cId })
+        .select('id', 'title', 'category', 'documentType', 'deadline', 'status')
+        .first(),
+    ]);
+
+    if (!author || !challenge) return null;
+
+    // 4. 내가 누른 하트(좋아요) 여부 확인
+    let likedByMe = false;
+    if (currentUserId) {
+      const myLike = await this.#db.orm.public.WorkLike.where({
+        workId: wId,
+        userId: Number(currentUserId),
+      })
+        .select('id')
+        .first();
+      likedByMe = Boolean(myLike);
+    }
+
+    return {
+      id: work.id,
+      content: work.content,
+      submittedAt: dbDateTimeToIso(work.submittedAt),
+      updatedAt: dbDateTimeToIso(work.updatedAt),
+      likeCount: work.likes ?? 0,
+      feedbackCount: work.feedbacks ?? 0,
+      likedByMe,
+      author: {
+        id: author.id,
+        nickname: author.nickname,
+        grade: author.grade,
+      },
+      challenge: {
+        id: challenge.id,
+        title: challenge.title,
+        category: challenge.category,
+        documentType: challenge.documentType,
+        deadline: dbDateTimeToIso(challenge.deadline),
+        status: challenge.status,
+      },
+    };
+  }
+
+  /** 참여자 및 챌린지 상태 조회 (제출 자격 및 마감 여부 판정용) */
+  async findParticipantWithChallenge({ challengeId, userId }) {
+    const participant = await this.#db.orm.public.ChallengeParticipant.where({
+      challengeId: Number(challengeId),
+      userId: Number(userId),
+    })
+      .select('id', 'abandonedAt')
+      .first();
+
+    if (!participant) return null;
+
+    const challenge = await this.#db.orm.public.Challenge.where({
+      id: Number(challengeId),
+    })
+      .select('id', 'deadline', 'status')
+      .first();
+
+    return {
+      participantId: participant.id,
+      abandonedAt: participant.abandonedAt,
+      challenge,
+    };
+  }
+
+  /** 작업물 최초 제출(create) 또는 갱신(update) */
+  async upsertWork({ participantId, content }) {
+    const existing = await this.#db.orm.public.Work.where({
+      participantId: Number(participantId),
+    })
+      .select('id')
+      .first();
+
+    const isNew = !existing;
+
+    let work;
+    if (isNew) {
+      work = await this.#db.orm.public.Work.select(
+        'id',
+        'participantId',
+        'content',
+        'submittedAt',
+        'updatedAt',
+      ).create({
+        participantId: Number(participantId),
+        content,
+      });
+    } else {
+      work = await this.#db.orm.public.Work.where({ id: existing.id })
+        .select('id', 'participantId', 'content', 'submittedAt', 'updatedAt')
+        .update({ content, submittedAt: new Date().toISOString() });
+    }
+
+    return {
+      work: {
+        id: work.id,
+        content: work.content,
+        submittedAt: dbDateTimeToIso(work.submittedAt),
+        updatedAt: dbDateTimeToIso(work.updatedAt),
+        likeCount: 0,
+        feedbackCount: 0,
+        likedByMe: false,
+      },
+      isNew,
+    };
+  }
+
   // getMyWorkDetail(...) { /* TODO */ }
   // submitWork(...) { /* TODO */ }
   // updateWork(...) { /* TODO */ }
