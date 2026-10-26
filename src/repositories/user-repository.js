@@ -48,9 +48,9 @@ export class UserRepository {
         total: a.count(),
       })),
       // 신청은 challenges 행으로 합쳐졌어요 — 내가 만든 챌린지(신청 포함)를 셉니다.
-      this.#db.orm.public.Challenge.where({ createdById: userId }).aggregate((a) => ({
-        total: a.count(),
-      })),
+      this.#db.orm.public.Challenge.where({ createdById: userId })
+        .where((c) => c.deletedAt.isNull())
+        .aggregate((a) => ({ total: a.count() })),
       this.#db.orm.public.Feedback.where({ userId }).aggregate((a) => ({ total: a.count() })),
     ]);
 

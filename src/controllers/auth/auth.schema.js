@@ -280,8 +280,12 @@ export const authPaths = {
       summary: '회원 탈퇴',
       description:
         '로그인 필요. 소프트 삭제 후 개인정보를 익명화하고 쿠키를 지웁니다. ' +
-        '챌린지·작업물·피드백은 보존되며, 204 를 반환합니다.',
+        '탈퇴 동의와 비밀번호를 본문으로 받습니다.',
       security: secured,
+      requestBody: {
+        required: true,
+        content: { 'application/json': { schema: deleteMeSchema } },
+      },
       responses: {
         204: { description: '탈퇴 완료' },
         ...registerCommonErrorResponses(),
