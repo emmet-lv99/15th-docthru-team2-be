@@ -76,13 +76,13 @@ export class NotificationsController extends BaseController {
 
   routes() {
     // GET /notifications/unread-count
-    this.router.get('/notifications/unread-count', needsLogin, (req, res, next) =>
+    this.router.get('/unread-count', needsLogin, (req, res, next) =>
       this.getUnreadCount(req, res, next),
     );
 
     // GET /notifications
     this.router.get(
-      '/notifications',
+      '/',
       needsLogin,
       validate('query', notificationListQuerySchema),
       (req, res, next) => this.getNotifications(req, res, next),
@@ -90,16 +90,14 @@ export class NotificationsController extends BaseController {
 
     // PATCH /notifications/{notificationId}/read
     this.router.patch(
-      '/notifications/:notificationId/read',
+      '/:notificationId/read',
       needsLogin,
       validate('params', notificationIdParamSchema),
       (req, res, next) => this.markRead(req, res, next),
     );
 
-    //   POST  /notifications/read-all
-    this.router.post('/notifications/read-all', needsLogin, (req, res, next) =>
-      this.markAllRead(req, res, next),
-    );
+    // POST /notifications/read-all
+    this.router.post('/read-all', needsLogin, (req, res, next) => this.markAllRead(req, res, next));
 
     return this.router;
   }
