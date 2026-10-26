@@ -16,13 +16,24 @@
 //
 // 이 도메인이 하는 것 — 작업물(번역 결과물) 관리 · 좋아요 (요구 2.4 · 2.7)
 //
-// 구현 대상 API (6건 — 입력·응답 필드는 /api-docs (Swagger) · works.schema.js 참고)
-//   GET    /challenges/{challengeId}/works/{workId}  비회원 가능 · 상세 (좋아요 수 · 내 하트 여부)
-//   PUT    /challenges/{challengeId}/works/me        참여 USER · 제출 (최초 201 · 갱신 200)
-//   PATCH  /works/{workId}                            작성자·ADMIN · 수정 (마감 후 409 CHALLENGE_CLOSED)
-//   DELETE /works/{workId}                            작성자·ADMIN · 삭제 (어드민은 {reason} 필수)
-//   PUT    /works/{workId}/like                        USER · 하트 추가 (백엔드가 토글 D-83)
-//   DELETE /works/{workId}/like                        USER · 하트 취소 (204)
+// 구현 대상 API (9건 — 진행 순서별 정렬)
+//
+// ── 1. 작업물 조회 및 제출 (완료) ───────────────────────────
+//   [완료] GET    /challenges/{challengeId}/works/{workId}  비회원 가능 · 상세 조회
+//   [완료] PUT    /challenges/{challengeId}/works/me        참여 USER · 제출/갱신 (최초 201 · 갱신 200)
+//
+// ── 2. 소셜 인터랙션: 좋아요 (하트) (진행 예정) ──────────────
+//   [대기] PUT    /works/{workId}/like                        USER · 하트 추가 (백엔드가 토글 D-83)
+//   [대기] DELETE /works/{workId}/like                        USER · 하트 취소 (204)
+//
+// ── 3. 에디터 임시저장 세트 (D-98) ──────────────────────────
+//   [대기] GET    /challenges/{challengeId}/drafts/me       참여 USER · 내 임시저장 조회 (없으면 draft: null)
+//   [대기] PUT    /challenges/{challengeId}/drafts/me       참여 USER · 임시초안 저장 (신규 201 · 덮어쓰기 200)
+//   [대기] DELETE /challenges/{challengeId}/drafts/me       참여 USER · 임시저장 삭제/버리기 (204)
+//
+// ── 4. 콘텐츠 관리: 수정 및 어드민 삭제 ───────────────────────
+//   [대기] PATCH  /works/{workId}                            작성자·ADMIN · 수정 (마감 후 409 CHALLENGE_CLOSED)
+//   [대기] DELETE /works/{workId}                            작성자·ADMIN · 삭제 (어드민은 {reason} 필수)
 
 // ─────────────────────────────────────────────────────────
 //  연결 가이드 — 구현 시 아래 3단계를 순서대로 붙이면 돼요
@@ -57,15 +68,73 @@
 //  스키마는 "계약(약속) 파일"이고 — 응답이 이것과 다르면 개발 중 500 RESPONSE_CONTRACT_MISMATCH 로
 //  바로 알려줍니다. 실사용 중 구현이 계약을 어기는지 쉽게 확인할 수 있어요.
 //
+import { HTTP_STATUS } from '#constants';
 import { BaseController } from '#controllers/base-controller.js';
+import { needsLogin, validate } from '#middlewares';
+import { challengeIdParamSchema, workIdParamSchema, workSubmitBodySchema } from './works.schema.js';
+
+const workDetailParamSchema = challengeIdParamSchema.merge(workIdParamSchema);
 
 export class WorksController extends BaseController {
-  constructor() {
+  #workService;
+
+  constructor({ workService }) {
     super();
+    this.#workService = workService;
   }
 
   routes() {
-    // TODO: 라우트를 추가한다
+    this.router.get(
+      '/challenges/:challengeId/works/:workId',
+      validate('params', workDetailParamSchema),
+      (req, res, next) => this.getWorkDetail(req, res, next),
+    );
+
+    this.router.put(
+      '/challenges/:challengeId/works/me',
+      needsLogin,
+      validate('params', challengeIdParamSchema),
+      validate('body', workSubmitBodySchema),
+      (req, res, next) => this.submitMyWork(req, res, next),
+    );
+
     return this.router;
+  }
+
+  async getWorkDetail(req, res, next) {
+    try {
+      const { challengeId, workId } = req.params;
+      const currentUserId = req.user?.id ?? null;
+
+      const work = await this.#workService.getWorkDetail({
+        challengeId,
+        workId,
+        currentUserId,
+      });
+
+      res.status(HTTP_STATUS.OK).json(work);
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async submitMyWork(req, res, next) {
+    try {
+      const { challengeId } = req.params;
+      const { content } = req.body;
+      const userId = req.user.id;
+
+      const { work, isNew } = await this.#workService.submitWork({
+        challengeId,
+        userId,
+        content,
+      });
+
+      const statusCode = isNew ? HTTP_STATUS.CREATED : HTTP_STATUS.OK;
+
+      res.status(statusCode).json({ work, isNew });
+    } catch (error) {
+      next(error);
+    }
   }
 }

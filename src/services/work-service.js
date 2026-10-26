@@ -14,9 +14,12 @@
 //   · 여러 쓰기를 한 단위로 묶을 땐 트랜잭션이 필요해요 (repositories 안에서 db.transaction)
 //
 // ★ 만들었으면 — services/index.js 에 export 한 줄 + common/di/container.js 에 singleton(WorkService) 등록.
+
+import { ERROR_MESSAGE } from '#constants';
+import { ConflictException, NotFoundException } from '#exceptions';
+
 //
 export class WorkService {
-  // eslint-disable-next-line no-unused-private-class-members -- 골격 스텁이라 주입 필드를 아직 메서드에서 안 써요 (구현하면 지워도 돼요)
   #workRepository;
 
   constructor({ workRepository }) {
@@ -24,9 +27,61 @@ export class WorkService {
   }
 
   // ── 골격 (아래는 이 도메인에서 자주 쓰는 메서드 예요 — 필요한 것만 남기고 구현하세요) ──
-  // getWorkDetail(...) { /* TODO */ }
+  async getWorkDetail({ challengeId, workId, currentUserId = null }) {
+    // 1. 레포지토리 조회
+    const work = await this.#workRepository.findWorkDetailById({
+      challengeId,
+      workId,
+      currentUserId,
+    });
+    // 2. 존재하지 않으면 404 처리
+    if (!work) {
+      throw new NotFoundException(ERROR_MESSAGE.WORK_NOT_FOUND);
+    }
+
+    // 3. 비즈니스 파생값 계산
+    const isClosed = new Date() >= new Date(work.challenge.deadline);
+
+    return {
+      ...work,
+      challenge: {
+        ...work.challenge,
+        isClosed,
+      },
+    };
+  }
+
   // getMyWorkDetail(...) { /* TODO */ }
-  // submitWork(...) { /* TODO */ }
+
+  /** 내 번역 작업물 제출/수정 (최초 201 · 갱신 200) */
+  async submitWork({ challengeId, userId, content }) {
+    // 1. 참여자 및 챌린지 상태 조회
+    const info = await this.#workRepository.findParticipantWithChallenge({ challengeId, userId });
+
+    // 2. 참가자가 아니거나, 도중에 포기한 경우 404
+    if (!info || info.abandonedAt) {
+      throw new NotFoundException(ERROR_MESSAGE.NOT_PARTICIPANT);
+    }
+
+    const { participantId, challenge } = info;
+
+    // 3. 챌린지가 없거나 이미 마감된 경우 409
+    if (!challenge) {
+      throw new NotFoundException(ERROR_MESSAGE.CHALLENGE_NOT_FOUND);
+    }
+
+    const isClosed = challenge.status === 'CLOSED' || new Date() >= new Date(challenge.deadline);
+
+    if (isClosed) {
+      throw new ConflictException(ERROR_MESSAGE.CHALLENGE_CLOSED);
+    }
+
+    // 4. 모든 관문 통과 시 작업물 생성 or 갱신
+    return this.#workRepository.upsertWork({
+      participantId,
+      content,
+    });
+  }
   // updateWork(...) { /* TODO */ }
   // deleteWork(...) { /* TODO */ }
   // likeWork(...) { /* TODO */ }
