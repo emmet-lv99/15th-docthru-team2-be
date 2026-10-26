@@ -30,16 +30,82 @@
 //   STEP 3 · 그 리포지토리를 쓰는 service 가 주입받게 연결
 //
 export class ApplicationRepository {
-  // eslint-disable-next-line no-unused-private-class-members -- 골격 스텁이라 주입 필드를 아직 메서드에서 안 써요 (구현하면 지워도 돼요)
   #db;
 
   constructor({ db }) {
     this.#db = db;
   }
 
+  // 로그인한 사용자가 신청한 챌린지 목록을 DB에서 조회한다.
+  async listMyApplications(userId, query) {
+    const { q, status, sort, page = 1, size = 10 } = query ?? {};
+
+    // 기본 조건: 본인이 신청했고 삭제되지 않은 데이터
+    const conditions = {
+      createdById: userId,
+      deletedAt: null,
+    };
+
+    let applicationQuery = this.#db.orm.public.Challenge.where(conditions);
+
+    // 사용자가 선택한 상태에 따라 조건을 추가한다.
+    if (status === 'APPROVED') {
+      applicationQuery = applicationQuery.where((c) => c.status.in(['IN_PROGRESS', 'CLOSED']));
+    } else if (status) {
+      applicationQuery = applicationQuery.where({ status });
+    }
+
+    // 검색어가 있을 때만 제목 검색 조건을 추가한다.
+    if (q?.trim()) {
+      applicationQuery = applicationQuery.where((c) => c.title.ilike(`%${q.trim()}%`));
+    }
+
+    // 1.검색 상태 조건에 맞는 전체 신청서 개수를 계산한다
+    const { total: totalItems } = await applicationQuery.aggregate((a) => ({
+      total: a.count(),
+    }));
+
+    // 2.현재 페이지에 표시할 신청서 목록만 가져온다
+    const applications = await applicationQuery
+
+      .orderBy(
+        sort === 'deadline'
+          ? [(c) => c.deadline.asc(), (c) => c.id.desc()]
+          : [(c) => c.createdAt.desc(), (c) => c.id.desc()],
+      )
+      .limit(Number(size))
+      .offset((Number(page) - 1) * Number(size))
+      .select(
+        'id',
+        'title',
+        'category',
+        'documentType',
+        'sourceUrl',
+        'content',
+        'deadline',
+        'maxParticipants',
+        'status',
+        'rejectionReason',
+        'decidedAt',
+        'cancelledAt',
+        'createdAt',
+        'deletedAt',
+        'deleteReason',
+      )
+      .all();
+
+    // 3.목록 데이터와 페이지 정보를 함께 반환한다
+    return {
+      items: applications,
+      page: Number(page),
+      size: Number(size),
+      totalItems,
+      totalPages: Math.ceil(totalItems / Number(size)),
+    };
+  }
+
   // ── 골격 (아래는 이 도메인에서 자주 쓰는 메서드 예요 — 필요한 것만 남기고 구현하세요) ──
   // createApplication(...) { /* TODO */ }
-  // listMyApplications(...) { /* TODO */ }
   // getMyApplication(...) { /* TODO */ }
   // cancelApplication(...) { /* TODO */ }
 }

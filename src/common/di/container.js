@@ -19,16 +19,43 @@
 //  · 코끼리(private 필드) + 생성자 destructuring 주입: 동일
 //  · DI 는 강의안에 없어요(강의안 37개 파일에서 awilix 0회).
 //    (설정값을 바꾸면 기동 실패 같은 예상 바깥 문제가 생길 수 있어요 — 신중히)
+import {
+  asClass,
+  asValue,
+  createContainer as createAwilixContainer,
+  InjectionMode,
+  Lifetime,
+} from 'awilix';
+
 import { config } from '#config';
+import { db } from '#prisma/db.js';
 import { Controller } from '#controllers';
+
 import { AuthController } from '#controllers/auth/auth-controller.js';
+import { ApplicationsController } from '#controllers/applications/applications-controller.js';
 import { GoogleAuthController } from '#controllers/auth/google-controller.js';
 import { DevController } from '#controllers/dev/dev-controller.js';
-
 import { MeController } from '#controllers/me/me-controller.js';
 import { WorksController } from '#controllers/works/works-controller.js';
-import { AuthMiddleware } from '#middlewares/auth-middleware.js';
-import { db } from '#prisma/db.js';
+
+import {
+  AuthService,
+  GoogleAuthService,
+  GradeService,
+  ApplicationService,
+  MeService,
+  WorkService,
+} from '#services';
+
+import {
+  GradeRepository,
+  PasswordResetTokenRepository,
+  UserRepository,
+  ApplicationRepository,
+  MeRepository,
+  WorkRepository,
+} from '#repositories';
+
 import {
   CookieProvider,
   MailProvider,
@@ -37,24 +64,8 @@ import {
   PasswordResetTokenProvider,
   TokenProvider,
 } from '#providers';
-import {
-  GradeRepository,
-  MeRepository,
-  PasswordResetTokenRepository,
-  UserRepository,
-} from '#repositories';
 
-import { AuthService, GoogleAuthService, GradeService, MeService } from '#services';
-
-import { WorkRepository } from '#repositories';
-import { WorkService } from '#services';
-import {
-  asClass,
-  asValue,
-  createContainer as createAwilixContainer,
-  InjectionMode,
-  Lifetime,
-} from 'awilix';
+import { AuthMiddleware } from '#middlewares/auth-middleware.js';
 
 // asClass(X, { lifetime: SINGLETON }) 의 짧은 별칭
 const singleton = (Klass) => asClass(Klass, { lifetime: Lifetime.SINGLETON });
@@ -110,6 +121,7 @@ export const createContainer = () => {
     // 등급 진행도 집계 — 공용 인프라. GET /auth/me(gradeProgress) 와
     // 로그인 자동 승급(담당 ③)이 함께 쓴다.
     gradeRepository: singleton(GradeRepository),
+    applicationRepository: singleton(ApplicationRepository),
     workRepository: singleton(WorkRepository),
     meRepository: singleton(MeRepository),
 
@@ -119,6 +131,7 @@ export const createContainer = () => {
     googleAuthService: singleton(GoogleAuthService),
     // 등급 진행도 · 자동 승급 — 공용 인프라 (getProgress=뼈대, evaluate=③이 로그인에서 호출)
     gradeService: singleton(GradeService),
+    applicationService: singleton(ApplicationService),
     workService: singleton(WorkService),
     meService: singleton(MeService),
 
@@ -130,8 +143,8 @@ export const createContainer = () => {
     authController: singleton(AuthController),
     // Google OAuth 2경로 — /auth/google · /auth/google/callback
     googleAuthController: singleton(GoogleAuthController),
+    applicationsController: singleton(ApplicationsController),
     meController: singleton(MeController),
-
     worksController: singleton(WorksController),
 
     // 개발 전용 로그인 컨트롤러 — 꺼져 있으면 **아예 등록하지 않는다**.

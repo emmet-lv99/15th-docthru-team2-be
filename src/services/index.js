@@ -7,3 +7,4 @@ export { GoogleAuthService } from './google-auth-service.js';
 export { GradeService } from './grade-service.js';
 export { MeService } from './me-service.js';
 export { WorkService } from './work-service.js';
+export { ApplicationService } from './application-service.js';
