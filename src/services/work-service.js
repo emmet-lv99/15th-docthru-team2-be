@@ -16,7 +16,7 @@
 // ★ 만들었으면 — services/index.js 에 export 한 줄 + common/di/container.js 에 singleton(WorkService) 등록.
 
 import { ERROR_MESSAGE } from '#constants';
-import { NotFoundException } from '#exceptions';
+import { ConflictException, NotFoundException } from '#exceptions';
 
 //
 export class WorkService {
@@ -52,7 +52,36 @@ export class WorkService {
   }
 
   // getMyWorkDetail(...) { /* TODO */ }
-  // submitWork(...) { /* TODO */ }
+
+  /** 내 번역 작업물 제출/수정 (최초 201 · 갱신 200) */
+  async submitWork({ challengeId, userId, content }) {
+    // 1. 참여자 및 챌린지 상태 조회
+    const info = await this.#workRepository.findParticipantWithChallenge({ challengeId, userId });
+
+    // 2. 참가자가 아니거나, 도중에 포기한 경우 404
+    if (!info || info.abandonedAt) {
+      throw new NotFoundException(ERROR_MESSAGE.NOT_PARTICIPANT);
+    }
+
+    const { participantId, challenge } = info;
+
+    // 3. 챌린지가 없거나 이미 마감된 경우 409
+    if (!challenge) {
+      throw new NotFoundException(ERROR_MESSAGE.CHALLENGE_NOT_FOUND);
+    }
+
+    const isClosed = challenge.status === 'CLOSED' || new Date() >= new Date(challenge.deadline);
+
+    if (isClosed) {
+      throw new ConflictException(ERROR_MESSAGE.CHALLENGE_CLOSED);
+    }
+
+    // 4. 모든 관문 통과 시 작업물 생성 or 갱신
+    return this.#workRepository.upsertWork({
+      participantId,
+      content,
+    });
+  }
   // updateWork(...) { /* TODO */ }
   // deleteWork(...) { /* TODO */ }
   // likeWork(...) { /* TODO */ }

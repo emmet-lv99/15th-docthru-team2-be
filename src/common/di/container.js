@@ -35,8 +35,13 @@ import {
   PasswordResetTokenProvider,
   TokenProvider,
 } from '#providers';
-import { GradeRepository, PasswordResetTokenRepository, UserRepository } from '#repositories';
-import { AuthService, GoogleAuthService, GradeService } from '#services';
+import {
+  GradeRepository,
+  PasswordResetTokenRepository,
+  UserRepository,
+  WorkRepository,
+} from '#repositories';
+import { AuthService, GoogleAuthService, GradeService, WorkService } from '#services';
 import {
   asClass,
   asValue,
@@ -99,6 +104,7 @@ export const createContainer = () => {
     // 등급 진행도 집계 — 공용 인프라. GET /auth/me(gradeProgress) 와
     // 로그인 자동 승급(담당 ③)이 함께 쓴다.
     gradeRepository: singleton(GradeRepository),
+    workRepository: singleton(WorkRepository),
 
     // ── Services ─────────────────────────────────────────────
     authService: singleton(AuthService),
@@ -106,6 +112,7 @@ export const createContainer = () => {
     googleAuthService: singleton(GoogleAuthService),
     // 등급 진행도 · 자동 승급 — 공용 인프라 (getProgress=뼈대, evaluate=③이 로그인에서 호출)
     gradeService: singleton(GradeService),
+    workService: singleton(WorkService),
 
     // ── Middlewares ──────────────────────────────────────────
     // 전역 1개. 인증을 "강제"하지 않고 req.user 만 채운다.

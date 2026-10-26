@@ -112,6 +112,73 @@ export class WorkRepository {
       },
     };
   }
+
+  /** 참여자 및 챌린지 상태 조회 (제출 자격 및 마감 여부 판정용) */
+  async findParticipantWithChallenge({ challengeId, userId }) {
+    const participant = await this.#db.orm.public.ChallengeParticipant.where({
+      challengeId: Number(challengeId),
+      userId: Number(userId),
+    })
+      .select('id', 'abandonedAt')
+      .first();
+
+    if (!participant) return null;
+
+    const challenge = await this.#db.orm.public.Challenge.where({
+      id: Number(challengeId),
+    })
+      .select('id', 'deadline', 'status')
+      .first();
+
+    return {
+      participantId: participant.id,
+      abandonedAt: participant.abandonedAt,
+      challenge,
+    };
+  }
+
+  /** 작업물 최초 제출(create) 또는 갱신(update) */
+  async upsertWork({ participantId, content }) {
+    const existing = await this.#db.orm.public.Work.where({
+      participantId: Number(participantId),
+    })
+      .select('id')
+      .first();
+
+    const isNew = !existing;
+
+    let work;
+    if (isNew) {
+      work = await this.#db.orm.public.Work.select(
+        'id',
+        'participantId',
+        'content',
+        'submittedAt',
+        'updatedAt',
+      ).create({
+        participantId: Number(participantId),
+        content,
+      });
+    } else {
+      work = await this.#db.orm.public.Work.where({ id: existing.id })
+        .select('id', 'participantId', 'content', 'submittedAt', 'updatedAt')
+        .update({ content, submittedAt: new Date().toISOString() });
+    }
+
+    return {
+      work: {
+        id: work.id,
+        content: work.content,
+        submittedAt: dbDateTimeToIso(work.submittedAt),
+        updatedAt: dbDateTimeToIso(work.updatedAt),
+        likeCount: 0,
+        feedbackCount: 0,
+        likedByMe: false,
+      },
+      isNew,
+    };
+  }
+
   // getMyWorkDetail(...) { /* TODO */ }
   // submitWork(...) { /* TODO */ }
   // updateWork(...) { /* TODO */ }
