@@ -4,7 +4,7 @@
 // 👤 담당: 팀원 ②(작업물 · 임시저장) — 제출·수정·삭제·하트 + drafts 3건(D-98)
 // 📍 이 파일: src/controllers/works/works-controller.js → 라우트 /works · /challenges/{challengeId}/works
 // 🔗 협력: ①(도전·포기) · ④(피드백 — 작업물 상세 화면에서 경계 협력)
-// 🔨 상태: 뼈대(지침서) — routes() 를 이 파일 안 "연결 가이드 STEP 1~3" 순서대로 채워 주세요
+// 🔨 상태: 구현 진행 중 — 1·2·3단계 완료 (7/9건), 다음: 4. 콘텐츠 관리: 수정 및 어드민 삭제
 // ══════════════════════════════════════════════════════════════
 //
 // 🐘 prisma-8 메모 — DB 는 repositories 에서만 부르고, 아래 v7 문법은 쓰지 않아요
@@ -22,16 +22,16 @@
 //   [완료] GET    /challenges/{challengeId}/works/{workId}  비회원 가능 · 상세 조회
 //   [완료] PUT    /challenges/{challengeId}/works/me        참여 USER · 제출/갱신 (최초 201 · 갱신 200)
 //
-// ── 2. 소셜 인터랙션: 좋아요 (하트) (진행 예정) ──────────────
-//   [대기] PUT    /works/{workId}/like                        USER · 하트 추가 (백엔드가 토글 D-83)
-//   [대기] DELETE /works/{workId}/like                        USER · 하트 취소 (204)
+// ── 2. 소셜 인터랙션: 좋아요 (하트) (완료) ───────────────────
+//   [완료] PUT    /works/{workId}/like                        USER · 하트 추가 (200 · likeCount 반환)
+//   [완료] DELETE /works/{workId}/like                        USER · 하트 취소 (204 No Content)
 //
-// ── 3. 에디터 임시저장 세트 (D-98) ──────────────────────────
-//   [대기] GET    /challenges/{challengeId}/drafts/me       참여 USER · 내 임시저장 조회 (없으면 draft: null)
-//   [대기] PUT    /challenges/{challengeId}/drafts/me       참여 USER · 임시초안 저장 (신규 201 · 덮어쓰기 200)
-//   [대기] DELETE /challenges/{challengeId}/drafts/me       참여 USER · 임시저장 삭제/버리기 (204)
+// ── 3. 에디터 임시저장 세트 (D-98) (완료) ───────────────────
+//   [완료] GET    /challenges/{challengeId}/drafts/me       참여 USER · 내 임시저장 조회 (없으면 draft: null)
+//   [완료] PUT    /challenges/{challengeId}/drafts/me       참여 USER · 임시초안 저장 (신규 201 · 덮어쓰기 200)
+//   [완료] DELETE /challenges/{challengeId}/drafts/me       참여 USER · 임시저장 삭제/버리기 (204)
 //
-// ── 4. 콘텐츠 관리: 수정 및 어드민 삭제 ───────────────────────
+// ── 4. 콘텐츠 관리: 수정 및 어드민 삭제 (다음 진행) ───────────
 //   [대기] PATCH  /works/{workId}                            작성자·ADMIN · 수정 (마감 후 409 CHALLENGE_CLOSED)
 //   [대기] DELETE /works/{workId}                            작성자·ADMIN · 삭제 (어드민은 {reason} 필수)
 
@@ -71,7 +71,12 @@
 import { HTTP_STATUS } from '#constants';
 import { BaseController } from '#controllers/base-controller.js';
 import { needsLogin, validate } from '#middlewares';
-import { challengeIdParamSchema, workIdParamSchema, workSubmitBodySchema } from './works.schema.js';
+import {
+  challengeIdParamSchema,
+  draftBodySchema,
+  workIdParamSchema,
+  workSubmitBodySchema,
+} from './works.schema.js';
 
 const workDetailParamSchema = challengeIdParamSchema.merge(workIdParamSchema);
 
@@ -110,6 +115,28 @@ export class WorksController extends BaseController {
       needsLogin,
       validate('params', workIdParamSchema),
       (req, res, next) => this.unlikeWork(req, res, next),
+    );
+
+    this.router.get(
+      '/challenges/:challengeId/drafts/me',
+      needsLogin,
+      validate('params', challengeIdParamSchema),
+      (req, res, next) => this.getMyDraft(req, res, next),
+    );
+
+    this.router.put(
+      '/challenges/:challengeId/drafts/me',
+      needsLogin,
+      validate('params', challengeIdParamSchema),
+      validate('body', draftBodySchema),
+      (req, res, next) => this.saveDraft(req, res, next),
+    );
+
+    this.router.delete(
+      '/challenges/:challengeId/drafts/me',
+      needsLogin,
+      validate('params', challengeIdParamSchema),
+      (req, res, next) => this.deleteDraft(req, res, next),
     );
 
     return this.router;
@@ -170,6 +197,50 @@ export class WorksController extends BaseController {
       const { workId } = req.params;
       const userId = req.user.id;
       await this.#workService.unlikeWork({ workId, userId });
+
+      res.status(HTTP_STATUS.NO_CONTENT).send();
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async getMyDraft(req, res, next) {
+    const { challengeId } = req.params;
+    const userId = req.user.id;
+
+    try {
+      const result = await this.#workService.getDraft({ challengeId, userId });
+
+      res.status(HTTP_STATUS.OK).json(result);
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async saveDraft(req, res, next) {
+    const { challengeId } = req.params;
+    const { content } = req.body;
+    const userId = req.user.id;
+
+    try {
+      const result = await this.#workService.saveDraft({ challengeId, userId, content });
+      const statusCode = result.isNew ? HTTP_STATUS.CREATED : HTTP_STATUS.OK;
+
+      res.status(statusCode).json({
+        saved: result.saved,
+        updatedAt: result.updatedAt,
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async deleteDraft(req, res, next) {
+    const { challengeId } = req.params;
+    const userId = req.user.id;
+
+    try {
+      await this.#workService.deleteDraft({ challengeId, userId });
 
       res.status(HTTP_STATUS.NO_CONTENT).send();
     } catch (error) {
