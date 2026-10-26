@@ -26,6 +26,7 @@ export class Controller extends BaseController {
   #devController;
   #worksController;
   #meController;
+  #notificationsController;
 
   constructor({
     authController,
@@ -33,6 +34,7 @@ export class Controller extends BaseController {
     devController,
     worksController,
     meController,
+    notificationsController,
   }) {
     super();
     this.#authController = authController;
@@ -40,6 +42,7 @@ export class Controller extends BaseController {
     this.#devController = devController;
     this.#worksController = worksController;
     this.#meController = meController;
+    this.#notificationsController = notificationsController;
   }
 
   routes() {
@@ -69,6 +72,7 @@ export class Controller extends BaseController {
     // this.router.use('/challenges', this.#challengeController.routes());
     this.router.use('/', this.#worksController.routes());
     // this.router.use('/admin', this.#adminController.routes());
+    this.router.use('/notifications', this.#notificationsController.routes());
 
     return this.router;
   }
