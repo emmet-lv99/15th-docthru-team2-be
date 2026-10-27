@@ -59,11 +59,15 @@ import { needsLogin, validate } from '#middlewares';
 import { HTTP_STATUS } from '#constants';
 import { sendData } from '#utils';
 
-import { applicationListQuerySchema, applicationListSchema } from './applications.schema.js';
+import {
+  applicationIdParamSchema,
+  applicationListQuerySchema,
+  applicationListSchema,
+  applicationSchema,
+} from './applications.schema.js';
 
 export class ApplicationsController extends BaseController {
   #applicationService;
-
   constructor({ applicationService }) {
     super();
     this.#applicationService = applicationService;
@@ -78,10 +82,18 @@ export class ApplicationsController extends BaseController {
       (req, res, next) => this.getMyApplications(req, res, next),
     );
 
+    // 내가 제출한 신규 챌린지 제안서 상세 조회
+    this.router.get(
+      '/me/:applicationId',
+      needsLogin,
+      validate('params', applicationIdParamSchema),
+      (req, res, next) => this.getMyApplication(req, res, next),
+    );
+
     return this.router;
   }
 
-  // 내가 신청한 챌린지 목록 조회
+  // 내가 신청한 신규 챌린지 제안 목록 조회
   async getMyApplications(req, res, next) {
     try {
       const userId = req.user.id;
@@ -90,6 +102,20 @@ export class ApplicationsController extends BaseController {
       const result = await this.#applicationService.listMyApplications(userId, query);
 
       sendData(res, result, HTTP_STATUS.OK, applicationListSchema);
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  // 내가 제출한 신규 챌린지 제안서 상세 조회
+  async getMyApplication(req, res, next) {
+    try {
+      const userId = req.user.id;
+      const applicationId = Number(req.params.applicationId);
+
+      const result = await this.#applicationService.getMyApplication(userId, applicationId);
+
+      sendData(res, result, HTTP_STATUS.OK, applicationSchema);
     } catch (error) {
       next(error);
     }
