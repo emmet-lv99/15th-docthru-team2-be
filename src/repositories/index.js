@@ -7,4 +7,5 @@ export { MeRepository } from './me-repository.js';
 export { PasswordResetTokenRepository } from './password-reset-token-repository.js';
 export { UserRepository } from './user-repository.js';
 export { WorkRepository } from './work-repository.js';
+export { ApplicationRepository } from './application-repository.js';
 export { NotificationRepository } from './notification-repository.js';

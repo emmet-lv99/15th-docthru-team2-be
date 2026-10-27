@@ -218,11 +218,71 @@ export class WorkRepository {
     }).deleteAll();
   }
 
+  /** 작업물 임시 저장 (신규 201 · 덮어쓰기 200) */
+  async saveDraft({ challengeId, userId, content }) {
+    const cId = Number(challengeId);
+    const uId = Number(userId);
+
+    // 1. 기존 참여자 행 및 이전 임시저장 여부 확인
+    const participant = await this.#db.orm.public.ChallengeParticipant.where({
+      challengeId: cId,
+      userId: uId,
+    })
+      .select('id', 'draftCreatedAt')
+      .first();
+
+    if (!participant) return null;
+
+    const isNew = !participant.draftCreatedAt;
+    const now = new Date();
+
+    const updated = await this.#db.orm.public.ChallengeParticipant.where({
+      id: participant.id,
+    })
+      .select('draftUpdatedAt')
+      .update({
+        draftContent: content,
+        draftUpdatedAt: now,
+        ...(isNew ? { draftCreatedAt: now } : {}),
+      });
+
+    return {
+      saved: true,
+      updatedAt: updated.draftUpdatedAt,
+      isNew,
+    };
+  }
+
+  /** 임시 저장된 작업물 조회 */
+  async getDraft({ challengeId, userId }) {
+    const cId = Number(challengeId);
+    const uId = Number(userId);
+
+    const participant = await this.#db.orm.public.ChallengeParticipant.where({
+      challengeId: cId,
+      userId: uId,
+    })
+      .select('id', 'draftContent', 'draftUpdatedAt', 'abandonedAt')
+      .first();
+
+    return participant;
+  }
+  /** 임시 저장된 작업물 삭제 (204 멱등) */
+  async deleteDraft({ challengeId, userId }) {
+    const cId = Number(challengeId);
+    const uId = Number(userId);
+    await this.#db.orm.public.ChallengeParticipant.where({
+      challengeId: cId,
+      userId: uId,
+    }).update({
+      draftContent: null,
+      draftUpdatedAt: null,
+      draftCreatedAt: null,
+    });
+  }
+
   // getMyWorkDetail(...) { /* TODO */ }
   // submitWork(...) { /* TODO */ }
   // updateWork(...) { /* TODO */ }
   // deleteWork(...) { /* TODO */ }
-  // saveDraft(...) { /* TODO */ }
-  // getDraft(...) { /* TODO */ }
-  // deleteDraft(...) { /* TODO */ }
 }
