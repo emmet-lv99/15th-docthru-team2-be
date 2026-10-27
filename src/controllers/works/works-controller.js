@@ -139,7 +139,13 @@ export class WorksController extends BaseController {
       (req, res, next) => this.deleteDraft(req, res, next),
     );
 
-    this.router.patch('/works/:workId', needsLogin, (req, res, next) => {});
+    this.router.patch(
+      '/works/:workId',
+      needsLogin,
+      validate('params', workIdParamSchema),
+      validate('body', workSubmitBodySchema),
+      (req, res, next) => this.updateWork(req, res, next),
+    );
 
     return this.router;
   }
@@ -245,6 +251,20 @@ export class WorksController extends BaseController {
       await this.#workService.deleteDraft({ challengeId, userId });
 
       res.status(HTTP_STATUS.NO_CONTENT).send();
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async updateWork(req, res, next) {
+    try {
+      const { workId } = req.params;
+      const { content } = req.body;
+      const user = req.user;
+
+      const work = await this.#workService.updateWork({ workId, content, user });
+
+      res.stats(HTTP_STATUS.OK).json(work);
     } catch (error) {
       next(error);
     }
