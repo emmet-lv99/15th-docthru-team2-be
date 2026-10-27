@@ -15,8 +15,9 @@
 //
 // ★ 만들었으면 — services/index.js 에 export 한 줄 + common/di/container.js 에 singleton(ChallengeService) 등록.
 //
+import { dbDateTimeToIso } from '#utils';
+
 export class ChallengeService {
-  // eslint-disable-next-line no-unused-private-class-members -- 골격 스텁이라 주입 필드를 아직 메서드에서 안 써요 (구현하면 지워도 돼요)
   #challengeRepository;
 
   constructor({ challengeRepository }) {
@@ -25,6 +26,43 @@ export class ChallengeService {
 
   // ── 골격 (아래는 이 도메인에서 자주 쓰는 메서드 예요 — 필요한 것만 남기고 구현하세요) ──
   // listChallenges(...) { /* TODO */ }
+  async listChallenges(query) {
+    const result = await this.#challengeRepository.listChallenges(query);
+    const now = Date.now();
+
+    return {
+      ...result,
+      items: result.items.map((challenge) => {
+        const participantCount = challenge.participants.length;
+        const deadline = dbDateTimeToIso(challenge.deadline).toISOString();
+        const isClosed = new Date(deadline).getTime() <= now;
+
+        return {
+          id: challenge.id,
+          title: challenge.title,
+          category: challenge.category,
+          documentType: challenge.documentType,
+          sourceUrl: challenge.sourceUrl,
+          content: challenge.content,
+          deadline,
+          maxParticipants: challenge.maxParticipants,
+          status: challenge.status,
+          isFull:
+            challenge.status === 'IN_PROGRESS' &&
+            !isClosed &&
+            participantCount >= challenge.maxParticipants,
+          isClosed,
+          participantCount,
+          createdBy: {
+            id: challenge.createdBy.id,
+            nickname: challenge.createdBy.nickname,
+            grade: challenge.createdBy.role === 'ADMIN' ? null : challenge.createdBy.grade,
+          },
+          createdAt: dbDateTimeToIso(challenge.createdAt).toISOString(),
+        };
+      }),
+    };
+  }
   // getChallengeDetail(...) { /* TODO */ }
   // listParticipants(...) { /* TODO */ }
   // joinChallenge(...) { /* TODO */ }

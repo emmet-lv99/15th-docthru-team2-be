@@ -8,3 +8,4 @@ export { PasswordResetTokenRepository } from './password-reset-token-repository.
 export { UserRepository } from './user-repository.js';
 export { WorkRepository } from './work-repository.js';
 export { ApplicationRepository } from './application-repository.js';
+export { ChallengeRepository } from './challenge-repository.js';
