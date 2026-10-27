@@ -4,7 +4,7 @@
 // 👤 담당: 팀원 ②(작업물 · 임시저장) — 제출·수정·삭제·하트 + drafts 3건(D-98)
 // 📍 이 파일: src/controllers/works/works-controller.js → 라우트 /works · /challenges/{challengeId}/works
 // 🔗 협력: ①(도전·포기) · ④(피드백 — 작업물 상세 화면에서 경계 협력)
-// 🔨 상태: 구현 진행 중 — 1·2·3단계 완료 (7/9건), 다음: 4. 콘텐츠 관리: 수정 및 어드민 삭제
+// 🔨 상태: 구현 진행 중 — 8/9건 완료, 다음: DELETE /works/{workId} (마지막 API)
 // ══════════════════════════════════════════════════════════════
 //
 // 🐘 prisma-8 메모 — DB 는 repositories 에서만 부르고, 아래 v7 문법은 쓰지 않아요
@@ -31,8 +31,8 @@
 //   [완료] PUT    /challenges/{challengeId}/drafts/me       참여 USER · 임시초안 저장 (신규 201 · 덮어쓰기 200)
 //   [완료] DELETE /challenges/{challengeId}/drafts/me       참여 USER · 임시저장 삭제/버리기 (204)
 //
-// ── 4. 콘텐츠 관리: 수정 및 어드민 삭제 (다음 진행) ───────────
-//   [대기] PATCH  /works/{workId}                            작성자·ADMIN · 수정 (마감 후 409 CHALLENGE_CLOSED)
+// ── 4. 콘텐츠 관리: 수정 및 삭제 (8/9건 완료) ─────────────────
+//   [완료] PATCH  /works/{workId}                            작성자·ADMIN · 수정 (마감 후 409 CHALLENGE_CLOSED)
 //   [대기] DELETE /works/{workId}                            작성자·ADMIN · 삭제 (어드민은 {reason} 필수)
 
 // ─────────────────────────────────────────────────────────
@@ -139,6 +139,14 @@ export class WorksController extends BaseController {
       (req, res, next) => this.deleteDraft(req, res, next),
     );
 
+    this.router.patch(
+      '/works/:workId',
+      needsLogin,
+      validate('params', workIdParamSchema),
+      validate('body', workSubmitBodySchema),
+      (req, res, next) => this.updateWork(req, res, next),
+    );
+
     return this.router;
   }
 
@@ -243,6 +251,20 @@ export class WorksController extends BaseController {
       await this.#workService.deleteDraft({ challengeId, userId });
 
       res.status(HTTP_STATUS.NO_CONTENT).send();
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async updateWork(req, res, next) {
+    try {
+      const { workId } = req.params;
+      const { content } = req.body;
+      const user = req.user;
+
+      const work = await this.#workService.updateWork({ workId, content, user });
+
+      res.status(HTTP_STATUS.OK).json(work);
     } catch (error) {
       next(error);
     }
