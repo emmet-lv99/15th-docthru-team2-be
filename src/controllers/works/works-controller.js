@@ -139,6 +139,8 @@ export class WorksController extends BaseController {
       (req, res, next) => this.deleteDraft(req, res, next),
     );
 
+    this.router.patch('/works/:workId', needsLogin);
+
     return this.router;
   }
 
