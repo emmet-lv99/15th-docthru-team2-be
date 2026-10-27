@@ -74,6 +74,7 @@ import { needsLogin, validate } from '#middlewares';
 import {
   challengeIdParamSchema,
   draftBodySchema,
+  workDeleteBodySchema,
   workIdParamSchema,
   workSubmitBodySchema,
 } from './works.schema.js';
@@ -145,6 +146,14 @@ export class WorksController extends BaseController {
       validate('params', workIdParamSchema),
       validate('body', workSubmitBodySchema),
       (req, res, next) => this.updateWork(req, res, next),
+    );
+
+    this.router.delete(
+      '/works/:workId',
+      needsLogin,
+      validate('params', workIdParamSchema),
+      validate('body', workDeleteBodySchema),
+      (req, res, next) => this.deleteWork(req, res, next),
     );
 
     return this.router;
@@ -265,6 +274,20 @@ export class WorksController extends BaseController {
       const work = await this.#workService.updateWork({ workId, content, user });
 
       res.status(HTTP_STATUS.OK).json(work);
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async deleteWork(req, res, next) {
+    try {
+      const { workId } = req.params;
+      const { reason } = req.body;
+      const user = req.user;
+
+      await this.#workService.deleteWork({ workId, reason, user });
+
+      res.status(HTTP_STATUS.NO_CONTENT).send();
     } catch (error) {
       next(error);
     }
