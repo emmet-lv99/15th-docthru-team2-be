@@ -135,6 +135,27 @@ export class ApplicationRepository {
 
     return application;
   }
+
+  async createApplication(data) {
+    const application = await this.#db.orm.public.Challenge.select(
+      'id',
+      'title',
+      'category',
+      'documentType',
+      'sourceUrl',
+      'content',
+      'deadline',
+      'maxParticipants',
+      'status',
+      'rejectionReason',
+      'decidedAt',
+      'cancelledAt',
+      'createdAt',
+      'deletedAt',
+      'deleteReason',
+    ).create(data);
+    return application;
+  }
 }
 // ── 골격 (아래는 이 도메인에서 자주 쓰는 메서드 예요 — 필요한 것만 남기고 구현하세요) ──
 // createApplication(...) { /* TODO */ }
