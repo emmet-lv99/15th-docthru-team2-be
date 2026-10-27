@@ -33,7 +33,7 @@
 | 로그인 (권한별 접근) | `/login` | `POST /auth/login` |
 | 로그아웃 | GNB · `/mypage` | `POST /auth/logout` |
 | 내 정보 수정 | `/mypage` | `PATCH /auth/me` (닉네임·비밀번호) |
-| 회원 탈퇴 | `/mypage` (확인 모달) | `DELETE /auth/me` (소프트 삭제·익명화) |
+| 회원 탈퇴 | `/mypage` (확인 모달) | `DELETE /auth/me` (`{password, withdrawalConsent: true}` 필수 · 소프트 삭제·익명화) |
 | 비밀번호 재설정 요청 | `/password-reset` | `POST /auth/password-reset/request` |
 | 비밀번호 재설정 확정 | `/password-reset/confirm?token=` | `POST /auth/password-reset/confirm` |
 | 등급(일반/전문가) | `/mypage` | `GET /auth/me` (`grade` · `gradeProgress` 임계값 5/5/10/10) |
