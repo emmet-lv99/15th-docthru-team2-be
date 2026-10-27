@@ -117,7 +117,16 @@ export class ChallengeRepository {
       totalItems: countResult.total,
     };
   }
-  // getChallengeDetail(...) { /* TODO */ }
+  async findChallengeDetailById(challengeId) {
+    return this.#db.orm.public.Challenge.where({ id: Number(challengeId) })
+      .where((challenge) => challenge.status.in(['IN_PROGRESS', 'CLOSED']))
+      .where((challenge) => challenge.deletedAt.isNull())
+      .include('participants', (participants) =>
+        participants.where((participant) => participant.abandonedAt.isNull()).select('id'),
+      )
+      .include('createdBy', (user) => user.select('id', 'nickname', 'grade', 'role'))
+      .first();
+  }
   // listParticipants(...) { /* TODO */ }
   // joinChallenge(...) { /* TODO */ }
   // abandonChallenge(...) { /* TODO */ }

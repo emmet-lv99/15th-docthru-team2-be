@@ -62,8 +62,13 @@
 //
 import { BaseController } from '#controllers/base-controller.js';
 import { validate } from '#middlewares';
-import { challengeListQuerySchema, challengeListSchema } from './challenges.schema.js';
-import { sendPage } from '#utils';
+import {
+  challengeIdParamSchema,
+  challengeListQuerySchema,
+  challengeListSchema,
+  challengeSchema,
+} from './challenges.schema.js';
+import { sendData, sendPage } from '#utils';
 
 export class ChallengesController extends BaseController {
   #challengeService;
@@ -77,6 +82,9 @@ export class ChallengesController extends BaseController {
     this.router.get('/', validate('query', challengeListQuerySchema), (req, res, next) =>
       this.list(req, res, next),
     );
+    this.router.get('/:challengeId', validate('params', challengeIdParamSchema), (req, res, next) =>
+      this.detail(req, res, next),
+    );
     // TODO: 라우트를 추가한다. 예)
     // this.router.get('/', validate('query', listQuerySchema), (req, res, next) =>
     //   this.list(req, res, next),
@@ -88,6 +96,14 @@ export class ChallengesController extends BaseController {
       const result = await this.#challengeService.listChallenges(req.query);
 
       sendPage(res, result, challengeListSchema);
+    } catch (error) {
+      next(error);
+    }
+  }
+  async detail(req, res, next) {
+    try {
+      const challenge = await this.#challengeService.getChallengeDetail(req.params.challengeId);
+      sendData(res, challenge, undefined, challengeSchema);
     } catch (error) {
       next(error);
     }

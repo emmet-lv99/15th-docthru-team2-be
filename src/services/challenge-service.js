@@ -15,7 +15,39 @@
 //
 // ★ 만들었으면 — services/index.js 에 export 한 줄 + common/di/container.js 에 singleton(ChallengeService) 등록.
 //
+import { ERROR_MESSAGE } from '#constants';
+import { NotFoundException } from '#exceptions';
 import { dbDateTimeToIso } from '#utils';
+
+const toChallengeResponse = (challenge, now) => {
+  const participantCount = challenge.participants.length;
+  const deadline = dbDateTimeToIso(challenge.deadline).toISOString();
+  const isClosed = new Date(deadline).getTime() <= now;
+
+  return {
+    id: challenge.id,
+    title: challenge.title,
+    category: challenge.category,
+    documentType: challenge.documentType,
+    sourceUrl: challenge.sourceUrl,
+    content: challenge.content,
+    deadline,
+    maxParticipants: challenge.maxParticipants,
+    status: challenge.status,
+    isFull:
+      challenge.status === 'IN_PROGRESS' &&
+      !isClosed &&
+      participantCount >= challenge.maxParticipants,
+    isClosed,
+    participantCount,
+    createdBy: {
+      id: challenge.createdBy.id,
+      nickname: challenge.createdBy.nickname,
+      grade: challenge.createdBy.role === 'ADMIN' ? null : challenge.createdBy.grade,
+    },
+    createdAt: dbDateTimeToIso(challenge.createdAt).toISOString(),
+  };
+};
 
 export class ChallengeService {
   #challengeRepository;
@@ -32,38 +64,16 @@ export class ChallengeService {
 
     return {
       ...result,
-      items: result.items.map((challenge) => {
-        const participantCount = challenge.participants.length;
-        const deadline = dbDateTimeToIso(challenge.deadline).toISOString();
-        const isClosed = new Date(deadline).getTime() <= now;
-
-        return {
-          id: challenge.id,
-          title: challenge.title,
-          category: challenge.category,
-          documentType: challenge.documentType,
-          sourceUrl: challenge.sourceUrl,
-          content: challenge.content,
-          deadline,
-          maxParticipants: challenge.maxParticipants,
-          status: challenge.status,
-          isFull:
-            challenge.status === 'IN_PROGRESS' &&
-            !isClosed &&
-            participantCount >= challenge.maxParticipants,
-          isClosed,
-          participantCount,
-          createdBy: {
-            id: challenge.createdBy.id,
-            nickname: challenge.createdBy.nickname,
-            grade: challenge.createdBy.role === 'ADMIN' ? null : challenge.createdBy.grade,
-          },
-          createdAt: dbDateTimeToIso(challenge.createdAt).toISOString(),
-        };
-      }),
+      items: result.items.map((challenge) => toChallengeResponse(challenge, now)),
     };
   }
-  // getChallengeDetail(...) { /* TODO */ }
+  async getChallengeDetail(challengeId) {
+    const challenge = await this.#challengeRepository.findChallengeDetailById(challengeId);
+    if (!challenge) {
+      throw new NotFoundException(ERROR_MESSAGE.CHALLENGE_NOT_FOUND);
+    }
+    return toChallengeResponse(challenge, Date.now());
+  }
   // listParticipants(...) { /* TODO */ }
   // joinChallenge(...) { /* TODO */ }
   // abandonChallenge(...) { /* TODO */ }
