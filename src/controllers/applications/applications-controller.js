@@ -60,6 +60,7 @@ import { HTTP_STATUS } from '#constants';
 import { sendData } from '#utils';
 
 import {
+  applicationCreateBodySchema,
   applicationIdParamSchema,
   applicationListQuerySchema,
   applicationListSchema,
@@ -73,8 +74,16 @@ export class ApplicationsController extends BaseController {
     this.#applicationService = applicationService;
   }
 
-  // 내가 신청한 챌린지 목록 조회 API 등록
   routes() {
+    // 1. 신규 챌린지 제안 생성
+    this.router.post(
+      '/',
+      needsLogin,
+      validate('body', applicationCreateBodySchema),
+      (req, res, next) => this.createApplication(req, res, next),
+    );
+
+    // 2. 내가 제출한 신규 챌린지 제안 목록 조회
     this.router.get(
       '/me',
       needsLogin,
@@ -82,7 +91,7 @@ export class ApplicationsController extends BaseController {
       (req, res, next) => this.getMyApplications(req, res, next),
     );
 
-    // 내가 제출한 신규 챌린지 제안서 상세 조회
+    // 3. 내가 제출한 신규 챌린지 제안 상세 조회
     this.router.get(
       '/me/:applicationId',
       needsLogin,
@@ -116,6 +125,19 @@ export class ApplicationsController extends BaseController {
       const result = await this.#applicationService.getMyApplication(userId, applicationId);
 
       sendData(res, result, HTTP_STATUS.OK, applicationSchema);
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  //신규 챌린지 제안 생성
+  async createApplication(req, res, next) {
+    try {
+      const userId = req.user.id;
+      const body = req.body;
+      const result = await this.#applicationService.createApplication(userId, body);
+
+      sendData(res, result, HTTP_STATUS.CREATED, applicationSchema);
     } catch (error) {
       next(error);
     }
