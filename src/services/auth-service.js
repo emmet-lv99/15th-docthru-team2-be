@@ -66,7 +66,10 @@ export class AuthService {
     }
 
     // gradeProgress 는 me 응답의 확정 계약(D-90) — 항상 현재 값을 다시 세어 준다.
-    const gradeProgress = await this.#gradeService.getProgress(userId);
+    // 참여 수는 findById 가 이미 세어 왔으므로 그대로 넘겨 한 번만 세게 한다.
+    const gradeProgress = await this.#gradeService.getProgress(userId, {
+      participationCount: user._count.participations,
+    });
 
     return {
       ...toPublicUser(user),
