@@ -102,6 +102,25 @@ export class ApplicationService {
 
     return toApplicationDto(application);
   }
+
+  // 신규 챌린지 제안 생성
+  async createApplication(userId, body) {
+    const data = {
+      title: body.title,
+      category: body.category,
+      documentType: body.documentType,
+      sourceUrl: body.sourceUrl,
+      content: body.content ?? null,
+      deadline: body.desiredDeadline,
+      maxParticipants: body.maxParticipants,
+      createdById: userId,
+      status: 'PENDING',
+    };
+
+    const application = await this.#applicationRepository.createApplication(data);
+
+    return toApplicationDto(application);
+  }
 }
 // ── 골격 (아래는 이 도메인에서 자주 쓰는 메서드 예요 — 필요한 것만 남기고 구현하세요) ──
 // createApplication(...) { /* TODO */ }
