@@ -264,7 +264,7 @@ export class WorksController extends BaseController {
 
       const work = await this.#workService.updateWork({ workId, content, user });
 
-      res.stats(HTTP_STATUS.OK).json(work);
+      res.status(HTTP_STATUS.OK).json(work);
     } catch (error) {
       next(error);
     }
