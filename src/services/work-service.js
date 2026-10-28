@@ -16,7 +16,12 @@
 // ★ 만들었으면 — services/index.js 에 export 한 줄 + common/di/container.js 에 singleton(WorkService) 등록.
 
 import { ERROR_MESSAGE } from '#constants';
-import { ConflictException, NotFoundException } from '#exceptions';
+import {
+  BusinessRuleViolationException,
+  ConflictException,
+  ForbiddenException,
+  NotFoundException,
+} from '#exceptions';
 
 //
 export class WorkService {
@@ -158,6 +163,60 @@ export class WorkService {
 
     await this.#workRepository.deleteDraft({ challengeId, userId });
   }
-  // updateWork(...) { /* TODO */ }
-  // deleteWork(...) { /* TODO */ }
+
+  async updateWork({ workId, content, user }) {
+    const info = await this.#workRepository.findWorkWithChallenge({ workId });
+
+    if (!info) {
+      throw new NotFoundException(ERROR_MESSAGE.WORK_NOT_FOUND);
+    }
+
+    const isAuthor = Number(info.userId) === Number(user.id);
+    const isAdmin = user.role === 'ADMIN';
+    if (!isAuthor && !isAdmin) {
+      throw new ForbiddenException(ERROR_MESSAGE.FORBIDDEN);
+    }
+
+    const isClosed =
+      info.challenge.status === 'CLOSED' || new Date() >= new Date(info.challenge.deadline);
+    if (isClosed) {
+      throw new ConflictException(ERROR_MESSAGE.CHALLENGE_CLOSED);
+    }
+
+    return this.#workRepository.updateWork({
+      workId,
+      content,
+      currentUserId: user.id,
+    });
+  }
+
+  /** 작업물 삭제 */
+  async deleteWork({ workId, reason, user }) {
+    const info = await this.#workRepository.findWorkWithChallenge({ workId });
+
+    if (!info) {
+      throw new NotFoundException(ERROR_MESSAGE.WORK_NOT_FOUND);
+    }
+
+    const isAuthor = Number(info.userId) === Number(user.id);
+    const isAdmin = user.role === 'ADMIN';
+
+    if (!isAuthor && !isAdmin) {
+      throw new ForbiddenException(ERROR_MESSAGE.FORBIDDEN);
+    }
+
+    const isClosed =
+      info.challenge.status === 'CLOSED' || new Date() >= new Date(info.challenge.deadline);
+    if (isClosed) {
+      throw new ConflictException(ERROR_MESSAGE.CHALLENGE_CLOSED);
+    }
+
+    if (isAdmin && !isAuthor) {
+      if (!reason || !reason.trim()) {
+        throw new BusinessRuleViolationException('삭제 사유를 입력해주세요');
+      }
+    }
+
+    await this.#workRepository.deleteWork({ workId });
+  }
 }
