@@ -40,7 +40,7 @@
 | `POST` | `/auth/logout`          | 인증 불필요(멱등) | 🎯 쿠키 만료, `204` (계약: `auth.schema.js` logout 설명 — access 가 이미 만료돼도 쿠키를 지울 수 있어야 해요)                    |
 | `GET`  | `/auth/me`              | 로그인         | 🎯 현재 사용자 + role·grade·활동 집계(`stats`) + **등급 진행도(`gradeProgress`·임계값 5/5/10/10 포함)** (D-90·B-1 확정 2026-10-11) |
 | `PATCH` | `/auth/me`             | 로그인         | 내 정보 수정 — `{nickname?, password?}` 중 보낸 값만 변경. 비밀번호 변경 시 `tokenVersion` 증가 + 새 쿠키 발급 |
-| `DELETE` | `/auth/me`            | 로그인         | 회원 탈퇴 — 소프트 삭제(`deletedAt`)·개인정보 익명화·세션 무효화, `204` |
+| `DELETE` | `/auth/me`            | 로그인         | 회원 탈퇴 — `{password, withdrawalConsent: true}` 필수(동의 없으면 400) · 소프트 삭제(`deletedAt`)·개인정보 익명화·세션 무효화, `204` |
 | `POST` | `/auth/password-reset/request` | 비회원 | `{email}` → 30분·1회용 재설정 링크 메일. 가입 여부와 무관하게 같은 안내(계정 존재 비노출) |
 | `POST` | `/auth/password-reset/confirm` | 비회원 | `{token,newPassword}` → 비밀번호 교체·기존 세션 무효화, `204` |
 | `GET`  | `/auth/google`          | 비회원         | 🎯 Google 로그인 시작 — state(서명·10분)·PKCE 생성 후 Google 인증 화면으로 302. 자격 증명 미설정 시 400 안내                          |
