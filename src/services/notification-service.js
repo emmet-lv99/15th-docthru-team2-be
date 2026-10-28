@@ -27,7 +27,8 @@ export class NotificationService {
   // ── 골격 (아래는 이 도메인에서 자주 쓰는 메서드 예요 — 필요한 것만 남기고 구현하세요) ──
   // 알림 목록 조회 listNotifications
   async listNotifications(userId, query) {
-    await this.#notificationRepository.createDeadlineAlerts(userId);
+    // 구현하고 활성화..
+    // await this.#notificationRepository.createDeadlineAlerts(userId);
 
     const [result, unreadCount] = await Promise.all([
       this.#notificationRepository.listNotifications(userId, query),
