@@ -354,7 +354,12 @@ export class WorkRepository {
       likedByMe,
     };
   }
+
+  /** 작업물 삭제 */
+  async deleteWork({ workId }) {
+    const wId = Number(workId);
+    await this.#db.orm.public.Work.where({ id: wId }).deleteAll();
+  }
   // getMyWorkDetail(...) { /* TODO */ }
   // submitWork(...) { /* TODO */ }
-  // deleteWork(...) { /* TODO */ }
 }
