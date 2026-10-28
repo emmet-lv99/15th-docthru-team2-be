@@ -30,7 +30,6 @@
 //   STEP 3 · 그 리포지토리를 쓰는 service 가 주입받게 연결
 //
 export class NotificationRepository {
-  // eslint-disable-next-line no-unused-private-class-members -- 골격 스텁이라 주입 필드를 아직 메서드에서 안 써요 (구현하면 지워도 돼요)
   #db;
 
   constructor({ db }) {
@@ -39,8 +38,38 @@ export class NotificationRepository {
 
   // ── 골격 (아래는 이 도메인에서 자주 쓰는 메서드 예요 — 필요한 것만 남기고 구현하세요) ──
   // listNotifications(...) { /* TODO */ }
-  // countUnread(...) { /* TODO */ }
-  // markRead(...) { /* TODO */ }
-  // markAllRead(...) { /* TODO */ }
+
+  // 읽지 않은 알림 개수 countUnread
+  async countUnread(userId) {
+    const result = await this.#db.orm.public.Notification.where({
+      userId: Number(userId),
+      readAt: null,
+    }).aggregate((a) => ({
+      total: a.count(),
+    }));
+
+    return result.total ?? 0;
+  }
+
+  // 개별 알림 읽음 markRead
+  async markRead(userId, notificationId) {
+    return this.#db.orm.public.Notification.where({
+      id: Number(notificationId),
+      userId: Number(userId),
+      readAt: null,
+    }).updateAll({
+      readAt: new Date().toISOString(),
+    });
+  }
+
+  // 전체 알림 읽음 markAllRead
+  async markAllRead(userId) {
+    return this.#db.orm.public.Notification.where({
+      userId: Number(userId),
+      readAt: null,
+    }).updateAll({
+      readAt: new Date().toISOString(),
+    });
+  }
   // createNotifications(...) { /* TODO */ }
 }
