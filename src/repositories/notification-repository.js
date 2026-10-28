@@ -43,24 +43,31 @@ export class NotificationRepository {
   // 알림 목록 listNotifications
   async listNotifications(userId, query = {}) {
     const page = Math.max(Number(query.page) || 1, 1);
-    const size = Math.min(Math.max(Number(query.size) || 20, 1));
+    const size = Math.min(Math.max(Number(query.size) || 20, 1), 100);
     const unreadOnly = query.unreadOnly === true || query.unreadOnly === 'true';
 
     const where = unreadOnly
       ? { userId: Number(userId), readAt: null }
       : { userId: Number(userId) };
+
+    const result = await this.#db.orm.public.Notification.where(where).aggregate((a) => ({
+      total: a.count(),
+    }));
+
+    const totalItems = result.total ?? 0;
+    const totalPages = Math.ceil(totalItems / size);
+    const start = (page - 1) * size;
+
     const notifications = await this.#db.orm.public.Notification.where(where)
       .select(...this.#fields)
       .include('actor', (a) => a.select('id', 'nickname'))
       .include('relatedChallenge', (c) => c.select('title'))
       .orderBy((n) => n.createdAt.desc())
+      .offset(start)
+      .limit(size)
       .all();
 
-    const totalItems = notifications.length;
-    const totalPages = Math.ceil(totalItems / size);
-    const start = (page - 1) * size;
-
-    const items = notifications.slice(start, start + size).map((notification) => ({
+    const items = notifications.map((notification) => ({
       id: notification.id,
       type: notification.type,
       reason: notification.reason,
