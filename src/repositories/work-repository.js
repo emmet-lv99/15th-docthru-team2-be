@@ -267,6 +267,7 @@ export class WorkRepository {
 
     return participant;
   }
+
   /** 임시 저장된 작업물 삭제 (204 멱등) */
   async deleteDraft({ challengeId, userId }) {
     const cId = Number(challengeId);
@@ -281,8 +282,84 @@ export class WorkRepository {
     });
   }
 
+  /** workId로 work호출 */
+  async findWorkWithChallenge({ workId }) {
+    const wId = Number(workId);
+    const work = await this.#db.orm.public.Work.where({ id: wId })
+      .select('id', 'participantId')
+      .first();
+
+    if (!work) return null;
+
+    const participant = await this.#db.orm.public.ChallengeParticipant.where({
+      id: work.participantId,
+    })
+      .select('userId', 'challengeId', 'abandonedAt')
+      .first();
+
+    if (!participant) return null;
+
+    const challenge = await this.#db.orm.public.Challenge.where({
+      id: participant.challengeId,
+    })
+      .select('deadline', 'status')
+      .first();
+
+    if (!challenge) return null;
+
+    return {
+      userId: participant.userId,
+      abandonedAt: participant.abandonedAt,
+      workId: work.id,
+      challenge: {
+        status: challenge.status,
+        deadline: challenge.deadline,
+      },
+    };
+  }
+
+  async updateWork({ workId, content, currentUserId = null }) {
+    const wId = Number(workId);
+
+    await this.#db.orm.public.Work.where({ id: wId }).update({
+      content,
+      submittedAt: new Date().toISOString(),
+    });
+
+    const work = await this.#db.orm.public.Work.where({ id: wId })
+      .select('id', 'content', 'submittedAt', 'updatedAt')
+      .include('likes', (r) => r.count())
+      .include('feedbacks', (r) => r.count())
+      .first();
+
+    let likedByMe = false;
+    if (currentUserId) {
+      const myLike = await this.#db.orm.public.WorkLike.where({
+        workId: wId,
+        userId: Number(currentUserId),
+      })
+        .select('id')
+        .first();
+
+      likedByMe = Boolean(myLike);
+    }
+
+    return {
+      id: work.id,
+      content: work.content,
+      submittedAt: dbDateTimeToIso(work.submittedAt),
+      updatedAt: dbDateTimeToIso(work.updatedAt),
+      likeCount: work.likes ?? 0,
+      feedbackCount: work.feedbacks ?? 0,
+      likedByMe,
+    };
+  }
+
+  /** 작업물 삭제 */
+  async deleteWork({ workId }) {
+    const wId = Number(workId);
+    await this.#db.orm.public.Work.where({ id: wId }).deleteAll();
+  }
   // getMyWorkDetail(...) { /* TODO */ }
   // submitWork(...) { /* TODO */ }
-  // updateWork(...) { /* TODO */ }
-  // deleteWork(...) { /* TODO */ }
 }
