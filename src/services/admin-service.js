@@ -16,6 +16,7 @@
 //
 // ★ 만들었으면 — services/index.js 에 export 한 줄 + common/di/container.js 에 singleton(AdminService) 등록.
 //
+import { ForbiddenException } from '#exceptions';
 
 // ⑤ 담당: DB챌린지 상태를 신청 상태로 변환
 function toApplicationStatus(status) {
@@ -66,11 +67,21 @@ function toAdminApplicationDto(challenge) {
 }
 
 export class AdminService {
-  // eslint-disable-next-line no-unused-private-class-members -- 골격 스텁이라 주입 필드를 아직 메서드에서 안 써요 (구현하면 지워도 돼요)
   #adminRepository;
+  #userRepository;
 
-  constructor({ adminRepository }) {
+  constructor({ adminRepository, userRepository }) {
     this.#adminRepository = adminRepository;
+    this.#userRepository = userRepository;
+  }
+
+  // 공통: 관리자 권한 확인
+  async assertAdmin(userId) {
+    const user = await this.#userRepository.findActiveAuthUserById(userId);
+
+    if (!user || user.role !== 'ADMIN') {
+      throw new ForbiddenException('관리자 권한이 필요합니다.');
+    }
   }
 
   // ⑤ 담당: 관리자 챌린지 신청 목록 조회

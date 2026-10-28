@@ -64,14 +64,39 @@
 //  바로 알려줍니다. 실사용 중 구현이 계약을 어기는지 쉽게 확인할 수 있어요.
 //
 import { BaseController } from '#controllers/base-controller.js';
+import { needsLogin, needsRole, validate } from '#middlewares';
+import { HTTP_STATUS } from '#constants';
+import { sendData } from '#utils';
+import { adminApplicationListQuerySchema, adminApplicationListSchema } from './admin.schema.js';
 
 export class AdminController extends BaseController {
-  constructor() {
+  #adminService;
+
+  constructor({ adminService }) {
     super();
+    this.#adminService = adminService;
   }
 
   routes() {
-    // TODO: 라우트를 추가한다
+    // ⑤ 담당: 관리자 챌린지 신청 목록 조회
+    this.router.get(
+      '/challenge-applications',
+      needsLogin,
+      needsRole((userId) => this.#adminService.assertAdmin(userId)),
+      validate('query', adminApplicationListQuerySchema),
+      (req, res, next) => this.listApplications(req, res, next),
+    );
     return this.router;
+  }
+
+  // ⑤ 담당: 관리자 챌린지 신청 목록 조회 요청 처리
+  async listApplications(req, res, next) {
+    try {
+      const result = await this.#adminService.listApplications(req.query);
+
+      sendData(res, result, HTTP_STATUS.OK, adminApplicationListSchema);
+    } catch (error) {
+      next(error);
+    }
   }
 }
