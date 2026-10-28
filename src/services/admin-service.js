@@ -16,6 +16,55 @@
 //
 // ★ 만들었으면 — services/index.js 에 export 한 줄 + common/di/container.js 에 singleton(AdminService) 등록.
 //
+
+// ⑤ 담당: DB챌린지 상태를 신청 상태로 변환
+function toApplicationStatus(status) {
+  if (status === 'IN_PROGRESS' || status === 'CLOSED') {
+    return 'APPROVED';
+  }
+  return status;
+}
+
+// ⑤ 담당: 날짜 데이터를 ISO 문자열로 변환
+function toIsoDate(value) {
+  return value == null ? null : new Date(value).toISOString();
+}
+
+// ⑤ 담당: 관리자 챌린지 신청 응답 변환
+function toAdminApplicationDto(challenge) {
+  const isApproved = challenge.status === 'IN_PROGRESS' || challenge.status === 'CLOSED';
+  return {
+    applicationId: challenge.id,
+    title: challenge.title,
+    category: challenge.category,
+    documentType: challenge.documentType,
+    sourceUrl: challenge.sourceUrl,
+    content: challenge.content,
+    desiredDeadline: toIsoDate(challenge.deadline),
+    maxParticipants: challenge.maxParticipants,
+    status: toApplicationStatus(challenge.status),
+    rejectionReason: challenge.rejectionReason,
+    decidedAt: toIsoDate(challenge.decidedAt),
+    cancelledAt: toIsoDate(challenge.cancelledAt),
+
+    applicant: {
+      id: challenge.createdBy.id,
+      nickname: challenge.createdBy.nickname,
+      email: challenge.createdBy.email,
+    },
+
+    approvedChallenge: isApproved
+      ? {
+          id: challenge.id,
+          title: challenge.title,
+          deadline: toIsoDate(challenge.deadline),
+          status: challenge.status,
+        }
+      : null,
+    createdAt: toIsoDate(challenge.createdAt),
+  };
+}
+
 export class AdminService {
   // eslint-disable-next-line no-unused-private-class-members -- 골격 스텁이라 주입 필드를 아직 메서드에서 안 써요 (구현하면 지워도 돼요)
   #adminRepository;
@@ -24,8 +73,17 @@ export class AdminService {
     this.#adminRepository = adminRepository;
   }
 
+  // ⑤ 담당: 관리자 챌린지 신청 목록 조회
+  async listApplications(query) {
+    const result = await this.#adminRepository.listApplications(query);
+    const items = result.items.map((challenge) => toAdminApplicationDto(challenge));
+    return {
+      ...result,
+      items,
+    };
+  }
+
   // ── 골격 (아래는 이 도메인에서 자주 쓰는 메서드 예요 — 필요한 것만 남기고 구현하세요) ──
-  // listApplications(...) { /* TODO */ }
   // getApplication(...) { /* TODO */ }
   // approveApplication(...) { /* TODO */ }
   // rejectApplication(...) { /* TODO */ }
