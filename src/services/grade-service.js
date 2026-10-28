@@ -30,14 +30,16 @@ export class GradeService {
    *   recommendationCount — 내 작업물이 최다 추천(공동 1위 포함)인 마감 챌린지 수 (요구 2.2)
    *   thresholds          — 서버 상수 GRADE_THRESHOLD 를 그대로 노출 (FE 하드코딩 방지)
    */
-  async getProgress(userId) {
-    const [participationCount, recommendationCount] = await Promise.all([
-      this.#gradeRepository.countParticipations(userId),
+  async getProgress(userId, { participationCount } = {}) {
+    // 이미 센 값이 있으면 그대로 써요 — 같은 참여 수를 두 번 세지 않으려는 거예요.
+    // (?? 라서 0 도 유지돼요. || 였다면 0 을 "없음"으로 잘못 판단해요)
+    const [resolvedParticipationCount, recommendationCount] = await Promise.all([
+      participationCount ?? this.#gradeRepository.countParticipations(userId),
       this.#gradeRepository.getRecommendationWins(userId),
     ]);
 
     return {
-      participationCount,
+      participationCount: resolvedParticipationCount,
       recommendationCount,
       thresholds: GRADE_THRESHOLD,
     };
