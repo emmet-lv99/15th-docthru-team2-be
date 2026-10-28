@@ -30,6 +30,20 @@
 //   STEP 3 · 그 리포지토리를 쓰는 service 가 주입받게 연결
 //
 import { or } from '@prisma/orm-postgres/orm-client';
+
+const CHALLENGE_SELECT_FIELDS = [
+  'id',
+  'title',
+  'category',
+  'documentType',
+  'sourceUrl',
+  'content',
+  'deadline',
+  'maxParticipants',
+  'status',
+  'createdAt',
+];
+
 export class ChallengeRepository {
   #db;
 
@@ -103,6 +117,7 @@ export class ChallengeRepository {
     }
 
     const items = await orderedQuery
+      .select(...CHALLENGE_SELECT_FIELDS)
       .include('participants', (participants) =>
         participants.where((participant) => participant.abandonedAt.isNull()).select('id'),
       )
@@ -124,6 +139,7 @@ export class ChallengeRepository {
     return this.#db.orm.public.Challenge.where({ id: Number(challengeId) })
       .where((challenge) => challenge.status.in(['IN_PROGRESS', 'CLOSED']))
       .where((challenge) => challenge.deletedAt.isNull())
+      .select(...CHALLENGE_SELECT_FIELDS)
       .include('participants', (participants) =>
         participants.where((participant) => participant.abandonedAt.isNull()).select('id'),
       )
