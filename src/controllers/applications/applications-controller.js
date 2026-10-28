@@ -158,7 +158,7 @@ export class ApplicationsController extends BaseController {
       const applicationId = Number(req.params.applicationId);
       await this.#applicationService.cancelApplication(userId, applicationId);
       // 204 성공했지만 응답 본문은 보내지 않는다.
-      res.sendStatus(HTTP_STATUS.NO_);
+      res.sendStatus(HTTP_STATUS.NO_CONTENT);
     } catch (error) {
       next(error);
     }
