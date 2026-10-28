@@ -15,7 +15,7 @@
 //
 // ★ 만들었으면 — services/index.js 에 export 한 줄 + common/di/container.js 에 singleton(ApplicationService) 등록.
 //
-import { NotFoundException } from '#exceptions';
+import { NotFoundException, ConflictException } from '#exceptions';
 import { ERROR_MESSAGE } from '#constants';
 
 function toIsoDate(value) {
@@ -120,6 +120,28 @@ export class ApplicationService {
     const application = await this.#applicationRepository.createApplication(data);
 
     return toApplicationDto(application);
+  }
+
+  // 내가 제출한 신규 챌린지 제안 취소
+  async cancelApplication(userId, applicationId) {
+    // 1. 본인 신청서인지 확인
+    const application = await this.#applicationRepository.getMyApplication(userId, applicationId);
+
+    // 2. 신청서가 없으면 404
+    if (!application) {
+      throw new NotFoundException(ERROR_MESSAGE.CHALLENGE_NOT_FOUND);
+    }
+
+    // 3. 승인 대기 상태가 아니면 409
+    if (application.status !== 'PENDING') {
+      throw new ConflictException(ERROR_MESSAGE.RESOURCE_CONFLICT);
+    }
+
+    // 4. 취소 시각 기록
+    const cancelledAt = new Date().toISOString();
+
+    // 5. Repository에서 실제 취소 처리
+    await this.#applicationRepository.cancelApplication(userId, applicationId, cancelledAt);
   }
 }
 // ── 골격 (아래는 이 도메인에서 자주 쓰는 메서드 예요 — 필요한 것만 남기고 구현하세요) ──
