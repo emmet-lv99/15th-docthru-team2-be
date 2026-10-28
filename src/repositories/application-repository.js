@@ -40,10 +40,9 @@ export class ApplicationRepository {
   async listMyApplications(userId, query) {
     const { q, status, sort, page = 1, size = 10 } = query ?? {};
 
-    // 기본 조건: 본인이 신청했고 삭제되지 않은 데이터
+    // 기본 조건: 본인이 제출한 신청서 조회
     const conditions = {
       createdById: userId,
-      deletedAt: null,
     };
 
     let applicationQuery = this.#db.orm.public.Challenge.where(conditions);
@@ -109,7 +108,6 @@ export class ApplicationRepository {
     const conditions = {
       id: applicationId,
       createdById: userId,
-      deletedAt: null,
     };
 
     // 조건에 맞는 신청서 한 건을 가져온다.
