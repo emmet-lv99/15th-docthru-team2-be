@@ -31,15 +31,111 @@
 //   STEP 3 · 그 리포지토리를 쓰는 service 가 주입받게 연결
 //
 export class AdminRepository {
-  // eslint-disable-next-line no-unused-private-class-members -- 골격 스텁이라 주입 필드를 아직 메서드에서 안 써요 (구현하면 지워도 돼요)
   #db;
 
   constructor({ db }) {
     this.#db = db;
   }
 
+  // 관리자가 전체 신규 챌린지 제안 목록을 조회
+  async listApplications(query) {
+    const { q, status, sort = 'latest', page = 1, size = 10 } = query ?? {};
+
+    const pageNumber = Number(page);
+    const pageSize = Number(size);
+    const offset = (pageNumber - 1) * pageSize;
+
+    // 1.모든 신청서를 대상으로 검색 조건 구성
+    let applicationQuery = this.#db.orm.public.Challenge;
+
+    if (status === 'APPROVED') {
+      applicationQuery = applicationQuery.where((c) => c.status.in(['IN_PROGRESS', 'CLOSED']));
+    } else if (status) {
+      applicationQuery = applicationQuery.where({ status });
+    } else {
+      applicationQuery = applicationQuery.where((c) => c.status.neq('CANCELLED'));
+    }
+
+    if (q?.trim()) {
+      applicationQuery = applicationQuery.where((c) => c.title.ilike(`%${q.trim()}%`));
+    }
+
+    // 2.전체 신청서 개수 조회
+    const { total: totalItems } = await applicationQuery.aggregate((a) => ({
+      total: a.count(),
+    }));
+
+    // 3. 정렬 및 신청자 정보까지 함께 조회하는 공통 함수
+    const fetchRows = (baseQuery, limit, skip) => {
+      const order =
+        sort === 'deadline'
+          ? [(c) => c.deadline.asc(), (c) => c.id.desc()]
+          : sort === 'oldest'
+            ? [(c) => c.createdAt.asc(), (c) => c.id.asc()]
+            : [(c) => c.createdAt.desc(), (c) => c.id.desc()];
+
+      return baseQuery
+        .orderBy(order)
+        .limit(limit)
+        .offset(skip)
+        .select(
+          'id',
+          'title',
+          'category',
+          'documentType',
+          'sourceUrl',
+          'content',
+          'deadline',
+          'maxParticipants',
+          'status',
+          'rejectionReason',
+          'decidedAt',
+          'cancelledAt',
+          'createdAt',
+        )
+        .include('createdBy', (u) => u.select('id', 'nickname', 'email'))
+        .all();
+    };
+
+    let applications;
+
+    if (status) {
+      applications = await fetchRows(applicationQuery, pageSize, offset);
+    } else {
+      // 4.기본 목록은 PENDING을 먼저 조회
+      const pendingQuery = applicationQuery.where({
+        status: 'PENDING',
+      });
+      const { total: pendingCount } = await pendingQuery.aggregate((a) => ({
+        total: a.count(),
+      }));
+
+      const pendingLimit = Math.min(pageSize, Math.max(0, pendingCount - offset));
+
+      const pendingRows =
+        pendingLimit > 0 ? await fetchRows(pendingQuery, pendingLimit, offset) : [];
+
+      const remaining = pageSize - pendingRows.length;
+      const otherQuery = applicationQuery.where((c) => c.status.neq('PENDING'));
+
+      const otherRows =
+        remaining > 0
+          ? await fetchRows(otherQuery, remaining, Math.max(0, offset - pendingCount))
+          : [];
+      applications = [...pendingRows, ...otherRows];
+    }
+
+    // 5.목록과 페이지 정보 반환
+    return {
+      items: applications,
+      page: pageNumber,
+      size: pageSize,
+      totalItems,
+      totalPages: Math.ceil(totalItems / pageSize),
+    };
+  }
+
   // ── 골격 (아래는 이 도메인에서 자주 쓰는 메서드 예요 — 필요한 것만 남기고 구현하세요) ──
-  // listApplications(...) { /* TODO */ }
   // getApplication(...) { /* TODO */ }
   // approveApplication(...) { /* TODO */ }
   // rejectApplication(...) { /* TODO */ }
