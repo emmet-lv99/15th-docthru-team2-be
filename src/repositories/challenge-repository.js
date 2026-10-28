@@ -76,8 +76,11 @@ export class ChallengeRepository {
 
     const keyword = q?.trim();
     if (keyword) {
+      const escapedKeyword = keyword.replace(/[%_\\]/g, (char) => `\\${char}`);
+      const searchPattern = `%${escapedKeyword}%`;
+
       challengeListQuery = challengeListQuery.where((challenge) =>
-        or(challenge.title.ilike(`%${keyword}%`), challenge.content.ilike(`%${keyword}%`)),
+        or(challenge.title.ilike(searchPattern), challenge.content.ilike(searchPattern)),
       );
     }
 
