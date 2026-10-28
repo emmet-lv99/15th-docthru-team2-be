@@ -1,5 +1,4 @@
 // src/controllers/works/works-controller.js
-//
 // ══════════════════════════════════════════════════════════════
 // 👤 담당: 팀원 ②(작업물 · 임시저장) — 제출·수정·삭제·하트 + drafts 3건(D-98)
 // 📍 이 파일: src/controllers/works/works-controller.js → 라우트 /works · /challenges/{challengeId}/works
