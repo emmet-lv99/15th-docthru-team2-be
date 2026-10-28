@@ -8,10 +8,16 @@ export class MeRepository {
     this.#db = db;
   }
   async listParticipating(userId, query) {
+    return this.#listMyChallenges(userId, query, 'participating');
+  }
+  async listCompleted(userId, query) {
+    return this.#listMyChallenges(userId, query, 'completed');
+  }
+  async #listMyChallenges(userId, query, mode) {
     const limit = Number(query.limit ?? 10);
     const cursor = query.cursor ? Number(query.cursor) : null;
     const now = new Date();
-    const challengeIds = await this.#participatingChallengeIds({
+    const challengeIds = await this.#challengeIdsByMode(mode, {
       q: query.q,
       category: query.category,
       documentType: query.documentType,
@@ -69,14 +75,7 @@ export class MeRepository {
       hasMore,
     };
   }
-  async listCompleted(_userId, query) {
-    return {
-      items: [],
-      cursor: null,
-      limit: Number(query.limit ?? 10),
-      hasMore: false,
-    };
-  }
+
   async listMyApplications(_userId, query) {
     return {
       items: [],
@@ -85,10 +84,15 @@ export class MeRepository {
       hasMore: false,
     };
   }
-  async #participatingChallengeIds({ q, category, documentType, now }) {
-    let query = this.#db.orm.public.Challenge.where((c) => c.deletedAt.isNull())
-      .where((c) => c.status.eq('IN_PROGRESS'))
-      .where((c) => c.deadline.gt(now));
+  async #challengeIdsByMode(mode, { q, category, documentType, now }) {
+    let query = this.#db.orm.public.Challenge.where((c) => c.deletedAt.isNull());
+
+    query =
+      mode === 'completed'
+        ? query
+            .where((c) => c.status.in(['CLOSED', 'IN_PROGRESS']))
+            .where((c) => or(c.status.eq('CLOSED'), c.deadline.lte(now)))
+        : query.where((c) => c.status.eq('IN_PROGRESS')).where((c) => c.deadline.gt(now));
 
     if (q) {
       query = query.where((c) => or(c.title.ilike(`%${q}%`), c.content.ilike(`%${q}%`)));
