@@ -40,10 +40,9 @@ export class ApplicationRepository {
   async listMyApplications(userId, query) {
     const { q, status, sort, page = 1, size = 10 } = query ?? {};
 
-    // 기본 조건: 본인이 신청했고 삭제되지 않은 데이터
+    // 기본 조건: 본인이 제출한 신청서 조회
     const conditions = {
       createdById: userId,
-      deletedAt: null,
     };
 
     let applicationQuery = this.#db.orm.public.Challenge.where(conditions);
@@ -104,8 +103,58 @@ export class ApplicationRepository {
     };
   }
 
-  // ── 골격 (아래는 이 도메인에서 자주 쓰는 메서드 예요 — 필요한 것만 남기고 구현하세요) ──
-  // createApplication(...) { /* TODO */ }
-  // getMyApplication(...) { /* TODO */ }
-  // cancelApplication(...) { /* TODO */ }
+  // 로그린한 사용자가 신청한챌린지 제안서 1개를 조회한다
+  async getMyApplication(userId, applicationId) {
+    const conditions = {
+      id: applicationId,
+      createdById: userId,
+    };
+
+    // 조건에 맞는 신청서 한 건을 가져온다.
+    const application = await this.#db.orm.public.Challenge.where(conditions)
+      .select(
+        'id',
+        'title',
+        'category',
+        'documentType',
+        'sourceUrl',
+        'content',
+        'deadline',
+        'maxParticipants',
+        'status',
+        'rejectionReason',
+        'decidedAt',
+        'cancelledAt',
+        'createdAt',
+        'deletedAt',
+        'deleteReason',
+      )
+      .first();
+
+    return application;
+  }
+
+  async createApplication(data) {
+    const application = await this.#db.orm.public.Challenge.select(
+      'id',
+      'title',
+      'category',
+      'documentType',
+      'sourceUrl',
+      'content',
+      'deadline',
+      'maxParticipants',
+      'status',
+      'rejectionReason',
+      'decidedAt',
+      'cancelledAt',
+      'createdAt',
+      'deletedAt',
+      'deleteReason',
+    ).create(data);
+    return application;
+  }
 }
+// ── 골격 (아래는 이 도메인에서 자주 쓰는 메서드 예요 — 필요한 것만 남기고 구현하세요) ──
+// createApplication(...) { /* TODO */ }
+// cancelApplication(...) { /* TODO */ }

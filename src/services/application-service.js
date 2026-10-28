@@ -15,6 +15,9 @@
 //
 // ★ 만들었으면 — services/index.js 에 export 한 줄 + common/di/container.js 에 singleton(ApplicationService) 등록.
 //
+import { NotFoundException } from '#exceptions';
+import { ERROR_MESSAGE } from '#constants';
+
 function toIsoDate(value) {
   if (value == null) {
     return null;
@@ -22,7 +25,7 @@ function toIsoDate(value) {
   return new Date(value).toISOString();
 }
 
-// 1 db 상대 -> api 상태 변환
+// 1. DB상태를 API상태로 변환
 function toApplicationStatus(status) {
   if (status === 'IN_PROGRESS' || status === 'CLOSED') {
     return 'APPROVED';
@@ -30,8 +33,7 @@ function toApplicationStatus(status) {
   return status;
 }
 
-// 2. db신성처 -> api 응답 데이터 변환
-
+// 2. DB에서 조회한 챌린지를 신청서 API 응답 형식으로 변환
 function toApplicationDto(challenge) {
   // 승인된 상태인지 확인한다.
   const isApproved = challenge.status === 'IN_PROGRESS' || challenge.status === 'CLOSED';
@@ -89,9 +91,39 @@ export class ApplicationService {
     };
   }
 
-  // ── 골격 (아래는 이 도메인에서 자주 쓰는 메서드 예요 — 필요한 것만 남기고 구현하세요) ──
-  // createApplication(...) { /* TODO */ }
-  // listMyApplications(...) { /* TODO */ }
-  // getMyApplication(...) { /* TODO */ }
-  // cancelApplication(...) { /* TODO */ }
+  // 내가 제출한 신규 챌린지 제안서 상세 조회
+  async getMyApplication(userId, applicationId) {
+    const application = await this.#applicationRepository.getMyApplication(userId, applicationId);
+
+    // 신청서가 없거나 다른사람 신청서면 404
+    if (!application) {
+      throw new NotFoundException(ERROR_MESSAGE.CHALLENGE_NOT_FOUND);
+    }
+
+    return toApplicationDto(application);
+  }
+
+  // 신규 챌린지 제안 생성
+  async createApplication(userId, body) {
+    const data = {
+      title: body.title,
+      category: body.category,
+      documentType: body.documentType,
+      sourceUrl: body.sourceUrl,
+      content: body.content ?? null,
+      deadline: body.desiredDeadline,
+      maxParticipants: body.maxParticipants,
+      createdById: userId,
+      status: 'PENDING',
+    };
+
+    const application = await this.#applicationRepository.createApplication(data);
+
+    return toApplicationDto(application);
+  }
 }
+// ── 골격 (아래는 이 도메인에서 자주 쓰는 메서드 예요 — 필요한 것만 남기고 구현하세요) ──
+// createApplication(...) { /* TODO */ }
+// listMyApplications(...) { /* TODO */ }
+// getMyApplication(...) { /* TODO */ }
+// cancelApplication(...) { /* TODO */ }
