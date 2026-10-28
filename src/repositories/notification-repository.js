@@ -28,16 +28,64 @@
 //   STEP 1 · repositories/index.js 에 export 한 줄
 //   STEP 2 · common/di/container.js 에 singleton(NotificationRepository) 등록
 //   STEP 3 · 그 리포지토리를 쓰는 service 가 주입받게 연결
-//
+
+import { dbDateTimeToIso } from '#utils';
 export class NotificationRepository {
   #db;
+  #fields = ['id', 'type', 'reason', 'relatedChallengeId', 'relatedWorkId', 'readAt', 'createdAt'];
 
   constructor({ db }) {
     this.#db = db;
   }
 
   // ── 골격 (아래는 이 도메인에서 자주 쓰는 메서드 예요 — 필요한 것만 남기고 구현하세요) ──
-  // listNotifications(...) { /* TODO */ }
+
+  // 알림 목록 listNotifications
+  async listNotifications(userId, query = {}) {
+    const page = Math.max(Number(query.page) || 1, 1);
+    const size = Math.min(Math.max(Number(query.size) || 20, 1));
+    const unreadOnly = query.unreadOnly === true || query.unreadOnly === 'true';
+
+    const where = unreadOnly
+      ? { userId: Number(userId), readAt: null }
+      : { userId: Number(userId) };
+    const notifications = await this.#db.orm.public.Notification.where(where)
+      .select(...this.#fields)
+      .include('actor', (a) => a.select('id', 'nickname'))
+      .include('relatedChallenge', (c) => c.select('title'))
+      .orderBy((n) => n.createdAt.desc())
+      .all();
+
+    const totalItems = notifications.length;
+    const totalPages = Math.ceil(totalItems / size);
+    const start = (page - 1) * size;
+
+    const items = notifications.slice(start, start + size).map((notification) => ({
+      id: notification.id,
+      type: notification.type,
+      reason: notification.reason,
+      relatedChallengeId: notification.relatedChallengeId,
+      relatedChallengeTitle: notification.relatedChallenge?.title ?? null,
+      relatedWorkId: notification.relatedWorkId,
+      actor: notification.actor
+        ? { id: notification.actor.id, nickname: notification.actor.nickname }
+        : null,
+      isRead: notification.readAt !== null,
+      readAt: notification.readAt ? dbDateTimeToIso(notification.readAt).toISOString() : null,
+      createdAt: dbDateTimeToIso(notification.createdAt).toISOString(),
+    }));
+
+    return { items, page, size, totalItems, totalPages };
+  }
+
+  // 알림 단건 조회 findById
+  findById(notificationId) {
+    return this.#db.orm.public.Notification.where({
+      id: Number(notificationId),
+    })
+      .select('id', 'userId', 'readAt')
+      .first();
+  }
 
   // 읽지 않은 알림 개수 countUnread
   async countUnread(userId) {
@@ -71,5 +119,9 @@ export class NotificationRepository {
       readAt: new Date().toISOString(),
     });
   }
-  // createNotifications(...) { /* TODO */ }
+
+  // 알림 다중 생성 createNotifications
+  createNotifications(notifications) {
+    return this.#db.orm.public.Notification.createAll(notifications, { onConflict: 'skip' });
+  }
 }
