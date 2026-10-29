@@ -57,7 +57,9 @@ export class AdminRepository {
     }
 
     if (q?.trim()) {
-      applicationQuery = applicationQuery.where((c) => c.title.ilike(`%${q.trim()}%`));
+      const escapedQ = q.trim().replace(/[\\%_]/g, '\\$&');
+
+      applicationQuery = applicationQuery.where((c) => c.title.ilike(`%${escapedQ}%`));
     }
 
     // 2.전체 신청서 개수 조회
