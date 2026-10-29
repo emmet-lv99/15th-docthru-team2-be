@@ -117,7 +117,7 @@ export class AdminService {
       throw new NotFoundException('챌린지 신청서를 찾을 수 없습니다.');
     }
     // 2. 승인 대기 상태인지 확인
-    if (!application.status !== 'PENDING') {
+    if (application.status !== 'PENDING') {
       throw new ConflictException('승인 대기 중인 신청만 승인할 수 있습니다.');
     }
 

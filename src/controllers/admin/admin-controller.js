@@ -71,6 +71,8 @@ import {
   adminApplicationListQuerySchema,
   adminApplicationListSchema,
   adminApplicationSchema,
+  approveBodySchema,
+  approveResultSchema,
 } from './admin.schema.js';
 
 import { applicationIdParamSchema } from '#controllers/applications/applications.schema.js';
@@ -101,6 +103,16 @@ export class AdminController extends BaseController {
       validate('params', applicationIdParamSchema),
       (req, res, next) => this.getApplication(req, res, next),
     );
+
+    // ⑤ 담당: 관리자 챌린지 신청 승인
+    this.router.post(
+      '/challenge-applications/:applicationId/approve',
+      needsLogin,
+      needsRole((userId) => this.#adminService.assertAdmin(userId)),
+      validate('params', applicationIdParamSchema),
+      validate('body', approveBodySchema),
+      (req, res, next) => this.approveApplication(req, res, next),
+    );
     return this.router;
   }
 
@@ -120,6 +132,20 @@ export class AdminController extends BaseController {
     try {
       const result = await this.#adminService.getApplication(req.params.applicationId);
       sendData(res, result, HTTP_STATUS.OK, adminApplicationSchema);
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  // ⑤ 담당: 관리자 챌린지 신청 승인 요청 처리
+  async approveApplication(req, res, next) {
+    try {
+      const result = await this.#adminService.approveApplication(
+        req.params.applicationId,
+        req.user.id,
+        req.body ?? {},
+      );
+      sendData(res, result, HTTP_STATUS.OK, approveResultSchema);
     } catch (error) {
       next(error);
     }
