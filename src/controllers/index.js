@@ -25,6 +25,7 @@ export class Controller extends BaseController {
   #googleAuthController;
   #devController;
   #applicationsController;
+  #challengesController;
   #worksController;
   #meController;
   #adminController;
@@ -34,6 +35,7 @@ export class Controller extends BaseController {
     googleAuthController,
     devController,
     applicationsController,
+    challengesController,
     worksController,
     meController,
     adminController,
@@ -43,6 +45,7 @@ export class Controller extends BaseController {
     this.#googleAuthController = googleAuthController;
     this.#devController = devController;
     this.#applicationsController = applicationsController;
+    this.#challengesController = challengesController;
     this.#worksController = worksController;
     this.#meController = meController;
     this.#adminController = adminController;
@@ -72,7 +75,7 @@ export class Controller extends BaseController {
     this.router.use('/me', this.#meController.routes());
 
     // ── 각자 구현 ────────────────────────────────────────────
-    // this.router.use('/challenges', this.#challengeController.routes());
+    this.router.use('/challenges', this.#challengesController.routes());
     this.router.use('/', this.#worksController.routes());
     this.router.use('/admin', this.#adminController.routes());
 

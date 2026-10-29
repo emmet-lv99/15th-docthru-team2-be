@@ -29,8 +29,22 @@
 //   STEP 2 · common/di/container.js 에 singleton(ChallengeRepository) 등록
 //   STEP 3 · 그 리포지토리를 쓰는 service 가 주입받게 연결
 //
+import { or } from '@prisma/orm-postgres/orm-client';
+
+const CHALLENGE_SELECT_FIELDS = [
+  'id',
+  'title',
+  'category',
+  'documentType',
+  'sourceUrl',
+  'content',
+  'deadline',
+  'maxParticipants',
+  'status',
+  'createdAt',
+];
+
 export class ChallengeRepository {
-  // eslint-disable-next-line no-unused-private-class-members -- 골격 스텁이라 주입 필드를 아직 메서드에서 안 써요 (구현하면 지워도 돼요)
   #db;
 
   constructor({ db }) {
@@ -46,7 +60,92 @@ export class ChallengeRepository {
   //     목록 응답의 participantCount 도 같은 기준(활성 참여)으로 채우려면 include 를 별도로 붙여야 해요.
   //     (포기자 제외 기준 — D-10. 상세와 다르게 세면 목록·상세 값이 어긋나요)
   // listChallenges(...) { /* TODO */ }
-  // getChallengeDetail(...) { /* TODO */ }
+  async listChallenges({
+    page = 1,
+    size = 20,
+    q,
+    category,
+    documentType,
+    status,
+    sort = 'latest',
+  } = {}) {
+    const offset = (page - 1) * size;
+    let challengeListQuery = this.#db.orm.public.Challenge.where((challenge) =>
+      challenge.status.in(['IN_PROGRESS', 'CLOSED']),
+    ).where((challenge) => challenge.deletedAt.isNull());
+
+    if (category?.length) {
+      challengeListQuery = challengeListQuery.where((challenge) => challenge.category.in(category));
+    }
+
+    if (documentType) {
+      challengeListQuery = challengeListQuery.where((challenge) =>
+        challenge.documentType.eq(documentType),
+      );
+    }
+
+    if (status) {
+      challengeListQuery = challengeListQuery.where((challenge) => challenge.status.eq(status));
+    }
+
+    const keyword = q?.trim();
+    if (keyword) {
+      const escapedKeyword = keyword.replace(/[%_\\]/g, (char) => `\\${char}`);
+      const searchPattern = `%${escapedKeyword}%`;
+
+      challengeListQuery = challengeListQuery.where((challenge) =>
+        or(challenge.title.ilike(searchPattern), challenge.content.ilike(searchPattern)),
+      );
+    }
+
+    let orderedQuery = challengeListQuery.orderBy([
+      (challenge) => challenge.createdAt.desc(),
+      (challenge) => challenge.id.desc(),
+    ]);
+
+    if (sort === 'deadline') {
+      orderedQuery = challengeListQuery.orderBy([
+        (challenge) => challenge.deadline.asc(),
+        (challenge) => challenge.id.asc(),
+      ]);
+    } else if (sort === 'popular') {
+      orderedQuery = challengeListQuery.orderBy([
+        (challenge) =>
+          challenge.participants.count((participant) => participant.abandonedAt.isNull()).desc(),
+        (challenge) => challenge.id.desc(),
+      ]);
+    }
+
+    const items = await orderedQuery
+      .select(...CHALLENGE_SELECT_FIELDS)
+      .include('participants', (participants) =>
+        participants.where((participant) => participant.abandonedAt.isNull()).select('id'),
+      )
+      .include('createdBy', (user) => user.select('id', 'nickname', 'grade', 'role'))
+      .limit(size)
+      .offset(offset)
+      .all();
+
+    const countResult = await challengeListQuery.aggregate((a) => ({ total: a.count() }));
+
+    return {
+      items,
+      page,
+      size,
+      totalItems: countResult.total,
+    };
+  }
+  async findChallengeDetailById(challengeId) {
+    return this.#db.orm.public.Challenge.where({ id: Number(challengeId) })
+      .where((challenge) => challenge.status.in(['IN_PROGRESS', 'CLOSED']))
+      .where((challenge) => challenge.deletedAt.isNull())
+      .select(...CHALLENGE_SELECT_FIELDS)
+      .include('participants', (participants) =>
+        participants.where((participant) => participant.abandonedAt.isNull()).select('id'),
+      )
+      .include('createdBy', (user) => user.select('id', 'nickname', 'grade', 'role'))
+      .first();
+  }
   // listParticipants(...) { /* TODO */ }
   // joinChallenge(...) { /* TODO */ }
   // abandonChallenge(...) { /* TODO */ }

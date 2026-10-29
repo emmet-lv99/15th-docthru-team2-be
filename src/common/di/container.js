@@ -37,6 +37,7 @@ import { GoogleAuthController } from '#controllers/auth/google-controller.js';
 import { DevController } from '#controllers/dev/dev-controller.js';
 import { MeController } from '#controllers/me/me-controller.js';
 import { WorksController } from '#controllers/works/works-controller.js';
+import { ChallengesController } from '#controllers/challenges/challenges-controller.js';
 import { AdminController } from '#controllers/admin/admin-controller.js';
 
 import {
@@ -46,6 +47,7 @@ import {
   ApplicationService,
   MeService,
   WorkService,
+  ChallengeService,
   AdminService,
 } from '#services';
 
@@ -56,6 +58,7 @@ import {
   ApplicationRepository,
   MeRepository,
   WorkRepository,
+  ChallengeRepository,
   AdminRepository,
 } from '#repositories';
 
@@ -127,6 +130,7 @@ export const createContainer = () => {
     applicationRepository: singleton(ApplicationRepository),
     workRepository: singleton(WorkRepository),
     meRepository: singleton(MeRepository),
+    challengeRepository: singleton(ChallengeRepository),
     adminRepository: singleton(AdminRepository),
 
     // ── Services ─────────────────────────────────────────────
@@ -138,6 +142,7 @@ export const createContainer = () => {
     applicationService: singleton(ApplicationService),
     workService: singleton(WorkService),
     meService: singleton(MeService),
+    challengeService: singleton(ChallengeService),
     adminService: singleton(AdminService),
 
     // ── Middlewares ──────────────────────────────────────────
@@ -151,6 +156,7 @@ export const createContainer = () => {
     applicationsController: singleton(ApplicationsController),
     meController: singleton(MeController),
     worksController: singleton(WorksController),
+    challengesController: singleton(ChallengesController),
     adminController: singleton(AdminController),
 
     // 개발 전용 로그인 컨트롤러 — 꺼져 있으면 **아예 등록하지 않는다**.
