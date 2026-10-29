@@ -134,7 +134,7 @@ export class ApplicationService {
 
     // 3. 승인 대기 상태가 아니면 409
     if (application.status !== 'PENDING') {
-      throw new ConflictException(ERROR_MESSAGE.RESOURCE_CONFLICT);
+      throw new ConflictException(ERROR_MESSAGE.APPLICATION_NOT_CANCELLABLE);
     }
 
     // 4. 취소 시각 기록
