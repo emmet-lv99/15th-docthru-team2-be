@@ -226,18 +226,20 @@ export class AuthService {
     return { me, tokens };
   }
 
-  /** DELETE /auth/me — 소프트 삭제 + 익명화. 챌린지·작업물·피드백은 보존해요. */
-  async validatePassword(userId, password) {
+  /**
+   * DELETE /auth/me — 비밀번호 확인과 소프트 삭제를 한 번에 처리해요.
+   * 챌린지·작업물·피드백은 보존합니다.
+   */
+  async deleteMe(userId, password) {
     const user = await this.#userRepository.findPasswordHashById(userId);
-    if (!user?.passwordHash) {
-      return null;
+    const matched = user?.passwordHash
+      ? await this.#passwordProvider.compare(password, user.passwordHash)
+      : false;
+
+    if (!matched) {
+      throw new UnauthorizedException('비밀번호가 일치하지 않습니다.');
     }
 
-    const matched = await this.#passwordProvider.compare(password, user.passwordHash);
-    return matched ? user : null;
-  }
-
-  async deleteMe(userId) {
     const deleted = await this.#userRepository.softDeleteUser(userId);
     if (!deleted) {
       throw new NotFoundException(ERROR_MESSAGE.RESOURCE_NOT_FOUND, null, 'USER_NOT_FOUND');
