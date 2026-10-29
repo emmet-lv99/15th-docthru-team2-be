@@ -37,6 +37,7 @@ import { GoogleAuthController } from '#controllers/auth/google-controller.js';
 import { DevController } from '#controllers/dev/dev-controller.js';
 import { MeController } from '#controllers/me/me-controller.js';
 import { WorksController } from '#controllers/works/works-controller.js';
+import { ChallengesController } from '#controllers/challenges/challenges-controller.js';
 
 import {
   AuthService,
@@ -45,6 +46,7 @@ import {
   ApplicationService,
   MeService,
   WorkService,
+  ChallengeService,
 } from '#services';
 
 import {
@@ -54,6 +56,7 @@ import {
   ApplicationRepository,
   MeRepository,
   WorkRepository,
+  ChallengeRepository,
 } from '#repositories';
 
 import {
@@ -128,7 +131,7 @@ export const createContainer = () => {
     applicationRepository: singleton(ApplicationRepository),
     workRepository: singleton(WorkRepository),
     meRepository: singleton(MeRepository),
-    // 알림 목록 조회 및 읽음 상태 관리
+    challengeRepository: singleton(ChallengeRepository),
     notificationRepository: singleton(NotificationRepository),
 
     // ── Services ─────────────────────────────────────────────
@@ -140,7 +143,7 @@ export const createContainer = () => {
     applicationService: singleton(ApplicationService),
     workService: singleton(WorkService),
     meService: singleton(MeService),
-    // 알림 비즈니스 로직 처리
+    challengeService: singleton(ChallengeService),
     notificationService: singleton(NotificationService),
 
     // ── Middlewares ──────────────────────────────────────────
@@ -154,7 +157,7 @@ export const createContainer = () => {
     applicationsController: singleton(ApplicationsController),
     meController: singleton(MeController),
     worksController: singleton(WorksController),
-    // 알림 조회 및 읽음 처리 API
+    challengesController: singleton(ChallengesController),
     notificationsController: singleton(NotificationsController),
 
     // 개발 전용 로그인 컨트롤러 — 꺼져 있으면 **아예 등록하지 않는다**.

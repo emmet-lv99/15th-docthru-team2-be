@@ -23,7 +23,6 @@
 import { BaseController } from '#controllers/base-controller.js';
 import { needsLogin, validate } from '#middlewares';
 import { HTTP_STATUS } from '#constants';
-import { BadRequestException, UnauthorizedException } from '#exceptions';
 import { sendCreated, sendData, sendNoContent } from '#utils';
 import {
   deleteMeSchema,
@@ -132,20 +131,7 @@ export class AuthController extends BaseController {
 
   async deleteMe(req, res, next) {
     try {
-      const { password, withdrawalConsent } = req.body ?? {};
-      if (!withdrawalConsent) {
-        throw new BadRequestException('탈퇴 동의가 필요합니다.');
-      }
-      if (!password || !String(password).trim()) {
-        throw new BadRequestException('비밀번호를 입력해 주세요.');
-      }
-
-      const user = await this.#authService.validatePassword(req.user.id, password);
-      if (!user) {
-        throw new UnauthorizedException('비밀번호가 일치하지 않습니다.');
-      }
-
-      await this.#authService.deleteMe(req.user.id);
+      await this.#authService.deleteMe(req.user.id, req.body.password);
       this.#cookieProvider.clearAuthTokens(res);
       sendNoContent(res);
     } catch (error) {
