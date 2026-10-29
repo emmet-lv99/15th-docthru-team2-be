@@ -9,3 +9,4 @@ export { MeService } from './me-service.js';
 export { WorkService } from './work-service.js';
 export { ApplicationService } from './application-service.js';
 export { ChallengeService } from './challenge-service.js';
+export { NotificationService } from './notification-service.js';

@@ -28,19 +28,136 @@
 //   STEP 1 · repositories/index.js 에 export 한 줄
 //   STEP 2 · common/di/container.js 에 singleton(NotificationRepository) 등록
 //   STEP 3 · 그 리포지토리를 쓰는 service 가 주입받게 연결
-//
+
+import { dbDateTimeToIso } from '#utils';
 export class NotificationRepository {
-  // eslint-disable-next-line no-unused-private-class-members -- 골격 스텁이라 주입 필드를 아직 메서드에서 안 써요 (구현하면 지워도 돼요)
   #db;
+  #fields = ['id', 'type', 'reason', 'relatedChallengeId', 'relatedWorkId', 'readAt', 'createdAt'];
 
   constructor({ db }) {
     this.#db = db;
   }
 
   // ── 골격 (아래는 이 도메인에서 자주 쓰는 메서드 예요 — 필요한 것만 남기고 구현하세요) ──
-  // listNotifications(...) { /* TODO */ }
-  // countUnread(...) { /* TODO */ }
-  // markRead(...) { /* TODO */ }
-  // markAllRead(...) { /* TODO */ }
-  // createNotifications(...) { /* TODO */ }
+
+  // 알림 목록 listNotifications
+  async listNotifications(userId, query = {}) {
+    const page = Math.max(Number(query.page) || 1, 1);
+    const size = Math.min(Math.max(Number(query.size) || 20, 1), 100);
+    const unreadOnly = query.unreadOnly === true || query.unreadOnly === 'true';
+
+    const where = unreadOnly
+      ? { userId: Number(userId), readAt: null }
+      : { userId: Number(userId) };
+
+    const result = await this.#db.orm.public.Notification.where(where).aggregate((a) => ({
+      total: a.count(),
+    }));
+
+    const totalItems = result.total ?? 0;
+    const totalPages = Math.ceil(totalItems / size);
+    const start = (page - 1) * size;
+
+    const notifications = await this.#db.orm.public.Notification.where(where)
+      .select(...this.#fields)
+      .include('actor', (a) => a.select('id', 'nickname'))
+      .include('relatedChallenge', (c) => c.select('title'))
+      .orderBy((n) => n.createdAt.desc())
+      .orderBy((n) => n.id.desc())
+      .offset(start)
+      .limit(size)
+      .all();
+
+    const items = notifications.map((notification) => ({
+      id: notification.id,
+      type: notification.type,
+      reason: notification.reason,
+      relatedChallengeId: notification.relatedChallengeId,
+      relatedChallengeTitle: notification.relatedChallenge?.title ?? null,
+      relatedWorkId: notification.relatedWorkId,
+      actor: notification.actor
+        ? { id: notification.actor.id, nickname: notification.actor.nickname }
+        : null,
+      isRead: notification.readAt !== null,
+      readAt: notification.readAt ? dbDateTimeToIso(notification.readAt).toISOString() : null,
+      createdAt: dbDateTimeToIso(notification.createdAt).toISOString(),
+    }));
+
+    return { items, page, size, totalItems, totalPages };
+  }
+
+  // 알림 단건 조회 findById
+  findById(notificationId) {
+    return this.#db.orm.public.Notification.where({
+      id: Number(notificationId),
+    })
+      .select('id', 'userId', 'readAt')
+      .first();
+  }
+
+  // 읽지 않은 알림 개수 countUnread
+  async countUnread(userId) {
+    const result = await this.#db.orm.public.Notification.where({
+      userId: Number(userId),
+      readAt: null,
+    }).aggregate((a) => ({
+      total: a.count(),
+    }));
+
+    return result.total ?? 0;
+  }
+
+  // 개별 알림 읽음 markRead
+  async markRead(userId, notificationId) {
+    return this.#db.orm.public.Notification.where({
+      id: Number(notificationId),
+      userId: Number(userId),
+      readAt: null,
+    }).updateAll({
+      readAt: new Date().toISOString(),
+    });
+  }
+
+  // 전체 알림 읽음 markAllRead
+  async markAllRead(userId) {
+    return this.#db.orm.public.Notification.where({
+      userId: Number(userId),
+      readAt: null,
+    }).updateAll({
+      readAt: new Date().toISOString(),
+    });
+  }
+
+  // 알림 다중 생성 createNotifications
+  createNotifications(notifications) {
+    return this.#db.orm.public.Notification.createAll(notifications, { onConflict: 'skip' });
+  }
+
+  // 챌린지 마감 알림 createDeadlineAlerts
+  async createDeadlineAlerts(userId) {
+    const now = Date.now();
+
+    const participations = await this.#db.orm.public.ChallengeParticipant.where({
+      userId: Number(userId),
+      abandonedAt: null,
+    })
+      .select('challengeId')
+      .include('challenge', (c) => c.select('id', 'title', 'deadline', 'deletedAt'))
+      .all();
+
+    const rows = participations
+      .map((participation) => participation.challenge)
+      .filter((challenge) => challenge && challenge.deletedAt === null)
+      .filter((challenge) => dbDateTimeToIso(challenge.deadline).getTime() <= now)
+      .map((challenge) => ({
+        userId: Number(userId),
+        type: 'CHALLENGE_DEADLINE',
+        relatedChallengeId: challenge.id,
+        dedupeKey: `CHALLENGE_DEADLINE:${userId}:${challenge.id}`,
+        createdAt: dbDateTimeToIso(challenge.deadline).toISOString(),
+      }));
+
+    if (rows.length === 0) return;
+    await this.createNotifications(rows);
+  }
 }
