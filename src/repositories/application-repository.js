@@ -157,14 +157,11 @@ export class ApplicationRepository {
 
   // 승인 대기 상태의 내 신청 취소
   async cancelApplication(userId, applicationId, cancelledAt) {
-    const conditions = {
-      id: applicationId,
+    return this.#db.orm.public.Challenge.where({
+      id: Number(applicationId),
       createdById: userId,
       status: 'PENDING',
-    };
-
-    // 조건에 맞는 신청서만 취소상태로 변경
-    return this.#db.orm.public.Challenge.where(conditions).update({
+    }).update({
       status: 'CANCELLED',
       cancelledAt,
     });

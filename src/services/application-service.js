@@ -141,7 +141,14 @@ export class ApplicationService {
     const cancelledAt = new Date().toISOString();
 
     // 5. Repository에서 실제 취소 처리
-    await this.#applicationRepository.cancelApplication(userId, applicationId, cancelledAt);
+    const cancelled = await this.#applicationRepository.cancelApplication(
+      userId,
+      applicationId,
+      cancelledAt,
+    );
+    if (!cancelled) {
+      throw new ConflictException(ERROR_MESSAGE.RESOURCE_CONFLICT);
+    }
   }
 }
 // ── 골격 (아래는 이 도메인에서 자주 쓰는 메서드 예요 — 필요한 것만 남기고 구현하세요) ──
