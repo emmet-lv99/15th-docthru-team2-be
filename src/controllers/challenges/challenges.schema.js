@@ -102,7 +102,7 @@ export const challengeListQuerySchema = paginationQuerySchema
 
 export const challengeIdParamSchema = z
   .object({
-    challengeId: z.coerce.number().int().positive().meta({ example: 1 }),
+    challengeId: z.coerce.number().int().positive().max(2147483647).meta({ example: 1 }),
   })
   .meta({ description: '챌린지 식별자' })
   .meta({ id: 'ChallengeIdParam' });
