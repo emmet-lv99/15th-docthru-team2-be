@@ -37,7 +37,7 @@ export class AdminRepository {
     this.#db = db;
   }
 
-  // 관리자가 전체 신규 챌린지 제안 목록을 조회
+  // ⑤ 담당: 관리자 챌린지 신청 목록 조회
   async listApplications(query) {
     const { q, status, sort = 'latest', page = 1, size = 10 } = query ?? {};
 
@@ -137,7 +137,7 @@ export class AdminRepository {
     };
   }
 
-  // 관리자가 특정 챌린지 신청서 상세 조회
+  // ⑤ 담당: 관리자 챌린지 신청 상세 조회
   async getApplication(applicationId) {
     return this.#db.orm.public.Challenge.where({
       id: Number(applicationId),
@@ -154,15 +154,39 @@ export class AdminRepository {
         'status',
         'rejectionReason',
         'decidedAt',
+        'cancelledAt',
         'createdAt',
       )
       .include('createdBy', (u) => u.select('id', 'nickname', 'email'))
       .first();
   }
 
-  
+  // ⑤ 담당: 관리자 챌린지 신청 승인
+  async approveApplication(applicationId, adminId, changes = {}) {
+    const updateData = {
+      status: 'IN_PROGRESS',
+      decidedAt: new Date().toISOString(),
+      decidedById: adminId,
+    };
+
+    // 관리자가 마감일을 변경한 경우
+    if (changes.deadline !== undefined) {
+      updateData.deadline = changes.deadline;
+    }
+
+    // 관리자가 최대 참여 인원을 변경한 경우
+    if (changes.maxParticipants !== undefined) {
+      updateData.maxParticipants = changes.maxParticipants;
+    }
+
+    return this.#db.orm.public.Challenge.where({
+      id: Number(applicationId),
+      status: 'PENDING',
+      deletedAt: null,
+    }).updateAndCount(updateData);
+  }
+
   // ── 골격 (아래는 이 도메인에서 자주 쓰는 메서드 예요 — 필요한 것만 남기고 구현하세요) ──
-  // approveApplication(...) { /* TODO */ }
   // rejectApplication(...) { /* TODO */ }
   // listChallenges(...) { /* TODO */ }
   // createChallenge(...) { /* TODO */ }
