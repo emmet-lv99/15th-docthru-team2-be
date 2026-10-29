@@ -16,7 +16,7 @@
 //
 // ★ 만들었으면 — services/index.js 에 export 한 줄 + common/di/container.js 에 singleton(AdminService) 등록.
 //
-import { ForbiddenException } from '#exceptions';
+import { ForbiddenException, NotFoundException } from '#exceptions';
 
 // ⑤ 담당: DB챌린지 상태를 신청 상태로 변환
 function toApplicationStatus(status) {
@@ -93,6 +93,22 @@ export class AdminService {
       items,
     };
   }
+
+  // ⑤담당: 관리자 챌린지 신청 상세 조회
+  async getApplication(applicationId) {
+    // 1. Repository에서 신청서 조회
+    const application = await this.#adminRepository.getApplication(applicationId);
+
+    // 2. 신청서 없으면 404
+    if (!application) {
+      throw new NotFoundException('챌린지 신청서를 찾을 수 없습니다.');
+    }
+
+    // 3. 기존 DTO 변환 함수 재사용
+    return toAdminApplicationDto(application);
+  }
+
+  
 
   // ── 골격 (아래는 이 도메인에서 자주 쓰는 메서드 예요 — 필요한 것만 남기고 구현하세요) ──
   // getApplication(...) { /* TODO */ }

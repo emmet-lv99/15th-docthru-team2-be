@@ -67,7 +67,13 @@ import { BaseController } from '#controllers/base-controller.js';
 import { needsLogin, needsRole, validate } from '#middlewares';
 import { HTTP_STATUS } from '#constants';
 import { sendData } from '#utils';
-import { adminApplicationListQuerySchema, adminApplicationListSchema } from './admin.schema.js';
+import {
+  adminApplicationListQuerySchema,
+  adminApplicationListSchema,
+  adminApplicationSchema,
+} from './admin.schema.js';
+
+import { applicationIdParamSchema } from '#controllers/applications/applications.schema.js';
 
 export class AdminController extends BaseController {
   #adminService;
@@ -86,6 +92,15 @@ export class AdminController extends BaseController {
       validate('query', adminApplicationListQuerySchema),
       (req, res, next) => this.listApplications(req, res, next),
     );
+
+    // ⑤ 담당: 관리자 챌린지 신청 상세 조회
+    this.router.get(
+      '/challenge-applications/:applicationId',
+      needsLogin,
+      needsRole((userId) => this.#adminService.assertAdmin(userId)),
+      validate('params', applicationIdParamSchema),
+      (req, res, next) => this.getApplication(req, res, next),
+    );
     return this.router;
   }
 
@@ -95,6 +110,16 @@ export class AdminController extends BaseController {
       const result = await this.#adminService.listApplications(req.query);
 
       sendData(res, result, HTTP_STATUS.OK, adminApplicationListSchema);
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  // ⑤ 담당: 관리자 챌린지 신청 상세 조회 요청 처리
+  async getApplication(req, res, next) {
+    try {
+      const result = await this.#adminService.getApplication(req.params.applicationId);
+      sendData(res, result, HTTP_STATUS.OK, adminApplicationSchema);
     } catch (error) {
       next(error);
     }

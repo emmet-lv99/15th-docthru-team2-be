@@ -137,8 +137,31 @@ export class AdminRepository {
     };
   }
 
+  // 관리자가 특정 챌린지 신청서 상세 조회
+  async getApplication(applicationId) {
+    return this.#db.orm.public.Challenge.where({
+      id: Number(applicationId),
+    })
+      .select(
+        'id',
+        'title',
+        'category',
+        'documentType',
+        'sourceUrl',
+        'content',
+        'deadline',
+        'maxParticipants',
+        'status',
+        'rejectionReason',
+        'decidedAt',
+        'createdAt',
+      )
+      .include('createdBy', (u) => u.select('id', 'nickname', 'email'))
+      .first();
+  }
+
+  
   // ── 골격 (아래는 이 도메인에서 자주 쓰는 메서드 예요 — 필요한 것만 남기고 구현하세요) ──
-  // getApplication(...) { /* TODO */ }
   // approveApplication(...) { /* TODO */ }
   // rejectApplication(...) { /* TODO */ }
   // listChallenges(...) { /* TODO */ }
