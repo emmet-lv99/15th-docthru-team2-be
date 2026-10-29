@@ -132,4 +132,33 @@ export class NotificationRepository {
   createNotifications(notifications) {
     return this.#db.orm.public.Notification.createAll(notifications, { onConflict: 'skip' });
   }
+
+  // 챌린지 마감 알림 createDeadlineAlerts
+  async createDeadlineAlerts(userId) {
+    const now = Date.now();
+
+    const participations = await this.#db.orm.public.ChallengeParticipant.where({
+      userId: Number(userId),
+      abandonedAt: null,
+    })
+      .select('challengeId')
+      .include('challenge', (c) => c.select('id', 'title', 'deadline', 'deletedAt'))
+      .all();
+
+    const rows = participations
+      .map((participation) => participation.challenge)
+      .filter((challenge) => challenge && challenge.deletedAt === null)
+      .filter((challenge) => dbDateTimeToIso(challenge.deadline).getTime() <= now)
+      .map((challenge) => ({
+        userId: Number(userId),
+        type: 'CHALLENGE_DEADLINE',
+        reason: `'${challenge.title}'이 마감되었어요`,
+        relatedChallengeId: challenge.id,
+        dedupeKey: `CHALLENGE_DEADLINE:${userId}:${challenge.id}`,
+        createdAt: dbDateTimeToIso(challenge.deadline).toISOString(),
+      }));
+
+    if (rows.length === 0) return;
+    await this.createNotifications(rows);
+  }
 }
