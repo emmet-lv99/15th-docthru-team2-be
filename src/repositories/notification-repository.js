@@ -152,7 +152,6 @@ export class NotificationRepository {
       .map((challenge) => ({
         userId: Number(userId),
         type: 'CHALLENGE_DEADLINE',
-        reason: `'${challenge.title}'이 마감되었어요`,
         relatedChallengeId: challenge.id,
         dedupeKey: `CHALLENGE_DEADLINE:${userId}:${challenge.id}`,
         createdAt: dbDateTimeToIso(challenge.deadline).toISOString(),
