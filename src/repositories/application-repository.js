@@ -161,7 +161,7 @@ export class ApplicationRepository {
       id: Number(applicationId),
       createdById: userId,
       status: 'PENDING',
-    }).update({
+    }).updateAndCount({
       status: 'CANCELLED',
       cancelledAt,
     });
