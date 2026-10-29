@@ -16,7 +16,7 @@
 //
 // ★ 만들었으면 — services/index.js 에 export 한 줄 + common/di/container.js 에 singleton(AdminService) 등록.
 //
-import { ForbiddenException, NotFoundException } from '#exceptions';
+import { ForbiddenException, NotFoundException, ConflictException } from '#exceptions';
 
 // ⑤ 담당: DB챌린지 상태를 신청 상태로 변환
 function toApplicationStatus(status) {
@@ -108,11 +108,44 @@ export class AdminService {
     return toAdminApplicationDto(application);
   }
 
-  
+  // ⑤ 담당: 관리자 챌린지 신청 승인
+  async approveApplication(applicationId, adminId, changes = {}) {
+    // 1. 신청서 존재 여부 확인
+    const application = await this.#adminRepository.getApplication(applicationId);
 
+    if (!application) {
+      throw new NotFoundException('챌린지 신청서를 찾을 수 없습니다.');
+    }
+    // 2. 승인 대기 상태인지 확인
+    if (!application.status !== 'PENDING') {
+      throw new ConflictException('승인 대기 중인 신청만 승인할 수 있습니다.');
+    }
+
+    // 3. Repository에서 신청 승인 처리
+    const updatedCount = await this.#adminRepository.approveApplication(
+      applicationId,
+      adminId,
+      changes,
+    );
+
+    // 4. 승인 작전 다른 요청이 상태를 변경했다면 충돌 처리
+    if (updatedCount === 0) {
+      throw new ConflictException('승인 대기 중인 신청만 승인할 수 있습니다.');
+    }
+
+    // 5. 승인된 신청서 다시 조회
+    const approved = await this.#adminRepository.getApplication(applicationId);
+
+    // 6. API 명세에 맞춰 승인 결과 반환
+    return {
+      applicationId: approved.id,
+      status: 'APPROVED',
+      decidedAt: toIsoDate(approved.decidedAt),
+      challengeId: approved.id,
+      challengeTitle: approved.title,
+    };
+  }
   // ── 골격 (아래는 이 도메인에서 자주 쓰는 메서드 예요 — 필요한 것만 남기고 구현하세요) ──
-  // getApplication(...) { /* TODO */ }
-  // approveApplication(...) { /* TODO */ }
   // rejectApplication(...) { /* TODO */ }
   // listChallenges(...) { /* TODO */ }
   // createChallenge(...) { /* TODO */ }
