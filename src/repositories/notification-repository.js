@@ -63,6 +63,7 @@ export class NotificationRepository {
       .include('actor', (a) => a.select('id', 'nickname'))
       .include('relatedChallenge', (c) => c.select('title'))
       .orderBy((n) => n.createdAt.desc())
+      .orderBy((n) => n.id.desc())
       .offset(start)
       .limit(size)
       .all();
