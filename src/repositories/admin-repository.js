@@ -45,8 +45,8 @@ export class AdminRepository {
     const pageSize = Number(size);
     const offset = (pageNumber - 1) * pageSize;
 
-    // 1.모든 신청서를 대상으로 검색 조건 구성
-    let applicationQuery = this.#db.orm.public.Challenge;
+    // 1.소프트 삭제되지 않은 신청서를 대상으로 검색 조건 구성
+    let applicationQuery = this.#db.orm.public.Challenge.where((c) => c.deletedAt.isNull());
 
     if (status === 'APPROVED') {
       applicationQuery = applicationQuery.where((c) => c.status.in(['IN_PROGRESS', 'CLOSED']));
