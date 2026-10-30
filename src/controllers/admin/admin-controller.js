@@ -66,8 +66,12 @@
 import { BaseController } from '#controllers/base-controller.js';
 import { needsLogin, needsRole, validate } from '#middlewares';
 import { HTTP_STATUS } from '#constants';
-import { sendData } from '#utils';
+import { sendCreated, sendData, sendPage } from '#utils';
 import {
+  adminChallengeCreateBodySchema,
+  adminChallengeListQuerySchema,
+  adminChallengeListSchema,
+  adminChallengeSchema,
   adminApplicationListQuerySchema,
   adminApplicationListSchema,
   adminApplicationSchema,
@@ -86,6 +90,23 @@ export class AdminController extends BaseController {
   }
 
   routes() {
+    // ① 담당 관리자 챌린지 목록·등록 — ⑤의 신청 API는 그대로 보존.
+    const adminOnly = needsRole((userId) => this.#adminService.assertAdmin(userId));
+    this.router.get(
+      '/challenges',
+      needsLogin,
+      adminOnly,
+      validate('query', adminChallengeListQuerySchema),
+      (req, res, next) => this.listChallenges(req, res, next),
+    );
+    this.router.post(
+      '/challenges',
+      needsLogin,
+      adminOnly,
+      validate('body', adminChallengeCreateBodySchema),
+      (req, res, next) => this.createChallenge(req, res, next),
+    );
+
     // ⑤ 담당: 관리자 챌린지 신청 목록 조회
     this.router.get(
       '/challenge-applications',
@@ -118,6 +139,24 @@ export class AdminController extends BaseController {
       (req, res, next) => this.approveApplication(req, res, next),
     );
     return this.router;
+  }
+
+  // ① 담당 관리자 챌린지 목록·등록
+  async listChallenges(req, res, next) {
+    try {
+      sendPage(res, await this.#adminService.listChallenges(req.query), adminChallengeListSchema);
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async createChallenge(req, res, next) {
+    try {
+      const result = await this.#adminService.createChallenge(req.body, req.user.id);
+      sendCreated(res, result, adminChallengeSchema);
+    } catch (error) {
+      next(error);
+    }
   }
 
   // ⑤ 담당: 관리자 챌린지 신청 목록 조회 요청 처리
