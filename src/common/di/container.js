@@ -38,6 +38,7 @@ import { DevController } from '#controllers/dev/dev-controller.js';
 import { MeController } from '#controllers/me/me-controller.js';
 import { WorksController } from '#controllers/works/works-controller.js';
 import { ChallengesController } from '#controllers/challenges/challenges-controller.js';
+import { AdminController } from '#controllers/admin/admin-controller.js';
 
 import {
   AuthService,
@@ -47,6 +48,7 @@ import {
   MeService,
   WorkService,
   ChallengeService,
+  AdminService,
 } from '#services';
 
 import {
@@ -57,6 +59,7 @@ import {
   MeRepository,
   WorkRepository,
   ChallengeRepository,
+  AdminRepository,
 } from '#repositories';
 
 import {
@@ -133,6 +136,7 @@ export const createContainer = () => {
     meRepository: singleton(MeRepository),
     challengeRepository: singleton(ChallengeRepository),
     notificationRepository: singleton(NotificationRepository),
+    adminRepository: singleton(AdminRepository),
 
     // ── Services ─────────────────────────────────────────────
     authService: singleton(AuthService),
@@ -145,6 +149,7 @@ export const createContainer = () => {
     meService: singleton(MeService),
     challengeService: singleton(ChallengeService),
     notificationService: singleton(NotificationService),
+    adminService: singleton(AdminService),
 
     // ── Middlewares ──────────────────────────────────────────
     // 전역 1개. 인증을 "강제"하지 않고 req.user 만 채운다.
@@ -159,6 +164,7 @@ export const createContainer = () => {
     worksController: singleton(WorksController),
     challengesController: singleton(ChallengesController),
     notificationsController: singleton(NotificationsController),
+    adminController: singleton(AdminController),
 
     // 개발 전용 로그인 컨트롤러 — 꺼져 있으면 **아예 등록하지 않는다**.
     //   asValue(null) 로 두면 루트 Controller 의 `if (this.#devController)` 가
