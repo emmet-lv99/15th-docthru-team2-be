@@ -19,8 +19,8 @@
 // 🐘 prisma-8 쿼리 메모 (v7 와 다른 점)
 //   · 카운트  v7 model.count({ where }) → .where({ ... }).aggregate((a) => ({ n: a.count() }))
 //   · 관계 카운트(_count.select) 없음 → .include('likes', (l) => l.count()) 로 스칼라로 환원
-//   · to-one 관계 필드 필터는 공식 문서에 없어, **평평한 FK(스칼라)** 로 우회합니다
-//     (ChallengeParticipant.challengeId·userId / Work.participantId)
+//   · to-one 관계 필터는 공식 문서에 to-many 예시만 있어, **`.some()` 으로 실측 확인** 후 사용합니다
+//     (예: ChallengeParticipant.challenge.some((c) => c.status.eq('CLOSED')))
 export class GradeRepository {
   #db;
 
@@ -56,56 +56,43 @@ export class GradeRepository {
     }).aggregate((a) => ({ n: a.count() }));
     return row.n;
   }
-
   /**
    * 최다 추천 선정 횟수 (요구 2.2 · D-90)
    *   "내 작업물이 최다 추천(공동 1위 포함)인 마감 챌린지 수"
    *
-   *   v8 에서는 관계 술어 대신 **평평한 FK** 로 접근합니다 (문서에 명시된 문법만 사용).
-   *     ① 내 참여행 → 내 챌린지 id
-   *     ② 그중 마감(CLOSED) 챌린지만
-   *     ③ 마감 챌린지의 전체 참여행 (partId → {userId, challengeId} 지도)
-   *     ④ 그 참여행들의 작업물 + 좋아요 수 (include 리듀서 → 스칼라)
-   *     ⑤ 챌린지별 "전체 최고 = 내 최고"면 1승 (동률 1위 포함, 전체 최고가 0보다 클 때만)
+   *   쿼리 2번으로 계산합니다 (기존 4번 → 2번).
+   *     ① 내가 참여한 **마감(CLOSED) 챌린지**의 참여행   ← p.challenge.some 으로 2단계를 1단계로
+   *     ② 그 챌린지들의 작업물 + 좋아요 수 + 참여행 정보 ← include 로 2단계를 1단계로
+   *     ③ 챌린지별 "전체 최고 = 내 최고"면 1승 (동률 1위 포함, 전체 최고가 0보다 클 때만)
    */
+
   async getRecommendationWins(userId) {
     const uid = Number(userId);
 
-    // ① 내 참여행
+    // ① 내가 참여한 마감 챌린지의 참여행 (기존 ①+② 를 한 번에)
     const myParts = await this.#db.orm.public.ChallengeParticipant.where({ userId: uid })
+      .where((p) => p.challenge.some((c) => c.status.eq('CLOSED')))
       .select('id', 'challengeId')
       .all();
     if (myParts.length === 0) return 0;
 
-    // ② 내 챌린지 중 마감된 것만
-    const myChallengeIds = [...new Set(myParts.map((p) => p.challengeId))];
-    const myChallenges = await this.#db.orm.public.Challenge.where((c) => c.id.in(myChallengeIds))
-      .select('id', 'status')
-      .all();
-    const closedIds = myChallenges.filter((c) => c.status === 'CLOSED').map((c) => c.id);
-    if (closedIds.length === 0) return 0;
+    const closedIds = [...new Set(myParts.map((p) => p.challengeId))];
 
-    // ③ 마감 챌린지의 전체 참여행 → 작업물을 챌린지에 묶기 위한 지도
-    const parts = await this.#db.orm.public.ChallengeParticipant.where((p) =>
-      p.challengeId.in(closedIds),
+    // ② 마감 챌린지의 작업물 + 좋아요 수 (기존 ③+④ 를 한 번에)
+    //    참여행 정보를 include 로 함께 받아 partById 지도를 따로 만들지 않아요.
+    const works = await this.#db.orm.public.Work.where((w) =>
+      w.participant.some((p) => p.challengeId.in(closedIds)),
     )
-      .select('id', 'userId', 'challengeId')
-      .all();
-    if (parts.length === 0) return 0;
-    const partById = new Map(parts.map((p) => [p.id, p]));
-    const partIds = parts.map((p) => p.id);
-
-    // ④ 그 참여행들의 작업물 + 좋아요 수 (관계 카운트를 스칼라로)
-    const works = await this.#db.orm.public.Work.where((w) => w.participantId.in(partIds))
       .select('id', 'participantId')
+      .include('participant', (p) => p.select('userId', 'challengeId'))
       .include('likes', (l) => l.count())
       .all();
 
-    // ⑤ 챌린지별 전체 최고 / 내 최고 좋아요를 모아 비교
-    const globalBest = new Map(); // challengeId → 전체 최고 좋아요
-    const myBest = new Map(); // challengeId → 내 최고 좋아요
+    // ③ 챌린지별 전체 최고 / 내 최고 좋아요를 모아 비교
+    const globalBest = new Map();
+    const myBest = new Map();
     for (const work of works) {
-      const part = partById.get(work.participantId);
+      const part = work.participant;
       if (!part) continue;
       const { challengeId } = part;
       globalBest.set(challengeId, Math.max(globalBest.get(challengeId) ?? 0, work.likes));

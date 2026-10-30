@@ -64,14 +64,94 @@
 //  바로 알려줍니다. 실사용 중 구현이 계약을 어기는지 쉽게 확인할 수 있어요.
 //
 import { BaseController } from '#controllers/base-controller.js';
+import { needsLogin, needsRole, validate } from '#middlewares';
+import { HTTP_STATUS } from '#constants';
+import { sendData } from '#utils';
+import {
+  adminApplicationListQuerySchema,
+  adminApplicationListSchema,
+  adminApplicationSchema,
+  approveBodySchema,
+  approveResultSchema,
+} from './admin.schema.js';
+
+import { applicationIdParamSchema } from '#controllers/applications/applications.schema.js';
 
 export class AdminController extends BaseController {
-  constructor() {
+  #adminService;
+
+  constructor({ adminService }) {
     super();
+    this.#adminService = adminService;
   }
 
   routes() {
-    // TODO: 라우트를 추가한다
+    // ⑤ 담당: 관리자 챌린지 신청 목록 조회
+    this.router.get(
+      '/challenge-applications',
+      needsLogin,
+      needsRole((userId) => this.#adminService.assertAdmin(userId)),
+      validate('query', adminApplicationListQuerySchema),
+      (req, res, next) => this.listApplications(req, res, next),
+    );
+
+    // ⑤ 담당: 관리자 챌린지 신청 상세 조회
+    this.router.get(
+      '/challenge-applications/:applicationId',
+      needsLogin,
+      needsRole((userId) => this.#adminService.assertAdmin(userId)),
+      validate('params', applicationIdParamSchema),
+      (req, res, next) => this.getApplication(req, res, next),
+    );
+
+    // ⑤ 담당: 관리자 챌린지 신청 승인
+    this.router.post(
+      '/challenge-applications/:applicationId/approve',
+      needsLogin,
+      needsRole((userId) => this.#adminService.assertAdmin(userId)),
+      validate('params', applicationIdParamSchema),
+      (req, res, next) => {
+        req.body ??= {};
+        next();
+      },
+      validate('body', approveBodySchema),
+      (req, res, next) => this.approveApplication(req, res, next),
+    );
     return this.router;
+  }
+
+  // ⑤ 담당: 관리자 챌린지 신청 목록 조회 요청 처리
+  async listApplications(req, res, next) {
+    try {
+      const result = await this.#adminService.listApplications(req.query);
+
+      sendData(res, result, HTTP_STATUS.OK, adminApplicationListSchema);
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  // ⑤ 담당: 관리자 챌린지 신청 상세 조회 요청 처리
+  async getApplication(req, res, next) {
+    try {
+      const result = await this.#adminService.getApplication(req.params.applicationId);
+      sendData(res, result, HTTP_STATUS.OK, adminApplicationSchema);
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  // ⑤ 담당: 관리자 챌린지 신청 승인 요청 처리
+  async approveApplication(req, res, next) {
+    try {
+      const result = await this.#adminService.approveApplication(
+        req.params.applicationId,
+        req.user.id,
+        req.body ?? {},
+      );
+      sendData(res, result, HTTP_STATUS.OK, approveResultSchema);
+    } catch (error) {
+      next(error);
+    }
   }
 }

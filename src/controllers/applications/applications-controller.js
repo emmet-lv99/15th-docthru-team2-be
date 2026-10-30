@@ -99,6 +99,14 @@ export class ApplicationsController extends BaseController {
       (req, res, next) => this.getMyApplication(req, res, next),
     );
 
+    // 4. 내가  제출한 신규 챌린지 제안 취소
+    this.router.delete(
+      '/me/:applicationId',
+      needsLogin,
+      validate('params', applicationIdParamSchema),
+      (req, res, next) => this.cancelApplication(req, res, next),
+    );
+
     return this.router;
   }
 
@@ -138,6 +146,19 @@ export class ApplicationsController extends BaseController {
       const result = await this.#applicationService.createApplication(userId, body);
 
       sendData(res, result, HTTP_STATUS.CREATED, applicationSchema);
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  // 내가 제출한 신규 챌린지 제안 취소
+  async cancelApplication(req, res, next) {
+    try {
+      const userId = req.user.id;
+      const applicationId = Number(req.params.applicationId);
+      await this.#applicationService.cancelApplication(userId, applicationId);
+      // 204 성공했지만 응답 본문은 보내지 않는다.
+      res.sendStatus(HTTP_STATUS.NO_CONTENT);
     } catch (error) {
       next(error);
     }
