@@ -124,7 +124,8 @@ export class MeRepository {
         maxParticipants: challenge.maxParticipants,
         participantCount: challenge.participants.length,
         isClosed:
-          challenge.status === 'CLOSED' || new Date(challenge.deadline).getTime() <= now.getTime(),
+          challenge.status === 'CLOSED' ||
+          dbDateTimeToIso(challenge.deadline).getTime() <= now.getTime(),
       },
       totalWorks: row.work.total,
       latestWork: latest
