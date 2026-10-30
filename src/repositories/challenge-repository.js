@@ -146,7 +146,113 @@ export class ChallengeRepository {
       .include('createdBy', (user) => user.select('id', 'nickname', 'grade', 'role'))
       .first();
   }
+  async listParticipants(challengeId) {
+    const id = Number(challengeId);
+    const challenge = await this.#db.orm.public.Challenge.where({ id })
+      .where((c) => c.status.in(['IN_PROGRESS', 'CLOSED']))
+      .where((c) => c.deletedAt.isNull())
+      .select('id')
+      .first();
+    if (!challenge) return null;
+
+    return this.#db.orm.public.ChallengeParticipant.where({ challengeId: id })
+      .select('id', 'joinedAt', 'abandonedAt')
+      .include('user', (u) => u.select('id', 'nickname', 'grade', 'role'))
+      .include('work', (w) =>
+        w.select('id', 'content', 'submittedAt').include('likes', (likes) => likes.count()),
+      )
+      .all();
+  }
   // listParticipants(...) { /* TODO */ }
+  async joinParticipation({ challengeId, userId, validateJoin }) {
+    const id = Number(challengeId);
+    const uid = Number(userId);
+
+    // 챌린지 행 잠금을 먼저 획득해 같은 챌린지의 동시 참여 요청을 직렬화한다.
+    return this.#db.transaction(async (tx) => {
+      const challenge = await tx.orm.public.Challenge.where({ id })
+        .select('id', 'status', 'deadline', 'deletedAt', 'maxParticipants')
+        .forUpdate()
+        .first();
+      const activeParticipants = challenge
+        ? await tx.orm.public.ChallengeParticipant.where({ challengeId: id })
+            .where((participant) => participant.abandonedAt.isNull())
+            .aggregate((aggregate) => ({ total: aggregate.count() }))
+        : { total: 0 };
+      const existing = await tx.orm.public.ChallengeParticipant.where({
+        challengeId: id,
+        userId: uid,
+      })
+        .select('id', 'joinedAt', 'abandonedAt')
+        .first();
+
+      validateJoin({ challenge, existing, activeCount: Number(activeParticipants.total) });
+
+      if (existing) {
+        const renewed = await tx.orm.public.ChallengeParticipant.where({ id: existing.id })
+          .select('id', 'challengeId', 'joinedAt')
+          .update({ abandonedAt: null });
+        return { ...renewed, isRejoined: true };
+      }
+
+      const created = await tx.orm.public.ChallengeParticipant.select(
+        'id',
+        'challengeId',
+        'joinedAt',
+      ).create({ challengeId: id, userId: uid });
+      return { ...created, isRejoined: false };
+    });
+  }
+
+  async abandonParticipation({ challengeId, userId, validateAbandon }) {
+    const id = Number(challengeId);
+    const uid = Number(userId);
+
+    return this.#db.transaction(async (tx) => {
+      const challenge = await tx.orm.public.Challenge.where({ id })
+        .select('id', 'status', 'deletedAt')
+        .forUpdate()
+        .first();
+      const participation = await tx.orm.public.ChallengeParticipant.where({
+        challengeId: id,
+        userId: uid,
+      })
+        .select('id', 'abandonedAt')
+        .include('work', (works) => works.count())
+        .first();
+
+      validateAbandon({ challenge, participation });
+      await tx.orm.public.ChallengeParticipant.where({ id: participation.id }).update({
+        abandonedAt: new Date(),
+      });
+    });
+  }
+
+  async findMyWork(challengeId, userId) {
+    const id = Number(challengeId);
+    const challenge = await this.#db.orm.public.Challenge.where({ id })
+      .where((c) => c.status.in(['IN_PROGRESS', 'CLOSED']))
+      .where((c) => c.deletedAt.isNull())
+      .select('id')
+      .first();
+    if (!challenge) return null;
+
+    return this.#db.orm.public.ChallengeParticipant.where({
+      challengeId: id,
+      userId: Number(userId),
+    })
+      .select('id', 'abandonedAt')
+      .include('work', (works) =>
+        works.combine({
+          latest: works
+            .select('id', 'content', 'submittedAt', 'updatedAt')
+            .orderBy((work) => work.submittedAt.desc())
+            .limit(1),
+          total: works.count(),
+        }),
+      )
+      .first();
+  }
   // joinChallenge(...) { /* TODO */ }
   // abandonChallenge(...) { /* TODO */ }
   // getMyWork(...) { /* TODO */ }
