@@ -187,8 +187,24 @@ export class AdminRepository {
     }).updateAndCount(updateData);
   }
 
+  // ⑤ 담당: 관리자 챌린지 신청 거절
+  async rejectApplication(applicationId, adminId, reason) {
+    const updateData = {
+      status: 'REJECTED',
+      rejectionReason: reason,
+      decidedAt: new Date().toISOString(),
+      decidedById: adminId,
+    };
+
+    return this.#db.orm.public.Challenge.where({
+      id: Number(applicationId),
+      status: 'PENDING',
+    })
+      .where((c) => c.deletedAt.isNull())
+      .updateAndCount(updateData);
+  }
+
   // ── 골격 (아래는 이 도메인에서 자주 쓰는 메서드 예요 — 필요한 것만 남기고 구현하세요) ──
-  // rejectApplication(...) { /* TODO */ }
   // listChallenges(...) { /* TODO */ }
   // createChallenge(...) { /* TODO */ }
   // updateChallenge(...) { /* TODO */ }
