@@ -76,14 +76,64 @@ export class MeRepository {
     };
   }
 
-  async listMyApplications(_userId, query) {
+  /**
+   * 내가 신청한 챌린지 목록 — challenges 행 하나가 "신청 1건"이에요.
+   *   · 신청자 = createdById (승인 후에도 같은 행을 이어서 씁니다)
+   *   · 응답 status 는 4종이지만 DB 는 5종이라 IN_PROGRESS/CLOSED → APPROVED 로 바꿔 줍니다.
+   */
+  async listMyApplications(userId, query) {
+    const limit = Number(query.limit ?? 10);
+    const cursor = query.cursor ? Number(query.cursor) : null;
+
+    let challengeQuery = this.#db.orm.public.Challenge.where({
+      createdById: Number(userId),
+    }).where((c) => c.deletedAt.isNull());
+
+    if (query.status === 'APPROVED') {
+      // 승인된 신청은 챌린지로 전환되어 IN_PROGRESS / CLOSED 가 됩니다
+      challengeQuery = challengeQuery.where((c) => c.status.in(['IN_PROGRESS', 'CLOSED']));
+    } else if (query.status) {
+      challengeQuery = challengeQuery.where((c) => c.status.eq(query.status));
+    }
+
+    if (query.q) {
+      challengeQuery = challengeQuery.where((c) => c.title.ilike(`%${query.q}%`));
+    }
+
+    if (cursor) {
+      challengeQuery = challengeQuery.where((c) => c.id.lt(cursor));
+    }
+
+    const rows = await challengeQuery
+      .select(
+        'id',
+        'title',
+        'category',
+        'documentType',
+        'sourceUrl',
+        'deadline',
+        'maxParticipants',
+        'status',
+        'rejectionReason',
+        'decidedAt',
+        'cancelledAt',
+        'createdAt',
+      )
+      .orderBy((c) => c.id.desc())
+      .limit(limit + 1)
+      .all();
+
+    const hasMore = rows.length > limit;
+    const page = hasMore ? rows.slice(0, limit) : rows;
+
     return {
-      items: [],
-      cursor: null,
-      limit: Number(query.limit ?? 10),
-      hasMore: false,
+      items: page.map((row) => this.#toApplicationItem(row)),
+      cursor: hasMore && page.length > 0 ? page[page.length - 1].id : null,
+      limit,
+      hasMore,
     };
   }
+
   async #challengeIdsByMode(mode, { q, category, documentType, now }) {
     let query = this.#db.orm.public.Challenge.where((c) => c.deletedAt.isNull());
 
@@ -107,6 +157,33 @@ export class MeRepository {
     const rows = await query.select('id').all();
     return rows.map((row) => row.id);
   }
+
+  #toApplicationItem(row) {
+    const approved = row.status === 'IN_PROGRESS' || row.status === 'CLOSED';
+    return {
+      applicationId: row.id,
+      title: row.title,
+      category: row.category,
+      documentType: row.documentType,
+      sourceUrl: row.sourceUrl,
+      desiredDeadline: dbDateTimeToIso(row.deadline).toISOString(),
+      maxParticipants: row.maxParticipants,
+      status: approved ? 'APPROVED' : row.status,
+      rejectionReason: row.rejectionReason ?? null,
+      decidedAt: row.decidedAt ? dbDateTimeToIso(row.decidedAt).toISOString() : null,
+      cancelledAt: row.cancelledAt ? dbDateTimeToIso(row.cancelledAt).toISOString() : null,
+      approvedChallenge: approved
+        ? {
+            id: row.id,
+            title: row.title,
+            deadline: dbDateTimeToIso(row.deadline).toISOString(),
+            status: row.status,
+          }
+        : null,
+      createdAt: dbDateTimeToIso(row.createdAt).toISOString(),
+    };
+  }
+
   #toChallengeItem(row, now) {
     const challenge = row.challenge;
     const latest = (row.work.latest ?? [])[0] ?? null;
