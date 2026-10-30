@@ -110,6 +110,10 @@ export class AdminController extends BaseController {
       needsLogin,
       needsRole((userId) => this.#adminService.assertAdmin(userId)),
       validate('params', applicationIdParamSchema),
+      (req, res, next) => {
+        req.body ??= {};
+        next();
+      },
       validate('body', approveBodySchema),
       (req, res, next) => this.approveApplication(req, res, next),
     );
