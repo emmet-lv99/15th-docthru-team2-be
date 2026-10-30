@@ -73,6 +73,10 @@ import {
 
 import { AuthMiddleware } from '#middlewares/auth-middleware.js';
 
+import { NotificationsController } from '#controllers/notifications/notifications-controller.js';
+import { NotificationService } from '#services';
+import { NotificationRepository } from '#repositories';
+
 // asClass(X, { lifetime: SINGLETON }) 의 짧은 별칭
 const singleton = (Klass) => asClass(Klass, { lifetime: Lifetime.SINGLETON });
 
@@ -131,6 +135,7 @@ export const createContainer = () => {
     workRepository: singleton(WorkRepository),
     meRepository: singleton(MeRepository),
     challengeRepository: singleton(ChallengeRepository),
+    notificationRepository: singleton(NotificationRepository),
     adminRepository: singleton(AdminRepository),
 
     // ── Services ─────────────────────────────────────────────
@@ -143,6 +148,7 @@ export const createContainer = () => {
     workService: singleton(WorkService),
     meService: singleton(MeService),
     challengeService: singleton(ChallengeService),
+    notificationService: singleton(NotificationService),
     adminService: singleton(AdminService),
 
     // ── Middlewares ──────────────────────────────────────────
@@ -157,6 +163,7 @@ export const createContainer = () => {
     meController: singleton(MeController),
     worksController: singleton(WorksController),
     challengesController: singleton(ChallengesController),
+    notificationsController: singleton(NotificationsController),
     adminController: singleton(AdminController),
 
     // 개발 전용 로그인 컨트롤러 — 꺼져 있으면 **아예 등록하지 않는다**.

@@ -20,12 +20,28 @@ export class MeController extends BaseController {
       (req, res, next) => this.listParticipating(req, res, next),
     );
 
+    this.router.get(
+      '/challenges/completed',
+      needsLogin,
+      validate('query', myChallengeListQuerySchema),
+      (req, res, next) => this.listCompleted(req, res, next),
+    );
+
     return this.router;
   }
 
   async listParticipating(req, res, next) {
     try {
       const result = await this.#meService.listParticipating(req.user.id, req.query);
+      sendData(res, result, HTTP_STATUS.OK, myChallengeListSchema);
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async listCompleted(req, res, next) {
+    try {
+      const result = await this.#meService.listCompleted(req.user.id, req.query);
       sendData(res, result, HTTP_STATUS.OK, myChallengeListSchema);
     } catch (error) {
       next(error);

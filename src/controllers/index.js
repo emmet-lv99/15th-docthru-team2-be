@@ -28,6 +28,7 @@ export class Controller extends BaseController {
   #challengesController;
   #worksController;
   #meController;
+  #notificationsController;
   #adminController;
 
   constructor({
@@ -38,6 +39,7 @@ export class Controller extends BaseController {
     challengesController,
     worksController,
     meController,
+    notificationsController,
     adminController,
   }) {
     super();
@@ -48,6 +50,7 @@ export class Controller extends BaseController {
     this.#challengesController = challengesController;
     this.#worksController = worksController;
     this.#meController = meController;
+    this.#notificationsController = notificationsController;
     this.#adminController = adminController;
   }
 
@@ -77,6 +80,7 @@ export class Controller extends BaseController {
     // ── 각자 구현 ────────────────────────────────────────────
     this.router.use('/challenges', this.#challengesController.routes());
     this.router.use('/', this.#worksController.routes());
+    this.router.use('/notifications', this.#notificationsController.routes());
     this.router.use('/admin', this.#adminController.routes());
 
     // ── 신규 챌린지 신청 관리 ─────────────────────────
