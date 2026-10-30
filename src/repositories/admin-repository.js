@@ -142,6 +142,7 @@ export class AdminRepository {
     return this.#db.orm.public.Challenge.where({
       id: Number(applicationId),
     })
+      .where((c) => c.deletedAt.isNull())
       .select(
         'id',
         'title',
