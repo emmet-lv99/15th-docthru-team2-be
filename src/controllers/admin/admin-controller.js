@@ -73,6 +73,8 @@ import {
   adminApplicationSchema,
   approveBodySchema,
   approveResultSchema,
+  rejectBodySchema,
+  rejectResultSchema,
 } from './admin.schema.js';
 
 import { applicationIdParamSchema } from '#controllers/applications/applications.schema.js';
@@ -110,13 +112,24 @@ export class AdminController extends BaseController {
       needsLogin,
       needsRole((userId) => this.#adminService.assertAdmin(userId)),
       validate('params', applicationIdParamSchema),
-      (req, res, next) => {
-        req.body ??= {};
+      (req, _res, next) => {
+        if (req.body === undefined) req.body = {};
         next();
       },
       validate('body', approveBodySchema),
       (req, res, next) => this.approveApplication(req, res, next),
     );
+
+    // ⑤ 담당: 관리자 챌린지 신청 거절
+    this.router.post(
+      '/challenge-applications/:applicationId/reject',
+      needsLogin,
+      needsRole((userId) => this.#adminService.assertAdmin(userId)),
+      validate('params', applicationIdParamSchema),
+      validate('body', rejectBodySchema),
+      (req, res, next) => this.rejectApplication(req, res, next),
+    );
+
     return this.router;
   }
 
@@ -150,6 +163,20 @@ export class AdminController extends BaseController {
         req.body ?? {},
       );
       sendData(res, result, HTTP_STATUS.OK, approveResultSchema);
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  // ⑤ 담당: 관리자 챌린지 신청 거절
+  async rejectApplication(req, res, next) {
+    try {
+      const applicationId = req.params.applicationId;
+      const adminId = req.user.id;
+      const { reason } = req.body;
+
+      const result = await this.#adminService.rejectApplication(applicationId, adminId, reason);
+      return sendData(res, result, HTTP_STATUS.OK, rejectResultSchema);
     } catch (error) {
       next(error);
     }
