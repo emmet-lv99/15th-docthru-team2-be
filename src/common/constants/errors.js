@@ -66,6 +66,7 @@ export const ERROR_MESSAGE = {
   ALREADY_PARTICIPATED: '이미 참여 중인 챌린지입니다.',
   NOT_PARTICIPANT: '참여하지 않은 챌린지입니다.',
   CANNOT_ABANDON_AFTER_SUBMIT: '작업을 제출한 뒤에는 포기할 수 없습니다.',
+  APPLICATION_NOT_CANCELLABLE: '승인 대기 중인 신청만 취소할 수 있습니다.',
 
   // 작업물
   WORK_NOT_FOUND: '작업물을 찾을 수 없습니다.',

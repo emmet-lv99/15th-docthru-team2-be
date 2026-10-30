@@ -10,3 +10,4 @@ export { WorkRepository } from './work-repository.js';
 export { ApplicationRepository } from './application-repository.js';
 export { ChallengeRepository } from './challenge-repository.js';
 export { NotificationRepository } from './notification-repository.js';
+export { AdminRepository } from './admin-repository.js';

@@ -154,6 +154,18 @@ export class ApplicationRepository {
     ).create(data);
     return application;
   }
+
+  // 승인 대기 상태의 내 신청 취소
+  async cancelApplication(userId, applicationId, cancelledAt) {
+    return this.#db.orm.public.Challenge.where({
+      id: Number(applicationId),
+      createdById: userId,
+      status: 'PENDING',
+    }).updateAndCount({
+      status: 'CANCELLED',
+      cancelledAt,
+    });
+  }
 }
 // ── 골격 (아래는 이 도메인에서 자주 쓰는 메서드 예요 — 필요한 것만 남기고 구현하세요) ──
 // createApplication(...) { /* TODO */ }
