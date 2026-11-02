@@ -15,7 +15,12 @@
 //
 // ★ 만들었으면 — services/index.js 에 export 한 줄 + common/di/container.js 에 singleton(FeedbackService) 등록.
 
-import { ConflictException, ForbiddenException, NotFoundException } from '#exceptions';
+import {
+  BusinessRuleViolationException,
+  ConflictException,
+  ForbiddenException,
+  NotFoundException,
+} from '#exceptions';
 import { ERROR_CODE, ERROR_MESSAGE } from '#constants';
 import { dbDateTimeToIso } from '#utils';
 
@@ -70,7 +75,7 @@ export class FeedbackService {
   }
 
   // 수정, 삭제 공통
-  async #validateFeedbackAction(feedbackId, user) {
+  async #validateFeedbackAction(feedbackId, user, reason) {
     const feedback = await this.#feedbackRepository.findById(feedbackId);
 
     if (!feedback) {
@@ -97,6 +102,11 @@ export class FeedbackService {
       );
     }
 
+    // 어드민이 다른 사람의 피드백을 변경하면 사유 필수
+    if (isAdmin && !isOwner && !reason?.trim()) {
+      throw new BusinessRuleViolationException(ERROR_MESSAGE.INVALID_INPUT);
+    }
+
     return {
       feedback,
       shouldNotify: isAdmin && !isOwner,
@@ -104,8 +114,8 @@ export class FeedbackService {
   }
 
   // 피드백 수정
-  async updateFeedback({ feedbackId, content, user }) {
-    const { feedback, shouldNotify } = await this.#validateFeedbackAction(feedbackId, user);
+  async updateFeedback({ feedbackId, content, user, reason }) {
+    const { feedback, shouldNotify } = await this.#validateFeedbackAction(feedbackId, user, reason);
 
     const updatedFeedback = await this.#feedbackRepository.updateFeedback(feedbackId, content);
 
@@ -118,6 +128,7 @@ export class FeedbackService {
           actorId: user.id,
           relatedChallengeId: feedback.challengeId,
           relatedWorkId: feedback.workId,
+          reason,
         },
       ]);
     }
@@ -126,8 +137,8 @@ export class FeedbackService {
   }
 
   // 피드백 삭제
-  async deleteFeedback({ feedbackId, user }) {
-    const { feedback, shouldNotify } = await this.#validateFeedbackAction(feedbackId, user);
+  async deleteFeedback({ feedbackId, user, reason }) {
+    const { feedback, shouldNotify } = await this.#validateFeedbackAction(feedbackId, user, reason);
 
     await this.#feedbackRepository.deleteFeedback(feedbackId);
 
@@ -140,6 +151,7 @@ export class FeedbackService {
           actorId: user.id,
           relatedChallengeId: feedback.challengeId,
           relatedWorkId: feedback.workId,
+          reason,
         },
       ]);
     }

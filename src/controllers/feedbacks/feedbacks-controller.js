@@ -173,7 +173,7 @@ export class FeedbacksController extends BaseController {
   async deleteFeedback(req, res, next) {
     try {
       const { feedbackId } = req.params;
-      const { reason } = req.body;
+      const { reason } = req.body ?? {};
       const user = req.user;
 
       await this.#feedbackService.deleteFeedback({
