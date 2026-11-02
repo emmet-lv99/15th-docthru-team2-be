@@ -61,14 +61,18 @@
 //  바로 알려줍니다. 실사용 중 구현이 계약을 어기는지 쉽게 확인할 수 있어요.
 //
 import { BaseController } from '#controllers/base-controller.js';
-import { validate } from '#middlewares';
+import { needsLogin, validate } from '#middlewares';
 import {
   challengeIdParamSchema,
   challengeListQuerySchema,
   challengeListSchema,
+  participantListQuerySchema,
+  participantListSchema,
+  participationResultSchema,
+  myWorkSchema,
   challengeSchema,
 } from './challenges.schema.js';
-import { sendData, sendPage } from '#utils';
+import { sendCreated, sendData, sendNoContent, sendPage } from '#utils';
 
 export class ChallengesController extends BaseController {
   #challengeService;
@@ -84,6 +88,30 @@ export class ChallengesController extends BaseController {
     );
     this.router.get('/:challengeId', validate('params', challengeIdParamSchema), (req, res, next) =>
       this.detail(req, res, next),
+    );
+    this.router.get(
+      '/:challengeId/participants',
+      validate('params', challengeIdParamSchema),
+      validate('query', participantListQuerySchema),
+      (req, res, next) => this.participants(req, res, next),
+    );
+    this.router.post(
+      '/:challengeId/participation',
+      needsLogin,
+      validate('params', challengeIdParamSchema),
+      (req, res, next) => this.join(req, res, next),
+    );
+    this.router.delete(
+      '/:challengeId/participation',
+      needsLogin,
+      validate('params', challengeIdParamSchema),
+      (req, res, next) => this.abandon(req, res, next),
+    );
+    this.router.get(
+      '/:challengeId/works/me',
+      needsLogin,
+      validate('params', challengeIdParamSchema),
+      (req, res, next) => this.myWork(req, res, next),
     );
     // TODO: 라우트를 추가한다. 예)
     // this.router.get('/', validate('query', listQuerySchema), (req, res, next) =>
@@ -104,6 +132,49 @@ export class ChallengesController extends BaseController {
     try {
       const challenge = await this.#challengeService.getChallengeDetail(req.params.challengeId);
       sendData(res, challenge, undefined, challengeSchema);
+    } catch (error) {
+      next(error);
+    }
+  }
+  async participants(req, res, next) {
+    try {
+      const result = await this.#challengeService.listParticipants(
+        req.params.challengeId,
+        req.query,
+      );
+      sendData(
+        res,
+        { ...result, totalPages: Math.ceil(result.totalItems / result.size) },
+        undefined,
+        participantListSchema,
+      );
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async join(req, res, next) {
+    try {
+      const result = await this.#challengeService.joinChallenge(req.params.challengeId, req.user);
+      sendCreated(res, result, participationResultSchema);
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async abandon(req, res, next) {
+    try {
+      await this.#challengeService.abandonChallenge(req.params.challengeId, req.user);
+      sendNoContent(res);
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async myWork(req, res, next) {
+    try {
+      const result = await this.#challengeService.getMyWork(req.params.challengeId, req.user);
+      sendData(res, result, undefined, myWorkSchema);
     } catch (error) {
       next(error);
     }
