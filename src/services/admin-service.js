@@ -69,10 +69,12 @@ function toAdminApplicationDto(challenge) {
 export class AdminService {
   #adminRepository;
   #userRepository;
+  #notificationService;
 
-  constructor({ adminRepository, userRepository }) {
+  constructor({ adminRepository, userRepository, notificationService }) {
     this.#adminRepository = adminRepository;
     this.#userRepository = userRepository;
+    this.#notificationService = notificationService;
   }
 
   // 공통: 관리자 권한 확인
@@ -164,15 +166,27 @@ export class AdminService {
     // 4. Repository에서 거절 처리
     const count = await this.#adminRepository.rejectApplication(applicationId, adminId, reason);
 
-    // 5. 다른 관리자가 먼처 처리했을 경우
+    // 5. 다른 관리자가 먼처 처리했으면 409
     if (count === 0) {
       throw new ConflictException('이미 처리된 신청입니다.');
     }
 
-    // 6. 처리된 신청서 다시 조회
+    // 6. 신청자에게 거정 알림 생성
+    await this.#notificationService.createNotifications([
+      {
+        userId: application.createdBy.id,
+        type: 'CHALLENGE_REJECTED',
+        reason: reason,
+        relatedChallengeId: application.id,
+        actorId: adminId,
+        dedupeKey: `CHALLENGE_REJECTED:${application.id}`,
+      },
+    ]);
+
+    // 7. 처리된 신청서 다시 조회
     const rejected = await this.#adminRepository.getApplication(applicationId);
 
-    // 7. 응답 데이터 변환
+    // 8. 응답 데이터 변환
     return {
       applicationId: rejected.id,
       status: 'REJECTED',
