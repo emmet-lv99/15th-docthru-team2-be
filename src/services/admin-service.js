@@ -17,6 +17,7 @@
 // ★ 만들었으면 — services/index.js 에 export 한 줄 + common/di/container.js 에 singleton(AdminService) 등록.
 //
 import { ForbiddenException, NotFoundException, ConflictException } from '#exceptions';
+import { dbDateTimeToIso } from '#utils';
 
 // ⑤ 담당: DB챌린지 상태를 신청 상태로 변환
 function toApplicationStatus(status) {
@@ -65,6 +66,25 @@ function toAdminApplicationDto(challenge) {
     createdAt: toIsoDate(challenge.createdAt),
   };
 }
+
+// ① 담당 챌린지 응답은 공통 adminChallengeSchema 필드에만 맞춘다.
+const toAdminChallengeDto = (row) => ({
+  challengeId: row.id,
+  title: row.title,
+  category: row.category,
+  documentType: row.documentType,
+  sourceUrl: row.sourceUrl,
+  content: row.content,
+  deadline: dbDateTimeToIso(row.deadline).toISOString(),
+  maxParticipants: row.maxParticipants,
+  status: row.status,
+  deletedAt: row.deletedAt ? dbDateTimeToIso(row.deletedAt).toISOString() : null,
+  deleteReason: row.deleteReason,
+  createdBy: row.createdBy ? { id: row.createdBy.id, nickname: row.createdBy.nickname } : null,
+  participantCount: row.participants.filter((p) => p.abandonedAt === null).length,
+  workCount: row.participants.reduce((n, p) => n + Number(p.work), 0),
+  createdAt: dbDateTimeToIso(row.createdAt).toISOString(),
+});
 
 export class AdminService {
   #adminRepository;
@@ -151,4 +171,20 @@ export class AdminService {
   // createChallenge(...) { /* TODO */ }
   // updateChallenge(...) { /* TODO */ }
   // deleteChallenge(...) { /* TODO */ }
+
+  // ① 담당 — 관리자 챌린지 관리
+  async listChallenges(query) {
+    const result = await this.#adminRepository.listChallenges(query);
+    return { ...result, items: result.items.map(toAdminChallengeDto) };
+  }
+
+  async createChallenge(body, adminId) {
+    const row = await this.#adminRepository.createChallenge({
+      ...body,
+      content: body.content ?? null,
+      createdById: Number(adminId),
+      status: 'IN_PROGRESS',
+    });
+    return toAdminChallengeDto(row);
+  }
 }

@@ -30,6 +30,32 @@
 //   STEP 2 · common/di/container.js 에 singleton(AdminRepository) 등록
 //   STEP 3 · 그 리포지토리를 쓰는 service 가 주입받게 연결
 //
+import { or } from '@prisma/orm-postgres/orm-client';
+
+const CHALLENGE_FIELDS = [
+  'id',
+  'title',
+  'category',
+  'documentType',
+  'sourceUrl',
+  'content',
+  'deadline',
+  'maxParticipants',
+  'status',
+  'deletedAt',
+  'deleteReason',
+  'createdAt',
+];
+
+// ① 관리 응답은 모든 CRUD 경로에서 동일한 관계·집계를 조회한다.
+const withChallengeRelations = (query) =>
+  query
+    .select(...CHALLENGE_FIELDS)
+    .include('createdBy', (user) => user.select('id', 'nickname'))
+    .include('participants', (participants) =>
+      participants.select('id', 'abandonedAt').include('work', (work) => work.count()),
+    );
+
 export class AdminRepository {
   #db;
 
@@ -193,4 +219,52 @@ export class AdminRepository {
   // createChallenge(...) { /* TODO */ }
   // updateChallenge(...) { /* TODO */ }
   // deleteChallenge(...) { /* TODO */ }
+
+  // ① 담당: 관리자용 챌린지 목록 조회
+  async listChallenges({
+    page = 1,
+    size = 20,
+    q,
+    category,
+    documentType,
+    status,
+    sort = 'latest',
+    includeDeleted = false,
+  } = {}) {
+    let query = this.#db.orm.public.Challenge.where((c) => c.status.in(['IN_PROGRESS', 'CLOSED']));
+    if (!includeDeleted) query = query.where((c) => c.deletedAt.isNull());
+    if (category?.length) query = query.where((c) => c.category.in(category));
+    if (documentType) query = query.where({ documentType });
+    if (status) query = query.where({ status });
+    if (q?.trim()) {
+      const escaped = q.trim().replace(/[\\%_]/g, '\\$&');
+      const pattern = '%' + escaped + '%';
+      query = query.where((c) => or(c.title.ilike(pattern), c.content.ilike(pattern)));
+    }
+    const count = await query.aggregate((a) => ({ total: a.count() }));
+    const ordered =
+      sort === 'deadline'
+        ? query.orderBy([(c) => c.deadline.asc(), (c) => c.id.asc()])
+        : query.orderBy([(c) => c.createdAt.desc(), (c) => c.id.desc()]);
+    return {
+      items: await withChallengeRelations(ordered)
+        .limit(size)
+        .offset((page - 1) * size)
+        .all(),
+      page,
+      size,
+      totalItems: Number(count.total),
+    };
+  }
+
+  findChallengeById(challengeId) {
+    return withChallengeRelations(
+      this.#db.orm.public.Challenge.where({ id: Number(challengeId) }),
+    ).first();
+  }
+
+  async createChallenge(data) {
+    const row = await this.#db.orm.public.Challenge.select('id').create(data);
+    return this.findChallengeById(row.id);
+  }
 }
