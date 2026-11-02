@@ -11,3 +11,4 @@ export { ApplicationRepository } from './application-repository.js';
 export { ChallengeRepository } from './challenge-repository.js';
 export { NotificationRepository } from './notification-repository.js';
 export { AdminRepository } from './admin-repository.js';
+export { FeedbackRepository } from './feedback-repository.js';

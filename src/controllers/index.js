@@ -30,6 +30,7 @@ export class Controller extends BaseController {
   #meController;
   #notificationsController;
   #adminController;
+  #feedbacksController;
 
   constructor({
     authController,
@@ -41,6 +42,7 @@ export class Controller extends BaseController {
     meController,
     notificationsController,
     adminController,
+    feedbacksController,
   }) {
     super();
     this.#authController = authController;
@@ -52,6 +54,7 @@ export class Controller extends BaseController {
     this.#meController = meController;
     this.#notificationsController = notificationsController;
     this.#adminController = adminController;
+    this.#feedbacksController = feedbacksController;
   }
 
   routes() {
@@ -82,6 +85,7 @@ export class Controller extends BaseController {
     this.router.use('/', this.#worksController.routes());
     this.router.use('/notifications', this.#notificationsController.routes());
     this.router.use('/admin', this.#adminController.routes());
+    this.router.use('/', this.#feedbacksController.routes());
 
     // ── 신규 챌린지 신청 관리 ─────────────────────────
     this.router.use('/challenge-applications', this.#applicationsController.routes());
