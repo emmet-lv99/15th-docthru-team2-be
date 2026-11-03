@@ -66,9 +66,11 @@
 import { BaseController } from '#controllers/base-controller.js';
 import { needsLogin, needsRole, validate } from '#middlewares';
 import { HTTP_STATUS } from '#constants';
-import { sendCreated, sendData, sendPage } from '#utils';
+import { sendCreated, sendData, sendNoContent, sendPage } from '#utils';
 import {
   adminChallengeCreateBodySchema,
+  adminChallengeUpdateBodySchema,
+  adminChallengeDeleteBodySchema,
   adminChallengeListQuerySchema,
   adminChallengeListSchema,
   adminChallengeSchema,
@@ -80,6 +82,7 @@ import {
 } from './admin.schema.js';
 
 import { applicationIdParamSchema } from '#controllers/applications/applications.schema.js';
+import { challengeIdParamSchema } from '#controllers/challenges/challenges.schema.js';
 
 export class AdminController extends BaseController {
   #adminService;
@@ -105,6 +108,24 @@ export class AdminController extends BaseController {
       adminOnly,
       validate('body', adminChallengeCreateBodySchema),
       (req, res, next) => this.createChallenge(req, res, next),
+    );
+
+    // ① 담당: 관리자 챌린지 수정·삭제 (기존 목록·등록과 별도 PR)
+    this.router.patch(
+      '/challenges/:challengeId',
+      needsLogin,
+      adminOnly,
+      validate('params', challengeIdParamSchema),
+      validate('body', adminChallengeUpdateBodySchema),
+      (req, res, next) => this.updateChallenge(req, res, next),
+    );
+    this.router.delete(
+      '/challenges/:challengeId',
+      needsLogin,
+      adminOnly,
+      validate('params', challengeIdParamSchema),
+      validate('body', adminChallengeDeleteBodySchema),
+      (req, res, next) => this.deleteChallenge(req, res, next),
     );
 
     // ⑤ 담당: 관리자 챌린지 신청 목록 조회
@@ -154,6 +175,33 @@ export class AdminController extends BaseController {
     try {
       const result = await this.#adminService.createChallenge(req.body, req.user.id);
       sendCreated(res, result, adminChallengeSchema);
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  // ① 담당 관리자 챌린지 수정·삭제
+  async updateChallenge(req, res, next) {
+    try {
+      const result = await this.#adminService.updateChallenge(
+        req.params.challengeId,
+        req.body,
+        req.user.id,
+      );
+      sendData(res, result, undefined, adminChallengeSchema);
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async deleteChallenge(req, res, next) {
+    try {
+      await this.#adminService.deleteChallenge(
+        req.params.challengeId,
+        req.body.reason,
+        req.user.id,
+      );
+      sendNoContent(res);
     } catch (error) {
       next(error);
     }
