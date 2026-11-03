@@ -204,6 +204,9 @@ export class AdminService {
     if (result === 'CAPACITY_CONFLICT') {
       throw new ConflictException('현재 활성 참여자 수보다 정원을 줄일 수 없습니다.');
     }
+    if (result !== 'UPDATED') {
+      throw new Error('알 수 없는 챌린지 수정 결과입니다.');
+    }
     return toAdminChallengeDto(await this.#adminRepository.findChallengeById(challengeId));
   }
 
@@ -211,5 +214,8 @@ export class AdminService {
     const result = await this.#adminRepository.deleteChallenge(challengeId, reason, adminId);
     if (result === 'NOT_FOUND') throw new NotFoundException('챌린지를 찾을 수 없습니다.');
     if (result === 'ALREADY_DELETED') throw new ConflictException('이미 삭제된 챌린지입니다.');
+    if (result !== 'DELETED') {
+      throw new Error('알 수 없는 챌린지 삭제 결과입니다.');
+    }
   }
 }
