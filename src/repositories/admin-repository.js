@@ -267,4 +267,75 @@ export class AdminRepository {
     const row = await this.#db.orm.public.Challenge.select('id').create(data);
     return this.findChallengeById(row.id);
   }
+
+  async updateChallenge(challengeId, changes, actorId) {
+    const id = Number(challengeId);
+    return this.#db.transaction(async (tx) => {
+      const current = await tx.orm.public.Challenge.where({ id })
+        .select('id', 'status', 'deletedAt')
+        .forUpdate()
+        .first();
+      if (!current) return 'NOT_FOUND';
+      if (current.deletedAt !== null || current.status !== 'IN_PROGRESS') {
+        return 'NOT_EDITABLE';
+      }
+      const participants = await tx.orm.public.ChallengeParticipant.where({
+        challengeId: id,
+        abandonedAt: null,
+      })
+        .select('userId')
+        .all();
+      if (changes.maxParticipants !== undefined && changes.maxParticipants < participants.length)
+        return 'CAPACITY_CONFLICT';
+
+      await tx.orm.public.Challenge.where({ id }).update(changes);
+      if (participants.length) {
+        await tx.orm.public.Notification.createAll(
+          participants.map((p) => ({
+            userId: p.userId,
+            actorId: Number(actorId),
+            type: 'CHALLENGE_UPDATED',
+            relatedChallengeId: id,
+          })),
+        );
+      }
+      return 'UPDATED';
+    });
+  }
+
+  // soft delete / reason 기록과 활성 참가자 통지 (포기자 제외, D-63)
+  async deleteChallenge(challengeId, reason, actorId) {
+    const id = Number(challengeId);
+    return this.#db.transaction(async (tx) => {
+      const current = await tx.orm.public.Challenge.where({ id })
+        .select('id', 'deletedAt', 'status')
+        .forUpdate()
+        .first();
+      if (!current || !['IN_PROGRESS', 'CLOSED'].includes(current.status)) return 'NOT_FOUND';
+      if (current.deletedAt !== null) return 'ALREADY_DELETED';
+      const participants = await tx.orm.public.ChallengeParticipant.where({
+        challengeId: id,
+        abandonedAt: null,
+      })
+        .select('userId')
+        .all();
+      await tx.orm.public.Challenge.where({ id }).update({
+        deletedAt: new Date(),
+        deleteReason: reason,
+        deletedById: Number(actorId),
+      });
+      if (participants.length) {
+        await tx.orm.public.Notification.createAll(
+          participants.map((p) => ({
+            userId: p.userId,
+            actorId: Number(actorId),
+            relatedChallengeId: id,
+            type: 'CHALLENGE_DELETED',
+            reason,
+          })),
+        );
+      }
+      return 'DELETED';
+    });
+  }
 }
