@@ -29,8 +29,8 @@
 //   STEP 2 · common/di/container.js 에 singleton(FeedbackRepository) 등록
 //   STEP 3 · 그 리포지토리를 쓰는 service 가 주입받게 연결
 //
+import { dbDateTimeToIso } from '#utils';
 export class FeedbackRepository {
-  // eslint-disable-next-line no-unused-private-class-members -- 골격 스텁이라 주입 필드를 아직 메서드에서 안 써요 (구현하면 지워도 돼요)
   #db;
 
   constructor({ db }) {
@@ -38,8 +38,139 @@ export class FeedbackRepository {
   }
 
   // ── 골격 (아래는 이 도메인에서 자주 쓰는 메서드 예요 — 필요한 것만 남기고 구현하세요) ──
-  // listFeedbacks(...) { /* TODO */ }
-  // createFeedback(...) { /* TODO */ }
-  // updateFeedback(...) { /* TODO */ }
-  // deleteFeedback(...) { /* TODO */ }
+  // 작업물 조회 (챌린지 ID 및 작성자 확인)
+  async findWorkById(workId) {
+    const work = await this.#db.orm.public.Work.where({
+      id: Number(workId),
+    })
+      .select('id')
+      .include('participant', (p) => p.select('challengeId', 'userId'))
+      .first();
+
+    if (!work || !work.participant) {
+      return null;
+    }
+
+    return {
+      id: work.id,
+      challengeId: work.participant.challengeId,
+      userId: work.participant.userId,
+    };
+  }
+
+  // 피드백 목록 조회 (커서 페이지네이션)
+  async listFeedbacks(workId, cursor, limit = 20) {
+    const size = Math.min(Math.max(Number(limit) || 20, 1), 100);
+
+    const where = {
+      workId: Number(workId),
+    };
+
+    // 커서가 있으면 해당 ID보다 이전 피드백 조회
+    if (cursor !== undefined && cursor !== null && cursor !== '') {
+      where.id = {
+        lt: Number(cursor),
+      };
+    }
+
+    const feedbacks = await this.#db.orm.public.Feedback.where(where)
+      .select('id', 'content', 'createdAt', 'updatedAt')
+      .include('user', (u) => u.select('id', 'nickname', 'grade'))
+      .orderBy((f) => f.id.desc())
+      .limit(size + 1)
+      .all();
+
+    const hasMore = feedbacks.length > size;
+    const rows = feedbacks.slice(0, size);
+
+    return {
+      items: rows.map((feedback) => this.#formatFeedback(feedback)),
+      cursor: hasMore ? String(rows[rows.length - 1].id) : null,
+      limit: size,
+      hasMore,
+    };
+  }
+
+  // 피드백 단건 조회 (수정·삭제 권한 및 마감 확인)
+  async findById(feedbackId) {
+    const feedback = await this.#db.orm.public.Feedback.where({
+      id: Number(feedbackId),
+    })
+      .select('id', 'userId', 'workId')
+      .include('work', (w) =>
+        w.include('participant', (p) =>
+          p.include('challenge', (c) => c.select('id', 'deadline', 'status')),
+        ),
+      )
+      .first();
+
+    if (!feedback || !feedback.work?.participant?.challenge) {
+      return null;
+    }
+
+    return {
+      id: feedback.id,
+      userId: feedback.userId,
+      workId: feedback.workId,
+      challengeId: feedback.work.participant.challenge.id,
+      deadline: feedback.work.participant.challenge.deadline,
+      status: feedback.work.participant.challenge.status,
+    };
+  }
+
+  // 피드백 생성
+  async createFeedback({ workId, userId, content }) {
+    const created = await this.#db.orm.public.Feedback.select('id').create({
+      workId: Number(workId),
+      userId: Number(userId),
+      content,
+    });
+
+    return this.#findFormattedById(created.id);
+  }
+
+  // 피드백 수정
+  async updateFeedback(feedbackId, content) {
+    await this.#db.orm.public.Feedback.where({
+      id: Number(feedbackId),
+    }).update({
+      content,
+    });
+
+    return this.#findFormattedById(feedbackId);
+  }
+
+  // 피드백 삭제
+  async deleteFeedback(feedbackId) {
+    await this.#db.orm.public.Feedback.where({
+      id: Number(feedbackId),
+    }).delete();
+  }
+
+  // 생성·수정 후 응답용 단건 조회
+  async #findFormattedById(feedbackId) {
+    const feedback = await this.#db.orm.public.Feedback.where({
+      id: Number(feedbackId),
+    })
+      .select('id', 'content', 'createdAt', 'updatedAt')
+      .include('user', (u) => u.select('id', 'nickname', 'grade'))
+      .first();
+
+    return feedback ? this.#formatFeedback(feedback) : null;
+  }
+
+  // 피드백 응답 형식 변환
+  #formatFeedback(feedback) {
+    return {
+      id: feedback.id,
+      content: feedback.content,
+      author: {
+        id: feedback.user.id,
+        nickname: feedback.user.nickname,
+        grade: feedback.user.grade,
+      },
+      createdAt: dbDateTimeToIso(feedback.createdAt).toISOString(),
+      updatedAt: dbDateTimeToIso(feedback.updatedAt).toISOString(),
+    };
+  }
 }
