@@ -91,7 +91,7 @@ export class FeedbackRepository {
 
     return {
       items: rows.map((feedback) => this.#formatFeedback(feedback)),
-      cursor: hasMore ? String(rows[rows.length - 1].id) : null,
+      cursor: hasMore ? String(rows.length - 1).id : null,
       limit: size,
       hasMore,
     };
