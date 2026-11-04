@@ -37,6 +37,12 @@ export class FeedbackRepository {
     this.#db = db;
   }
 
+  async runWithTransaction(callback) {
+    return this.#db.transaction(async (tx) => {
+      return callback(tx);
+    });
+  }
+
   // ── 골격 (아래는 이 도메인에서 자주 쓰는 메서드 예요 — 필요한 것만 남기고 구현하세요) ──
   // 작업물 조회 (챌린지 ID 및 작성자 확인)
   async findWorkById(workId) {
@@ -119,37 +125,37 @@ export class FeedbackRepository {
   }
 
   // 피드백 생성
-  async createFeedback({ workId, userId, content }) {
-    const created = await this.#db.orm.public.Feedback.select('id').create({
+  async createFeedback({ workId, userId, content }, tx = this.#db) {
+    const created = await tx.orm.public.Feedback.select('id').create({
       workId: Number(workId),
       userId: Number(userId),
       content,
     });
 
-    return this.#findFormattedById(created.id);
+    return this.#findFormattedById(created.id, tx);
   }
 
   // 피드백 수정
-  async updateFeedback(feedbackId, content) {
-    await this.#db.orm.public.Feedback.where({
+  async updateFeedback(feedbackId, content, tx = this.#db) {
+    await tx.orm.public.Feedback.where({
       id: Number(feedbackId),
     }).update({
       content,
     });
 
-    return this.#findFormattedById(feedbackId);
+    return this.#findFormattedById(feedbackId, tx);
   }
 
   // 피드백 삭제
-  async deleteFeedback(feedbackId) {
-    await this.#db.orm.public.Feedback.where({
+  async deleteFeedback(feedbackId, tx = this.#db) {
+    await tx.orm.public.Feedback.where({
       id: Number(feedbackId),
     }).delete();
   }
 
   // 생성·수정 후 응답용 단건 조회
-  async #findFormattedById(feedbackId) {
-    const feedback = await this.#db.orm.public.Feedback.where({
+  async #findFormattedById(feedbackId, tx = this.#db) {
+    const feedback = await tx.orm.public.Feedback.where({
       id: Number(feedbackId),
     })
       .select('id', 'content', 'createdAt', 'updatedAt')

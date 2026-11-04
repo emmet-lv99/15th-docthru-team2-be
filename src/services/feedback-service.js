@@ -52,26 +52,34 @@ export class FeedbackService {
       throw new NotFoundException(ERROR_MESSAGE.WORK_NOT_FOUND);
     }
 
-    const feedback = await this.#feedbackRepository.createFeedback({
-      workId: Number(workId),
-      userId: Number(userId),
-      content,
-    });
-
-    // 내 작업물에 새 피드백이 등록되면 작업물 작성자에게 알림
-    if (work.userId !== Number(userId)) {
-      await this.#notificationService.createNotifications([
+    return this.#feedbackRepository.runWithTransaction(async (tx) => {
+      const feedback = await this.#feedbackRepository.createFeedback(
         {
-          userId: work.userId,
-          type: 'FEEDBACK_ADDED',
-          actorId: Number(userId),
-          relatedChallengeId: work.challengeId,
-          relatedWorkId: Number(workId),
+          workId: Number(workId),
+          userId: Number(userId),
+          content,
         },
-      ]);
-    }
+        tx,
+      );
 
-    return feedback;
+      // 내 작업물에 새 피드백이 등록되면 작업물 작성자에게 알림
+      if (work.userId !== Number(userId)) {
+        await this.#notificationService.createNotifications(
+          [
+            {
+              userId: work.userId,
+              type: 'FEEDBACK_ADDED',
+              actorId: Number(userId),
+              relatedChallengeId: work.challengeId,
+              relatedWorkId: Number(workId),
+            },
+          ],
+          tx,
+        );
+      }
+
+      return feedback;
+    });
   }
 
   // 수정, 삭제 공통
@@ -117,43 +125,56 @@ export class FeedbackService {
   async updateFeedback({ feedbackId, content, user, reason }) {
     const { feedback, shouldNotify } = await this.#validateFeedbackAction(feedbackId, user, reason);
 
-    const updatedFeedback = await this.#feedbackRepository.updateFeedback(feedbackId, content);
+    return this.#feedbackRepository.runWithTransaction(async (tx) => {
+      const updatedFeedback = await this.#feedbackRepository.updateFeedback(
+        feedbackId,
+        content,
+        tx,
+      );
 
-    // 관리자가 다른 사람의 피드백을 수정한 경우 작성자에게 알림
-    if (shouldNotify) {
-      await this.#notificationService.createNotifications([
-        {
-          userId: feedback.userId,
-          type: 'FEEDBACK_UPDATED',
-          actorId: user.id,
-          relatedChallengeId: feedback.challengeId,
-          relatedWorkId: feedback.workId,
-          reason,
-        },
-      ]);
-    }
+      // 관리자가 다른 사람의 피드백을 수정한 경우 작성자에게 알림
+      if (shouldNotify) {
+        await this.#notificationService.createNotifications(
+          [
+            {
+              userId: feedback.userId,
+              type: 'FEEDBACK_UPDATED',
+              actorId: user.id,
+              relatedChallengeId: feedback.challengeId,
+              relatedWorkId: feedback.workId,
+              reason,
+            },
+          ],
+          tx,
+        );
+      }
 
-    return updatedFeedback;
+      return updatedFeedback;
+    });
   }
 
   // 피드백 삭제
   async deleteFeedback({ feedbackId, user, reason }) {
     const { feedback, shouldNotify } = await this.#validateFeedbackAction(feedbackId, user, reason);
+    await this.#feedbackRepository.runWithTransaction(async (tx) => {
+      await this.#feedbackRepository.deleteFeedback(feedbackId, tx);
 
-    await this.#feedbackRepository.deleteFeedback(feedbackId);
-
-    // 관리자가 다른 사람의 피드백을 삭제한 경우 작성자에게 알림
-    if (shouldNotify) {
-      await this.#notificationService.createNotifications([
-        {
-          userId: feedback.userId,
-          type: 'FEEDBACK_DELETED',
-          actorId: user.id,
-          relatedChallengeId: feedback.challengeId,
-          relatedWorkId: feedback.workId,
-          reason,
-        },
-      ]);
-    }
+      // 관리자가 다른 사람의 피드백을 삭제한 경우 작성자에게 알림
+      if (shouldNotify) {
+        await this.#notificationService.createNotifications(
+          [
+            {
+              userId: feedback.userId,
+              type: 'FEEDBACK_DELETED',
+              actorId: user.id,
+              relatedChallengeId: feedback.challengeId,
+              relatedWorkId: feedback.workId,
+              reason,
+            },
+          ],
+          tx,
+        );
+      }
+    });
   }
 }

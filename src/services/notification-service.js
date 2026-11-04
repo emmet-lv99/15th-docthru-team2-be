@@ -66,7 +66,7 @@ export class NotificationService {
   }
 
   // 알림 생성
-  async createNotifications(notifications) {
-    await this.#notificationRepository.createNotifications(notifications);
+  async createNotifications(notifications, tx) {
+    await this.#notificationRepository.createNotifications(notifications, tx);
   }
 }
