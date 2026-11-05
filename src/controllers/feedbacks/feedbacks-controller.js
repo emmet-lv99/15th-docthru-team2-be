@@ -54,15 +54,137 @@
 //  스키마는 "계약(약속) 파일"이고 — 응답이 이것과 다르면 개발 중 500 RESPONSE_CONTRACT_MISMATCH 로
 //  바로 알려줍니다. 실사용 중 구현이 계약을 어기는지 쉽게 확인할 수 있어요.
 //
+import { HTTP_STATUS } from '#constants';
 import { BaseController } from '#controllers/base-controller.js';
+import { needsLogin, validate } from '#middlewares';
+import { workIdParamSchema } from '#controllers/works/works.schema.js';
+import { cursorQuerySchema } from '#docs/common.js';
+import {
+  feedbackBodySchema,
+  feedbackDeleteBodySchema,
+  feedbackIdParamSchema,
+  feedbackUpdateBodySchema,
+} from './feedbacks.schema.js';
 
 export class FeedbacksController extends BaseController {
-  constructor() {
+  #feedbackService;
+  constructor({ feedbackService }) {
     super();
+    this.#feedbackService = feedbackService;
   }
 
   routes() {
-    // TODO: 라우트를 추가한다
+    // 피드백 목록 조회
+    this.router.get(
+      '/works/:workId/feedbacks',
+      validate('params', workIdParamSchema),
+      validate('query', cursorQuerySchema),
+      (req, res, next) => this.listFeedbacks(req, res, next),
+    );
+
+    // 피드백 작성
+    this.router.post(
+      '/works/:workId/feedbacks',
+      needsLogin,
+      validate('params', workIdParamSchema),
+      validate('body', feedbackBodySchema),
+      (req, res, next) => this.createFeedback(req, res, next),
+    );
+
+    // 피드백 수정
+    this.router.patch(
+      '/feedbacks/:feedbackId',
+      needsLogin,
+      validate('params', feedbackIdParamSchema),
+      validate('body', feedbackUpdateBodySchema),
+      (req, res, next) => this.updateFeedback(req, res, next),
+    );
+
+    // 피드백 삭제
+    this.router.delete(
+      '/feedbacks/:feedbackId',
+      needsLogin,
+      validate('params', feedbackIdParamSchema),
+      validate('body', feedbackDeleteBodySchema),
+      (req, res, next) => this.deleteFeedback(req, res, next),
+    );
+
     return this.router;
+  }
+
+  // 목록 조회
+  async listFeedbacks(req, res, next) {
+    try {
+      const { workId } = req.params;
+      const { cursor, limit } = req.query;
+
+      const result = await this.#feedbackService.listFeedbacks({
+        workId,
+        cursor,
+        limit,
+      });
+
+      res.status(HTTP_STATUS.OK).json(result);
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  // 생성
+  async createFeedback(req, res, next) {
+    try {
+      const { workId } = req.params;
+      const { content } = req.body;
+      const userId = req.user.id;
+
+      const feedback = await this.#feedbackService.createFeedback({
+        workId,
+        userId,
+        content,
+      });
+
+      res.status(HTTP_STATUS.CREATED).json(feedback);
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  // 수정
+  async updateFeedback(req, res, next) {
+    try {
+      const { feedbackId } = req.params;
+      const { content, reason } = req.body;
+      const user = req.user;
+
+      const feedback = await this.#feedbackService.updateFeedback({
+        feedbackId,
+        content,
+        reason,
+        user,
+      });
+
+      res.status(HTTP_STATUS.OK).json(feedback);
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  // 삭제
+  async deleteFeedback(req, res, next) {
+    try {
+      const { feedbackId } = req.params;
+      const { reason } = req.body ?? {};
+      const user = req.user;
+
+      await this.#feedbackService.deleteFeedback({
+        feedbackId,
+        reason,
+        user,
+      });
+
+      res.status(HTTP_STATUS.NO_CONTENT).send();
+    } catch (error) {
+      next(error);
+    }
   }
 }
