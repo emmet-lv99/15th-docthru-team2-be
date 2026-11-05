@@ -129,8 +129,10 @@ export class NotificationRepository {
   }
 
   // 알림 다중 생성 createNotifications
-  createNotifications(notifications) {
-    return this.#db.orm.public.Notification.createAll(notifications, { onConflict: 'skip' });
+  createNotifications(notifications, tx = this.#db) {
+    return tx.orm.public.Notification.createAll(notifications, {
+      onConflict: 'skip',
+    });
   }
 
   // 챌린지 마감 알림 createDeadlineAlerts
