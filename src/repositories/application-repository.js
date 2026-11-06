@@ -48,11 +48,9 @@ export class ApplicationRepository {
 
     if (!status || status === 'ALL') {
       applicationQuery = applicationQuery.where((c) => c.status.notIn(['CANCELLED']));
-    }
-
-    // 사용자가 선택한 상태에 따라 조건을 추가한다.
-    if (status === 'APPROVED') {
+    } else if (status === 'APPROVED') {
       applicationQuery = applicationQuery.where((c) => c.status.in(['IN_PROGRESS', 'CLOSED']));
+      applicationQuery = applicationQuery.where((c) => c.deletedAt.isNull());
     } else if (status && status !== 'ALL') {
       applicationQuery = applicationQuery.where({ status });
     }
@@ -69,7 +67,6 @@ export class ApplicationRepository {
 
     // 2.현재 페이지에 표시할 신청서 목록만 가져온다
     const applications = await applicationQuery
-
       .orderBy(
         sort === 'deadline'
           ? [(c) => c.deadline.asc(), (c) => c.id.desc()]
