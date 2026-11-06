@@ -11,3 +11,4 @@ export { ApplicationService } from './application-service.js';
 export { ChallengeService } from './challenge-service.js';
 export { NotificationService } from './notification-service.js';
 export { AdminService } from './admin-service.js';
+export { FeedbackService } from './feedback-service.js';

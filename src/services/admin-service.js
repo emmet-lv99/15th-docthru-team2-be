@@ -16,7 +16,14 @@
 //
 // ★ 만들었으면 — services/index.js 에 export 한 줄 + common/di/container.js 에 singleton(AdminService) 등록.
 //
-import { ForbiddenException, NotFoundException, ConflictException } from '#exceptions';
+import {
+  BadRequestException,
+  ForbiddenException,
+  NotFoundException,
+  ConflictException,
+  HttpException,
+} from '#exceptions';
+import { ERROR_CODE, ERROR_MESSAGE, HTTP_STATUS } from '#constants';
 import { dbDateTimeToIso } from '#utils';
 
 // ⑤ 담당: DB챌린지 상태를 신청 상태로 변환
@@ -234,5 +241,39 @@ export class AdminService {
       status: 'IN_PROGRESS',
     });
     return toAdminChallengeDto(row);
+  }
+
+  async updateChallenge(challengeId, changes, adminId) {
+    if (Object.keys(changes).length === 0) {
+      throw new BadRequestException('수정할 항목을 입력해주세요.');
+    }
+    const result = await this.#adminRepository.updateChallenge(challengeId, changes, adminId);
+    if (result === 'NOT_FOUND') throw new NotFoundException('챌린지를 찾을 수 없습니다.');
+    if (result === 'NOT_EDITABLE')
+      throw new ConflictException('진행 중인 챌린지만 수정할 수 있습니다.');
+    if (result === 'CAPACITY_CONFLICT') {
+      throw new ConflictException('현재 활성 참여자 수보다 정원을 줄일 수 없습니다.');
+    }
+    if (result !== 'UPDATED') {
+      throw new HttpException(
+        HTTP_STATUS.INTERNAL_SERVER_ERROR,
+        ERROR_CODE.INTERNAL_SERVER_ERROR,
+        ERROR_MESSAGE.INTERNAL_SERVER_ERROR,
+      );
+    }
+    return toAdminChallengeDto(await this.#adminRepository.findChallengeById(challengeId));
+  }
+
+  async deleteChallenge(challengeId, reason, adminId) {
+    const result = await this.#adminRepository.deleteChallenge(challengeId, reason, adminId);
+    if (result === 'NOT_FOUND') throw new NotFoundException('챌린지를 찾을 수 없습니다.');
+    if (result === 'ALREADY_DELETED') throw new ConflictException('이미 삭제된 챌린지입니다.');
+    if (result !== 'DELETED') {
+      throw new HttpException(
+        HTTP_STATUS.INTERNAL_SERVER_ERROR,
+        ERROR_CODE.INTERNAL_SERVER_ERROR,
+        ERROR_MESSAGE.INTERNAL_SERVER_ERROR,
+      );
+    }
   }
 }
