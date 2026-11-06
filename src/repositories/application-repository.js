@@ -40,17 +40,20 @@ export class ApplicationRepository {
   async listMyApplications(userId, query) {
     const { q, status, sort, page = 1, size = 10 } = query ?? {};
 
-    // 기본 조건: 본인이 제출한 신청서 조회
     const conditions = {
       createdById: userId,
     };
 
     let applicationQuery = this.#db.orm.public.Challenge.where(conditions);
 
+    if (!status || status === 'ALL') {
+      applicationQuery = applicationQuery.where((c) => c.status.notIn(['CANCELLED']));
+    }
+
     // 사용자가 선택한 상태에 따라 조건을 추가한다.
     if (status === 'APPROVED') {
       applicationQuery = applicationQuery.where((c) => c.status.in(['IN_PROGRESS', 'CLOSED']));
-    } else if (status) {
+    } else if (status && status !== 'ALL') {
       applicationQuery = applicationQuery.where({ status });
     }
 
