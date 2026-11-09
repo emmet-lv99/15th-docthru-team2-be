@@ -27,7 +27,7 @@
 //
 // ★ 만들었으면 — services/index.js 의 export 는 이미 있고, common/di/container.js 에도 이미 등록돼 있어요.
 //
-/* eslint-disable no-unused-private-class-members -- 골격 스텁이라 주입 필드를 아직 메서드에서 안 써요 (구현하면 지워도 돼요) */
+
 export class GoogleAuthService {
   #userRepository;
   #tokenProvider;
@@ -36,14 +36,10 @@ export class GoogleAuthService {
   #redirectUri;
   #fetch;
 
-  constructor({
-    userRepository,
-    tokenProvider,
-    googleClientId,
-    googleClientSecret,
-    googleRedirectUri,
-    fetchFn,
-  }) {
+  constructor(
+    { userRepository, tokenProvider, googleClientId, googleClientSecret, googleRedirectUri },
+    { fetchFn = globalThis.fetch } = {},
+  ) {
     this.#userRepository = userRepository;
     this.#tokenProvider = tokenProvider;
     this.#clientId = googleClientId;
@@ -58,9 +54,83 @@ export class GoogleAuthService {
   //    돌려주는 모양: { id, email, emailVerified, name }
   //    💡 공급자(구글) 사정을 아는 유일한 자리라, 카카오를 붙이면 getKakaoProfile 을 따로 만들어요.
   // getGoogleProfile({ code, codeVerifier }) { /* TODO: 토큰 교환 → 프로필 조회 */ }
+  async getGoogleProfile({ code, codeVerifier }) {
+    const tokenResponse = await this.#fetch('https://oauth2.googleapis.com/token', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      body: new URLSearchParams({
+        code,
+        client_id: this.#clientId,
+        client_secret: this.#clientSecret,
+        redirect_uri: this.#redirectUri,
+        grant_type: 'authorization_code',
+        code_verifier: codeVerifier,
+      }),
+    });
+
+    if (!tokenResponse.ok) {
+      const errorBody = await tokenResponse.text();
+      throw new Error(`Google 토큰 교환 실패 (${tokenResponse.status}): ${errorBody}`);
+    }
+
+    const tokenData = await tokenResponse.json();
+    const accessToken = tokenData.access_token;
+
+    const profileResponse = await this.#fetch('https://www.googleapis.com/oauth2/v2/userinfo', {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+    });
+
+    if (!profileResponse.ok) {
+      const errorBody = await profileResponse.text();
+      throw new Error(`Google 프로필 조회 실패 (${profileResponse.status}): ${errorBody}`);
+    }
+
+    const profileData = await profileResponse.json();
+
+    return {
+      id: String(profileData.id),
+      email: profileData.email,
+      emailVerified: Boolean(profileData.verified_email),
+      name: profileData.name || profileData.email?.split('@')[0] || '구글사용자',
+    };
+  }
 
   // [로그인 창구] — 공급자와 무관한 공통 단계예요 (계정 찾기/연결/생성 → 우리 토큰 발급).
   //    입력이 code 가 아니라 profile 이라서, 공급자가 늘어도 이 메서드는 그대로 써요.
   //    provider 는 지금 'google' 하나예요 (계정을 어느 공급자로 연결했는지 DB 에 남길 때 써요).
   // loginOrSignUp({ provider, profile }) { /* TODO: 계정 찾기/연결 → 우리 토큰 발급 */ }
+  async loginOrSignUp({ provider = 'google', profile }) {
+    let user = await this.#userRepository.findUserByOAuthAccount(provider, profile.id);
+
+    if (!user) {
+      const existingUser = await this.#userRepository.findByEmail(profile.email);
+
+      if (existingUser) {
+        user = await this.#userRepository.linkOAuthAccount({
+          userId: existingUser.id,
+          provider,
+          providerAccountId: profile.id,
+        });
+      } else {
+        let candidateNickname = profile.name;
+        const isTaken = await this.#userRepository.findByNickname(candidateNickname);
+        if (isTaken) {
+          candidateNickname = `${profile.name}_${Math.random().toString(36).slice(2, 6)}`;
+        }
+
+        user = await this.#userRepository.createWithOAuthAccount({
+          email: profile.email,
+          nickname: candidateNickname,
+          provider,
+          providerAccountId: profile.id,
+        });
+      }
+    }
+    const tokens = this.#tokenProvider.generateTokens(user);
+    return { user, tokens };
+  }
 }
