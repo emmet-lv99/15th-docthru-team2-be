@@ -60,6 +60,7 @@ export class GoogleAuthService {
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
       },
+      signal: AbortSignal.timeout(5000),
       body: new URLSearchParams({
         code,
         client_id: this.#clientId,
@@ -82,6 +83,7 @@ export class GoogleAuthService {
       headers: {
         Authorization: `Bearer ${accessToken}`,
       },
+      signal: AbortSignal.timeout(5000),
     });
 
     if (!profileResponse.ok) {
