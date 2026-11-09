@@ -56,14 +56,127 @@
 //
 // 아래 골격은 구현 전 안내예요 — routes() 를 채우면 돼요
 import { BaseController } from '#controllers/base-controller.js';
+import { BadRequestException } from '#exceptions';
+import { validate } from '#middlewares';
+import { googleCallbackQuerySchema, googleStartQuerySchema } from './dto/google-dto.js';
 
 export class GoogleAuthController extends BaseController {
-  constructor() {
+  #googleAuthService;
+  #oauthStateProvider;
+  #cookieProvider;
+  #googleClientId;
+  #googleClientSecret;
+  #googleRedirectUri;
+  #clientBaseUrl;
+
+  constructor({
+    googleAuthService,
+    oauthStateProvider,
+    cookieProvider,
+    googleClientId,
+    googleClientSecret,
+    googleRedirectUri,
+    clientBaseUrl,
+  }) {
     super();
+    this.#googleAuthService = googleAuthService;
+    this.#oauthStateProvider = oauthStateProvider;
+    this.#cookieProvider = cookieProvider;
+    this.#googleClientId = googleClientId;
+    this.#googleClientSecret = googleClientSecret;
+    this.#googleRedirectUri = googleRedirectUri;
+    this.#clientBaseUrl = clientBaseUrl;
+  }
+
+  start(req, res) {
+    // 1. 자격 증명이 없는 경우 안내 (400 Bad Request)
+    if (!this.#googleClientId || !this.#googleClientSecret) {
+      throw new BadRequestException('Google OAuth 자격 증명이 설정되지 않았습니다.');
+    }
+
+    // 2. State 및 PKCE 생성 (next: 로그인 후 돌아갈 프론트 경로)
+    const { state, transactionNonce, codeVerifier, codeChallenge } =
+      this.#oauthStateProvider.createState({ next: req.query.next });
+
+    // 3. 브라우저에 대조용 거래 쿠키 저장 (콜백에서 꺼내어 검증함)
+    this.#cookieProvider.setOAuthTransactionCookies(res, {
+      transactionNonce,
+      codeVerifier,
+    });
+
+    // 4. Google OAuth 로그인 동의 화면 URL 구성
+    const authUrl = new URL('https://accounts.google.com/o/oauth2/v2/auth');
+    authUrl.searchParams.set('client_id', this.#googleClientId);
+    authUrl.searchParams.set('redirect_uri', this.#googleRedirectUri);
+    authUrl.searchParams.set('response_type', 'code');
+    authUrl.searchParams.set('scope', 'openid email profile');
+    authUrl.searchParams.set('state', state);
+    authUrl.searchParams.set('code_challenge', codeChallenge);
+    authUrl.searchParams.set('code_challenge_method', 'S256');
+
+    // 5. 사용자를 구글 로그인 화면으로 302 리다이렉트
+    res.redirect(302, authUrl.toString());
+  }
+
+  async callback(req, res) {
+    // 1. 사용자가 구글 동의를 취소했거나 구글 측 오류가 발생한 경우
+    if (req.query.error) {
+      throw new BadRequestException(
+        `Google 로그인 취소 또는 오류: ${req.query.error_description || req.query.error}`,
+      );
+    }
+
+    // 2. 브라우저 쿠키에서 검증용 값 꺼내기
+    const transactionNonce = this.#cookieProvider.getOAuthTransactionNonce(req);
+    const codeVerifier = this.#cookieProvider.getOAuthCodeVerifier(req);
+
+    // 3. State 및 PKCE 무결성/유효성 검증
+    const transaction = this.#oauthStateProvider.verifyState({
+      state: req.query.state,
+      transactionNonce,
+      codeVerifier,
+    });
+
+    if (!transaction) {
+      throw new BadRequestException('유효하지 않거나 만료된 Google 인증 요청입니다.');
+    }
+
+    // 4. 구글과 토큰 교환 및 프로필 조회
+    const profile = await this.#googleAuthService.getGoogleProfile({
+      code: req.query.code,
+      codeVerifier,
+    });
+
+    // 5. DB 계정 연동 / 회원가입 및 자체 JWT 토큰 발급
+    const { tokens } = await this.#googleAuthService.loginOrSignUp({
+      provider: 'GOOGLE',
+      profile,
+    });
+
+    // 6. 브라우저에 우리 서비스 세션 쿠키(accessToken, refreshToken) 세팅
+    this.#cookieProvider.setAuthTokens(res, tokens);
+
+    // 7. 사용자가 원래 가고자 했던 프론트엔드 경로(next)로 302 리다이렉트
+    const destination = new URL(transaction.next, this.#clientBaseUrl).toString();
+    res.redirect(302, destination);
   }
 
   routes() {
-    // TODO: 위 ① 대로 /google · /google/callback 라우트를 붙여요
+    this.router.get('/google', validate('query', googleStartQuerySchema), (req, res, next) =>
+      this.start(req, res, next),
+    );
+
+    this.router.get(
+      '/google/callback',
+      (req, res, next) => {
+        // 일회용 방어: 콜백 진입 즉시 거래 쿠키를 삭제하여 재사용을 차단해요.
+        this.#cookieProvider.clearOAuthTransactionCookies(res);
+        next();
+      },
+      validate('query', googleCallbackQuerySchema),
+      (req, res, next) => this.callback(req, res, next),
+    );
+
     return this.router;
   }
 }
