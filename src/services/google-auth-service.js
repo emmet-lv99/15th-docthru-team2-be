@@ -103,7 +103,7 @@ export class GoogleAuthService {
   //    입력이 code 가 아니라 profile 이라서, 공급자가 늘어도 이 메서드는 그대로 써요.
   //    provider 는 지금 'google' 하나예요 (계정을 어느 공급자로 연결했는지 DB 에 남길 때 써요).
   // loginOrSignUp({ provider, profile }) { /* TODO: 계정 찾기/연결 → 우리 토큰 발급 */ }
-  async loginOrSignUp({ provider = 'google', profile }) {
+  async loginOrSignUp({ provider = 'GOOGLE', profile }) {
     let user = await this.#userRepository.findUserByOAuthAccount(provider, profile.id);
 
     if (!user) {

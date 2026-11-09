@@ -149,7 +149,7 @@ export class GoogleAuthController extends BaseController {
 
     // 5. DB 계정 연동 / 회원가입 및 자체 JWT 토큰 발급
     const { tokens } = await this.#googleAuthService.loginOrSignUp({
-      provider: 'google',
+      provider: 'GOOGLE',
       profile,
     });
 
