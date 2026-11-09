@@ -45,21 +45,11 @@ export class CookieProvider {
   // ── Google OAuth 거래 쿠키 ─────────────────────────────────
   // state 의 nonce · PKCE verifier 는 URL 에 싣지 않고 httpOnly 쿠키로만 오가요.
   //   → 콜백에서 "브라우저가 맞는지"를 대조할 수 있어요.
+  //   ⚠️ path 를 특정 서브경로로 좁히면 cross-site 리다이렉트 시 브라우저가 쿠키를 누락하는
+  //      문제가 발생하므로 path='/' 로 발급하고, 콜백 진입 즉시 삭제합니다.
   setOAuthTransactionCookies(res, { transactionNonce, codeVerifier }) {
-    this.#set(
-      res,
-      'oauthTransactionNonce',
-      transactionNonce,
-      OAUTH_TRANSACTION_TTL_SECONDS,
-      this.#oauthCallbackPath,
-    );
-    this.#set(
-      res,
-      'oauthCodeVerifier',
-      codeVerifier,
-      OAUTH_TRANSACTION_TTL_SECONDS,
-      this.#oauthCallbackPath,
-    );
+    this.#set(res, 'oauthTransactionNonce', transactionNonce, OAUTH_TRANSACTION_TTL_SECONDS, '/');
+    this.#set(res, 'oauthCodeVerifier', codeVerifier, OAUTH_TRANSACTION_TTL_SECONDS, '/');
   }
 
   getOAuthTransactionNonce(req) {
@@ -72,8 +62,12 @@ export class CookieProvider {
 
   // 콜백에 들어오자마자 지워요 — 한 번 쓴 state/PKCE 는 재사용할 수 없게요.
   clearOAuthTransactionCookies(res) {
-    res.clearCookie('oauthTransactionNonce', { path: this.#oauthCallbackPath });
-    res.clearCookie('oauthCodeVerifier', { path: this.#oauthCallbackPath });
+    res.clearCookie('oauthTransactionNonce', { path: '/' });
+    res.clearCookie('oauthCodeVerifier', { path: '/' });
+    if (this.#oauthCallbackPath && this.#oauthCallbackPath !== '/') {
+      res.clearCookie('oauthTransactionNonce', { path: this.#oauthCallbackPath });
+      res.clearCookie('oauthCodeVerifier', { path: this.#oauthCallbackPath });
+    }
   }
 
   /**
