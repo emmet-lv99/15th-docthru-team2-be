@@ -51,7 +51,14 @@ export class CookieProvider {
   //      운영(HTTPS)에서는 SameSite=None; Secure 가 필수예요. (로컬은 HTTP이므로 Lax 유지)
   setOAuthTransactionCookies(res, { transactionNonce, codeVerifier }) {
     const sameSite = this.#isProduction ? 'none' : 'lax';
-    this.#set(res, 'oauthTransactionNonce', transactionNonce, OAUTH_TRANSACTION_TTL_SECONDS, '/', sameSite);
+    this.#set(
+      res,
+      'oauthTransactionNonce',
+      transactionNonce,
+      OAUTH_TRANSACTION_TTL_SECONDS,
+      '/',
+      sameSite,
+    );
     this.#set(res, 'oauthCodeVerifier', codeVerifier, OAUTH_TRANSACTION_TTL_SECONDS, '/', sameSite);
   }
 
