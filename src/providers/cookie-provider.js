@@ -47,9 +47,12 @@ export class CookieProvider {
   //   → 콜백에서 "브라우저가 맞는지"를 대조할 수 있어요.
   //   ⚠️ path 를 특정 서브경로로 좁히면 cross-site 리다이렉트 시 브라우저가 쿠키를 누락하는
   //      문제가 발생하므로 path='/' 로 발급하고, 콜백 진입 즉시 삭제합니다.
+  //   ⚠️ 구글(외부 사이트)에서 돌아오는 Cross-Site 리다이렉트 시 크롬이 쿠키를 실어 보내려면
+  //      운영(HTTPS)에서는 SameSite=None; Secure 가 필수예요. (로컬은 HTTP이므로 Lax 유지)
   setOAuthTransactionCookies(res, { transactionNonce, codeVerifier }) {
-    this.#set(res, 'oauthTransactionNonce', transactionNonce, OAUTH_TRANSACTION_TTL_SECONDS, '/');
-    this.#set(res, 'oauthCodeVerifier', codeVerifier, OAUTH_TRANSACTION_TTL_SECONDS, '/');
+    const sameSite = this.#isProduction ? 'none' : 'lax';
+    this.#set(res, 'oauthTransactionNonce', transactionNonce, OAUTH_TRANSACTION_TTL_SECONDS, '/', sameSite);
+    this.#set(res, 'oauthCodeVerifier', codeVerifier, OAUTH_TRANSACTION_TTL_SECONDS, '/', sameSite);
   }
 
   getOAuthTransactionNonce(req) {
@@ -62,11 +65,17 @@ export class CookieProvider {
 
   // 콜백에 들어오자마자 지워요 — 한 번 쓴 state/PKCE 는 재사용할 수 없게요.
   clearOAuthTransactionCookies(res) {
-    res.clearCookie('oauthTransactionNonce', { path: '/' });
-    res.clearCookie('oauthCodeVerifier', { path: '/' });
+    const sameSite = this.#isProduction ? 'none' : 'lax';
+    const clearOptions = {
+      path: '/',
+      sameSite,
+      secure: this.#isProduction,
+    };
+    res.clearCookie('oauthTransactionNonce', clearOptions);
+    res.clearCookie('oauthCodeVerifier', clearOptions);
     if (this.#oauthCallbackPath && this.#oauthCallbackPath !== '/') {
-      res.clearCookie('oauthTransactionNonce', { path: this.#oauthCallbackPath });
-      res.clearCookie('oauthCodeVerifier', { path: this.#oauthCallbackPath });
+      res.clearCookie('oauthTransactionNonce', { ...clearOptions, path: this.#oauthCallbackPath });
+      res.clearCookie('oauthCodeVerifier', { ...clearOptions, path: this.#oauthCallbackPath });
     }
   }
 
@@ -79,11 +88,10 @@ export class CookieProvider {
    *    expires 는 정상 동작한다. 브라우저는 Max-Age 와 expires 중 하나만 있어도 되므로
    *    동일 시각을 expires 로 넘겨 Max-Age=0 때문에 쿠키가 즉시 죽는 일을 막는다.
    */
-  #set(res, name, value, ttlSeconds, path = '/') {
+  #set(res, name, value, ttlSeconds, path = '/', sameSite = 'lax') {
     res.cookie(name, value, {
       httpOnly: true,
-      // sameSite=lax: 동일 사이트 서브도메인(교차 사이트 POST 아님)에서 쿠키가 붙는다
-      sameSite: 'lax',
+      sameSite,
       secure: this.#isProduction,
       expires: new Date(Date.now() + ttlSeconds * 1000),
       path,
