@@ -68,6 +68,8 @@ function toAdminApplicationDto(challenge) {
           title: challenge.title,
           deadline: toIsoDate(challenge.deadline),
           status: challenge.status,
+          deletedAt: toIsoDate(challenge.deletedAt),
+          deleteReason: challenge.deleteReason ?? null,
         }
       : null,
     createdAt: toIsoDate(challenge.createdAt),
