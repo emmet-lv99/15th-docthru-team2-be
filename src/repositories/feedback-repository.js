@@ -68,18 +68,16 @@ export class FeedbackRepository {
   async listFeedbacks(workId, cursor, limit = 20) {
     const size = Math.min(Math.max(Number(limit) || 20, 1), 100);
 
-    const where = {
+    let query = this.#db.orm.public.Feedback.where({
       workId: Number(workId),
-    };
+    });
 
     // 커서가 있으면 해당 ID보다 이전 피드백 조회
     if (cursor !== undefined && cursor !== null && cursor !== '') {
-      where.id = {
-        lt: Number(cursor),
-      };
+      query = query.where((f) => f.id.lt(Number(cursor)));
     }
 
-    const feedbacks = await this.#db.orm.public.Feedback.where(where)
+    const feedbacks = await query
       .select('id', 'content', 'createdAt', 'updatedAt')
       .include('user', (u) => u.select('id', 'nickname', 'grade'))
       .orderBy((f) => f.id.desc())
