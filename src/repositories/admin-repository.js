@@ -71,8 +71,8 @@ export class AdminRepository {
     const pageSize = Number(size);
     const offset = (pageNumber - 1) * pageSize;
 
-    // 1.소프트 삭제되지 않은 신청서를 대상으로 검색 조건 구성
-    let applicationQuery = this.#db.orm.public.Challenge.where((c) => c.deletedAt.isNull());
+    // 삭제된 챌린지도 신청 이력에 포함한다.
+    let applicationQuery = this.#db.orm.public.Challenge;
 
     if (status === 'APPROVED') {
       applicationQuery = applicationQuery.where((c) => c.status.in(['IN_PROGRESS', 'CLOSED']));
@@ -120,6 +120,8 @@ export class AdminRepository {
           'decidedAt',
           'cancelledAt',
           'createdAt',
+          'deletedAt',
+          'deleteReason',
         )
         .include('createdBy', (u) => u.select('id', 'nickname', 'email'))
         .all();
@@ -168,7 +170,6 @@ export class AdminRepository {
     return this.#db.orm.public.Challenge.where({
       id: Number(applicationId),
     })
-      .where((c) => c.deletedAt.isNull())
       .select(
         'id',
         'title',
@@ -183,6 +184,8 @@ export class AdminRepository {
         'decidedAt',
         'cancelledAt',
         'createdAt',
+        'deletedAt',
+        'deleteReason',
       )
       .include('createdBy', (u) => u.select('id', 'nickname', 'email'))
       .first();
