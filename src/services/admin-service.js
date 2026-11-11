@@ -167,7 +167,17 @@ export class AdminService {
     // 5. 승인된 신청서 다시 조회
     const approved = await this.#adminRepository.getApplication(applicationId);
 
-    // 6. API 명세에 맞춰 승인 결과 반환
+    // 6. 신청자에게 승인 알림 생성
+    await this.#notificationService.createNotifications([
+      {
+        userId: application.createdBy.id,
+        type: 'CHALLENGE_APPROVED',
+        actorId: adminId,
+        dedupeKey: `CHALLENGE_APPROVED:${approved.id}`,
+      },
+    ]);
+
+    // 7. API 명세에 맞춰 승인 결과 반환
     return {
       applicationId: approved.id,
       status: 'APPROVED',
