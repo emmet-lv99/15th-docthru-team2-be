@@ -172,6 +172,7 @@ export class AdminService {
       {
         userId: application.createdBy.id,
         type: 'CHALLENGE_APPROVED',
+        relatedChallengeId: approved.id,
         actorId: adminId,
         dedupeKey: `CHALLENGE_APPROVED:${approved.id}`,
       },
